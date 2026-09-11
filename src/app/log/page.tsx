@@ -1,12 +1,20 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppHeader, Button, Card, Loading } from "@/components/ui";
 import { ValueInput } from "@/components/value-input";
 import { categoryEmoji, formatValue } from "@/lib/entryTypes";
 import { useStore } from "@/lib/store";
 import type { EntryValueData } from "@/lib/types";
+
+// Format a Date as the local "YYYY-MM-DDTHH:mm" a datetime-local input expects.
+function toLocalInputValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
+    d.getMinutes()
+  )}`;
+}
 
 export default function LogEntryPage() {
   return (
@@ -23,6 +31,11 @@ function LogEntryInner() {
 
   const [values, setValues] = useState<Record<string, EntryValueData>>({});
   const [saved, setSaved] = useState(false);
+  // Defaults to "now"; set after mount to avoid an SSR/CSR hydration mismatch.
+  const [when, setWhen] = useState("");
+  useEffect(() => {
+    setWhen(toLocalInputValue(new Date()));
+  }, []);
 
   const factors = useMemo(() => (ready ? factorsFor(id) : []), [ready, factorsFor, id]);
   const recent = useMemo(
@@ -47,7 +60,8 @@ function LogEntryInner() {
       })
       .map((f) => ({ factorId: f.id, value: values[f.id] }));
     if (entryValues.length === 0) return;
-    addEntry(id, entryValues);
+    const loggedAt = when ? new Date(when).toISOString() : new Date().toISOString();
+    addEntry(id, entryValues, loggedAt);
     setSaved(true);
     setTimeout(() => router.push(`/insights?sense=${id}`), 700);
   };
@@ -60,6 +74,29 @@ function LogEntryInner() {
         <p className="mb-4 text-sm text-muted">
           Tap any factor and log it — in any order. Fill what you can and save whenever.
         </p>
+
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface px-3 py-2.5">
+          <label htmlFor="logged-at" className="text-sm font-medium text-ink">
+            Logged at
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              id="logged-at"
+              type="datetime-local"
+              value={when}
+              max={when ? toLocalInputValue(new Date()) : undefined}
+              onChange={(e) => setWhen(e.target.value)}
+              className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-accent"
+            />
+            <button
+              type="button"
+              onClick={() => setWhen(toLocalInputValue(new Date()))}
+              className="rounded-lg px-2 py-1 text-xs font-medium text-muted transition hover:bg-raised hover:text-ink"
+            >
+              Now
+            </button>
+          </div>
+        </div>
 
         <div className="space-y-3">
           {factors.map((f) => {
