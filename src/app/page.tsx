@@ -95,7 +95,14 @@ function FeaturedCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="bg-accent-soft/60 px-5 py-4">
+      <div className="relative bg-accent-soft/60 px-5 py-4">
+        <Link
+          href={`/sense/settings?sense=${sense.id}`}
+          aria-label="Manage Sense"
+          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-accent-ink/70 transition hover:bg-white/30 hover:text-accent-ink"
+        >
+          ⚙
+        </Link>
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Active Sense
         </div>
@@ -142,6 +149,13 @@ function CompactCard({
             {factorCount} factors · {entryCount} entries
           </p>
         </div>
+        <Link
+          href={`/sense/settings?sense=${sense.id}`}
+          aria-label="Manage Sense"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-faint transition hover:bg-raised hover:text-ink"
+        >
+          ⚙
+        </Link>
       </div>
       <div className="mt-3 flex gap-2">
         <LinkButton href={`/log?sense=${sense.id}`} variant="soft" className="flex-1">

@@ -181,6 +181,14 @@ interface StoreValue {
   }) => string;
   addEntry: (senseId: string, values: EntryValue[], loggedAt?: string) => void;
   archiveSense: (senseId: string) => void;
+  deleteSense: (senseId: string) => void;
+  updateFactor: (
+    factorId: string,
+    patch: Partial<Pick<SenseFactor, "label" | "category" | "entryType" | "config">>
+  ) => void;
+  setTargetFactor: (senseId: string, factorId: string) => void;
+  deleteFactor: (factorId: string) => void;
+  addFactorToSense: (senseId: string, input: NewFactorInput) => void;
   resetDemo: () => void;
   signInWithEmail: (email: string) => Promise<AuthResult>;
   signInWithGoogle: () => Promise<AuthResult>;
@@ -397,6 +405,91 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             .eq("id", senseId)
             .then(logError("archiveSense"));
         }
+      },
+
+      deleteSense: (senseId) => {
+        const next = {
+          ...db,
+          senses: db.senses.filter((s) => s.id !== senseId),
+          factors: db.factors.filter((f) => f.senseId !== senseId),
+          entries: db.entries.filter((e) => e.senseId !== senseId),
+        };
+        setDb(next);
+        persist(next);
+        // FK on delete cascade removes factors/entries/entry_values in Postgres.
+        if (supabase) supabase.from("senses").delete().eq("id", senseId).then(logError("deleteSense"));
+      },
+
+      updateFactor: (factorId, patch) => {
+        const next = {
+          ...db,
+          factors: db.factors.map((f) => (f.id === factorId ? { ...f, ...patch } : f)),
+        };
+        setDb(next);
+        persist(next);
+        if (supabase) {
+          const row: Row = {};
+          if (patch.label !== undefined) row.label = patch.label;
+          if (patch.category !== undefined) row.category = patch.category;
+          if (patch.entryType !== undefined) row.entry_type = patch.entryType;
+          if (patch.config !== undefined) row.config = patch.config;
+          supabase.from("factors").update(row).eq("id", factorId).then(logError("updateFactor"));
+        }
+      },
+
+      setTargetFactor: (senseId, factorId) => {
+        const next = {
+          ...db,
+          factors: db.factors.map((f) =>
+            f.senseId === senseId ? { ...f, isTarget: f.id === factorId } : f
+          ),
+        };
+        setDb(next);
+        persist(next);
+        if (supabase) {
+          (async () => {
+            logError("setTarget/off")(
+              await supabase.from("factors").update({ is_target: false }).eq("sense_id", senseId)
+            );
+            logError("setTarget/on")(
+              await supabase.from("factors").update({ is_target: true }).eq("id", factorId)
+            );
+          })();
+        }
+      },
+
+      deleteFactor: (factorId) => {
+        const next = {
+          ...db,
+          factors: db.factors.filter((f) => f.id !== factorId),
+          entries: db.entries.map((e) => ({
+            ...e,
+            values: e.values.filter((v) => v.factorId !== factorId),
+          })),
+        };
+        setDb(next);
+        persist(next);
+        if (supabase) supabase.from("factors").delete().eq("id", factorId).then(logError("deleteFactor"));
+      },
+
+      addFactorToSense: (senseId, input) => {
+        const maxSort = db.factors
+          .filter((f) => f.senseId === senseId)
+          .reduce((m, f) => Math.max(m, f.sortOrder), -1);
+        const factor: SenseFactor = {
+          id: uid(),
+          senseId,
+          label: input.label,
+          category: input.category,
+          entryType: input.entryType,
+          config: input.config,
+          sortOrder: maxSort + 1,
+          isTarget: false,
+        };
+        const next = { ...db, factors: [...db.factors, factor] };
+        setDb(next);
+        persist(next);
+        if (supabase) supabase.from("factors").insert(factorToRow(factor)).then(logError("addFactor"));
       },
 
       resetDemo: () => {

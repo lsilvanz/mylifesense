@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AppHeader, Button, Card } from "@/components/ui";
+import { Integrations } from "@/components/integrations";
 import { useStore } from "@/lib/store";
 
 export default function AboutPage() {
@@ -119,6 +120,8 @@ export default function AboutPage() {
           )}
         </Card>
       )}
+
+      <Integrations />
 
       <Card className="mt-4 p-5">
         <p className="text-sm font-semibold text-ink">Prototype data</p>

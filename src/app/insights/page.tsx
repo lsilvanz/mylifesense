@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 import { AppHeader, Card, LinkButton, Loading } from "@/components/ui";
@@ -67,7 +68,19 @@ function InsightsInner() {
 
   return (
     <main className="px-4 pb-24">
-      <AppHeader title={`Insights · ${sense.title}`} back="/" />
+      <AppHeader
+        title={`Insights · ${sense.title}`}
+        back="/"
+        right={
+          <Link
+            href={`/sense/settings?sense=${id}`}
+            aria-label="Manage Sense"
+            className="grid h-9 w-9 place-items-center rounded-full text-muted transition hover:bg-raised hover:text-ink"
+          >
+            ⚙
+          </Link>
+        }
+      />
 
       {/* Headline narrative */}
       <Card className="mt-4 overflow-hidden">
