@@ -10,6 +10,8 @@ export const supabaseEnabled = Boolean(url && anon);
 
 export const supabase: SupabaseClient | null = supabaseEnabled
   ? createClient(url as string, anon as string, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+      // detectSessionInUrl: true so magic-link / OAuth redirects establish the
+      // session on return and then clean the tokens out of the URL.
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     })
   : null;

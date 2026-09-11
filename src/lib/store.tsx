@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { buildSeed, DB_VERSION } from "./seed";
 import { supabase, supabaseEnabled } from "./supabase";
 import type { DB, Entry, EntryValue, Frequency, Sense, SenseFactor } from "./types";
@@ -12,11 +13,15 @@ const STORAGE_KEY = "mypatterns.db.v1";
 //   - Supabase (Postgres + RLS) when NEXT_PUBLIC_SUPABASE_* is configured
 //   - localStorage otherwise (zero-config local dev / offline demo)
 // Components read synchronously from an in-memory cache (`db`); the Supabase
-// backend hydrates that cache on mount and writes through on every mutation.
+// backend hydrates that cache on mount + on every auth change, and writes
+// through on every mutation.
+//
+// Auth: users start as a Supabase anonymous account. Signing in with email or
+// Google LINKS that anonymous account to a permanent one, so the guest's data
+// (same user id) carries over instead of being lost.
 // ---------------------------------------------------------------------------
 
 function uid(): string {
-  // Real UUIDs so the same ids are valid as Postgres primary keys.
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
@@ -88,8 +93,8 @@ const factorToRow = (f: SenseFactor): Row => ({
   is_target: f.isTarget ?? false,
 });
 
-// Remap the seeded demo (which uses friendly string ids) onto fresh UUIDs so it
-// can be inserted into Postgres while preserving every relationship.
+// Remap the seeded demo (friendly string ids) onto fresh UUIDs so it can be
+// inserted into Postgres while preserving every relationship.
 function remapSeed(seed: DB): DB {
   const map = new Map<string, string>();
   const rid = (old: string) => {
@@ -129,6 +134,24 @@ async function insertSeed(db: DB) {
   if (values.length) await supabase.from("entry_values").insert(values);
 }
 
+// ---- auth helpers ---------------------------------------------------------
+export interface AuthUser {
+  id: string;
+  email: string | null;
+  isAnonymous: boolean;
+}
+
+function sessionToUser(session: Session | null): AuthUser | null {
+  const u = session?.user;
+  if (!u) return null;
+  return { id: u.id, email: u.email ?? null, isAnonymous: Boolean(u.is_anonymous) };
+}
+
+export interface AuthResult {
+  ok: boolean;
+  message: string;
+}
+
 interface NewFactorInput {
   label: string;
   category: SenseFactor["category"];
@@ -141,6 +164,7 @@ interface StoreValue {
   ready: boolean;
   usingSupabase: boolean;
   initError: string | null;
+  user: AuthUser | null;
   senses: Sense[];
   factorsFor: (senseId: string) => SenseFactor[];
   entriesFor: (senseId: string) => Entry[];
@@ -154,6 +178,9 @@ interface StoreValue {
   addEntry: (senseId: string, values: EntryValue[], loggedAt?: string) => void;
   archiveSense: (senseId: string) => void;
   resetDemo: () => void;
+  signInWithEmail: (email: string) => Promise<AuthResult>;
+  signInWithGoogle: () => Promise<AuthResult>;
+  signOut: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -164,51 +191,69 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [db, setDb] = useState<DB>(EMPTY_DB);
   const [ready, setReady] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const currentUserId = useRef<string | null>(null);
 
-  // Hydrate the in-memory cache from whichever backend is active.
+  // Load every row the current user can see (RLS scopes to them automatically).
+  const hydrateData = useCallback(async () => {
+    if (!supabase) return;
+    const [senses, factors, entries] = await Promise.all([
+      supabase.from("senses").select("*"),
+      supabase.from("factors").select("*"),
+      supabase.from("entries").select("*, entry_values(factor_id, value)"),
+    ]);
+    const firstError = senses.error || factors.error || entries.error;
+    if (firstError) throw new Error(firstError.message);
+    setDb({
+      version: DB_VERSION,
+      senses: (senses.data ?? []).map(mapSense),
+      factors: (factors.data ?? []).map(mapFactor),
+      entries: (entries.data ?? []).map(mapEntry),
+    });
+  }, []);
+
   useEffect(() => {
+    if (!supabaseEnabled || !supabase) {
+      setDb(loadLocal());
+      setReady(true);
+      return;
+    }
     let cancelled = false;
 
-    async function hydrateSupabase() {
-      if (!supabase) return;
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        const { error } = await supabase.auth.signInAnonymously();
-        if (error) throw new Error(`Anonymous sign-in failed: ${error.message}`);
+    // React to every auth transition: hydrate when the identity changes.
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      const newId = session?.user?.id ?? null;
+      setUser(sessionToUser(session));
+      if (newId && newId !== currentUserId.current) {
+        currentUserId.current = newId;
+        hydrateData()
+          .catch((e) => setInitError(e instanceof Error ? e.message : "Failed to load data"))
+          .finally(() => {
+            if (!cancelled) setReady(true);
+          });
       }
-      const [senses, factors, entries] = await Promise.all([
-        supabase.from("senses").select("*"),
-        supabase.from("factors").select("*"),
-        supabase.from("entries").select("*, entry_values(factor_id, value)"),
-      ]);
-      const firstError = senses.error || factors.error || entries.error;
-      if (firstError) throw new Error(firstError.message);
-      if (cancelled) return;
-      setDb({
-        version: DB_VERSION,
-        senses: (senses.data ?? []).map(mapSense),
-        factors: (factors.data ?? []).map(mapFactor),
-        entries: (entries.data ?? []).map(mapEntry),
-      });
-    }
+    });
 
+    // Ensure a session exists; the listener above does the hydration.
     (async () => {
       try {
-        if (supabaseEnabled) await hydrateSupabase();
-        else setDb(loadLocal());
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          const { error } = await supabase.auth.signInAnonymously();
+          if (error) throw new Error(`Anonymous sign-in failed: ${error.message}`);
+        }
       } catch (e) {
-        setInitError(e instanceof Error ? e.message : "Failed to load data");
-      } finally {
+        setInitError(e instanceof Error ? e.message : "Failed to sign in");
         if (!cancelled) setReady(true);
       }
     })();
 
     return () => {
       cancelled = true;
+      sub.subscription.unsubscribe();
     };
-  }, []);
+  }, [hydrateData]);
 
-  // Local-only persistence mirror.
   const persist = useCallback((next: DB) => {
     if (!supabaseEnabled) persistLocal(next);
   }, []);
@@ -225,10 +270,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (res?.error) console.error(`[MyLifeSense] ${label}:`, res.error.message);
     };
 
+    const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+
     return {
       ready,
       usingSupabase: supabaseEnabled,
       initError,
+      user,
       senses: db.senses.filter((s) => !s.archivedAt),
       factorsFor,
       entriesFor,
@@ -263,18 +311,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         persist(next);
         if (supabase) {
           (async () => {
-            const s = await supabase
-              .from("senses")
-              .insert({
+            logError("createSense/sense")(
+              await supabase.from("senses").insert({
                 id: sense.id,
                 title,
                 question,
                 frequency,
                 created_at: sense.createdAt,
-              });
-            logError("createSense/sense")(s);
-            const fr = await supabase.from("factors").insert(newFactors.map(factorToRow));
-            logError("createSense/factors")(fr);
+              })
+            );
+            logError("createSense/factors")(
+              await supabase.from("factors").insert(newFactors.map(factorToRow))
+            );
           })();
         }
         return senseId;
@@ -292,15 +340,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         persist(next);
         if (supabase) {
           (async () => {
-            const e = await supabase
-              .from("entries")
-              .insert({ id: entry.id, sense_id: senseId, logged_at: entry.loggedAt });
-            logError("addEntry/entry")(e);
+            logError("addEntry/entry")(
+              await supabase
+                .from("entries")
+                .insert({ id: entry.id, sense_id: senseId, logged_at: entry.loggedAt })
+            );
             if (values.length) {
-              const ev = await supabase
-                .from("entry_values")
-                .insert(values.map((v) => ({ entry_id: entry.id, factor_id: v.factorId, value: v.value })));
-              logError("addEntry/values")(ev);
+              logError("addEntry/values")(
+                await supabase
+                  .from("entry_values")
+                  .insert(
+                    values.map((v) => ({ entry_id: entry.id, factor_id: v.factorId, value: v.value }))
+                  )
+              );
             }
           })();
         }
@@ -327,8 +379,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       resetDemo: () => {
         if (supabase) {
           (async () => {
-            const del = await supabase.from("senses").delete().not("id", "is", null);
-            logError("resetDemo/delete")(del);
+            logError("resetDemo/delete")(
+              await supabase.from("senses").delete().not("id", "is", null)
+            );
             const seed = remapSeed(buildSeed());
             await insertSeed(seed);
             setDb(seed);
@@ -339,8 +392,56 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           persistLocal(seed);
         }
       },
+
+      // ---- auth actions -----------------------------------------------------
+      signInWithEmail: async (raw) => {
+        if (!supabase) return { ok: false, message: "Auth is only available with Supabase configured." };
+        const email = raw.trim();
+        if (!email) return { ok: false, message: "Enter an email address." };
+        const { data } = await supabase.auth.getUser();
+        // Anonymous user -> link the email (keeps their data). Falls back to a
+        // plain magic link if that email already belongs to an account.
+        if (data.user?.is_anonymous) {
+          const linked = await supabase.auth.updateUser({ email });
+          if (!linked.error) {
+            return { ok: true, message: `Confirmation link sent to ${email}. Open it to finish and keep your data.` };
+          }
+          const otp = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: origin } });
+          return otp.error
+            ? { ok: false, message: otp.error.message }
+            : { ok: true, message: `Magic link sent to ${email}.` };
+        }
+        const otp = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: origin } });
+        return otp.error
+          ? { ok: false, message: otp.error.message }
+          : { ok: true, message: `Magic link sent to ${email}.` };
+      },
+
+      signInWithGoogle: async () => {
+        if (!supabase) return { ok: false, message: "Auth is only available with Supabase configured." };
+        const { data } = await supabase.auth.getUser();
+        const options = { redirectTo: origin };
+        if (data.user?.is_anonymous) {
+          const linked = await supabase.auth.linkIdentity({ provider: "google", options });
+          if (!linked.error) return { ok: true, message: "Redirecting to Google…" };
+          // Manual linking may be disabled; fall back to a normal OAuth sign-in.
+          const oauth = await supabase.auth.signInWithOAuth({ provider: "google", options });
+          return oauth.error ? { ok: false, message: oauth.error.message } : { ok: true, message: "Redirecting to Google…" };
+        }
+        const oauth = await supabase.auth.signInWithOAuth({ provider: "google", options });
+        return oauth.error ? { ok: false, message: oauth.error.message } : { ok: true, message: "Redirecting to Google…" };
+      },
+
+      signOut: async () => {
+        if (!supabase) return;
+        await supabase.auth.signOut();
+        currentUserId.current = null;
+        setDb(EMPTY_DB);
+        // Return to a fresh guest session so the app stays usable.
+        await supabase.auth.signInAnonymously();
+      },
     };
-  }, [db, ready, initError, persist]);
+  }, [db, ready, initError, user, persist]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
