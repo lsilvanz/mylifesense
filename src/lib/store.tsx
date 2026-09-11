@@ -160,11 +160,15 @@ interface NewFactorInput {
   isTarget?: boolean;
 }
 
+const GUEST_KEY = "mylifesense.guest";
+
 interface StoreValue {
   ready: boolean;
   usingSupabase: boolean;
   initError: string | null;
   user: AuthUser | null;
+  guest: boolean;
+  continueAsGuest: () => void;
   senses: Sense[];
   factorsFor: (senseId: string) => SenseFactor[];
   entriesFor: (senseId: string) => Entry[];
@@ -192,7 +196,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [guest, setGuest] = useState(false);
   const currentUserId = useRef<string | null>(null);
+
+  // Remember a visitor's choice to skip the sign-in gate.
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(GUEST_KEY) === "1") setGuest(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   // Load every row the current user can see (RLS scopes to them automatically).
   const hydrateData = useCallback(async () => {
@@ -277,6 +291,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       usingSupabase: supabaseEnabled,
       initError,
       user,
+      guest,
+      continueAsGuest: () => {
+        setGuest(true);
+        try {
+          window.localStorage.setItem(GUEST_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+      },
       senses: db.senses.filter((s) => !s.archivedAt),
       factorsFor,
       entriesFor,
@@ -434,6 +457,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
       signOut: async () => {
         if (!supabase) return;
+        // Clear the guest-skip so the sign-in gate returns after signing out.
+        setGuest(false);
+        try {
+          window.localStorage.removeItem(GUEST_KEY);
+        } catch {
+          /* ignore */
+        }
         await supabase.auth.signOut();
         currentUserId.current = null;
         setDb(EMPTY_DB);
@@ -441,7 +471,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         await supabase.auth.signInAnonymously();
       },
     };
-  }, [db, ready, initError, user, persist]);
+  }, [db, ready, initError, user, guest, persist]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
