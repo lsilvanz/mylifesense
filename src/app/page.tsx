@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useStore } from "@/lib/store";
-import { Card, LinkButton, Loading, Wordmark, EmptyState } from "@/components/ui";
+import { Button, Card, LinkButton, Loading, Wordmark, EmptyState } from "@/components/ui";
 import { categoryEmoji } from "@/lib/entryTypes";
 import type { Sense } from "@/lib/types";
 
@@ -13,7 +13,7 @@ const FREQUENCY_LABEL: Record<string, string> = {
 };
 
 export default function HomePage() {
-  const { ready, senses, factorsFor, entriesFor } = useStore();
+  const { ready, senses, factorsFor, entriesFor, resetDemo, initError } = useStore();
   if (!ready) return <Loading />;
 
   const [featured, ...rest] = senses;
@@ -34,12 +34,24 @@ export default function HomePage() {
         Track the things you want to understand about yourself — and let the patterns surface.
       </p>
 
+      {initError && (
+        <div className="mb-4 rounded-xl border border-negative/40 bg-negative/10 px-4 py-3 text-sm text-negative">
+          Couldn&apos;t reach the database: {initError}. Check that the schema is applied and
+          anonymous sign-ins are enabled.
+        </div>
+      )}
+
       {senses.length === 0 ? (
-        <EmptyState
-          emoji="🔍"
-          title="No Senses yet"
-          body="A Sense is something you want to understand. Create your first one to start."
-        />
+        <div className="space-y-3">
+          <EmptyState
+            emoji="🔍"
+            title="No Senses yet"
+            body="A Sense is something you want to understand. Create your first one to start."
+          />
+          <Button variant="outline" className="w-full" onClick={resetDemo}>
+            Load demo data
+          </Button>
+        </div>
       ) : (
         <div className="space-y-4">
           {featured && (

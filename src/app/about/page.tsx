@@ -5,7 +5,7 @@ import { AppHeader, Button, Card } from "@/components/ui";
 import { useStore } from "@/lib/store";
 
 export default function AboutPage() {
-  const { resetDemo, senses } = useStore();
+  const { resetDemo, senses, usingSupabase } = useStore();
   const [done, setDone] = useState(false);
 
   return (
@@ -19,7 +19,10 @@ export default function AboutPage() {
           </div>
           <div>
             <p className="text-lg font-bold text-ink">You</p>
-            <p className="text-sm text-muted">{senses.length} active Senses</p>
+            <p className="text-sm text-muted">
+              {senses.length} active Senses ·{" "}
+              {usingSupabase ? "synced to Supabase" : "stored on this device"}
+            </p>
           </div>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted">
@@ -31,8 +34,9 @@ export default function AboutPage() {
       <Card className="mt-4 p-5">
         <p className="text-sm font-semibold text-ink">Prototype data</p>
         <p className="mt-1 text-sm text-muted">
-          All data lives in this browser (localStorage). Reset to restore the seeded demo Senses
-          with their sample history.
+          {usingSupabase
+            ? "Your data is stored in Supabase under an anonymous account tied to this browser. Reset replaces it with the seeded demo Senses."
+            : "All data lives in this browser (localStorage). Reset to restore the seeded demo Senses with their sample history."}
         </p>
         <Button
           variant="outline"
