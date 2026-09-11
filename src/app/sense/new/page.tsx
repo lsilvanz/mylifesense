@@ -96,7 +96,7 @@ export default function NewSensePage() {
             : {},
       })),
     });
-    router.push(`/sense/${id}/log`);
+    router.push(`/log?sense=${id}`);
   };
 
   return (

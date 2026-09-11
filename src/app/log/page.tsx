@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { AppHeader, Button, Card, Loading } from "@/components/ui";
 import { ValueInput } from "@/components/value-input";
 import { categoryEmoji, formatValue } from "@/lib/entryTypes";
@@ -9,7 +9,15 @@ import { useStore } from "@/lib/store";
 import type { EntryValueData } from "@/lib/types";
 
 export default function LogEntryPage() {
-  const { id } = useParams<{ id: string }>();
+  return (
+    <Suspense fallback={<Loading />}>
+      <LogEntryInner />
+    </Suspense>
+  );
+}
+
+function LogEntryInner() {
+  const id = useSearchParams().get("sense") ?? "";
   const router = useRouter();
   const { ready, getSense, factorsFor, entriesFor, addEntry } = useStore();
 
@@ -41,7 +49,7 @@ export default function LogEntryPage() {
     if (entryValues.length === 0) return;
     addEntry(id, entryValues);
     setSaved(true);
-    setTimeout(() => router.push(`/sense/${id}/insights`), 700);
+    setTimeout(() => router.push(`/insights?sense=${id}`), 700);
   };
 
   return (

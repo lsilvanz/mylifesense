@@ -3,7 +3,7 @@ import "./globals.css";
 import { StoreProvider } from "@/lib/store";
 
 export const metadata: Metadata = {
-  title: "MyPatterns",
+  title: "MyLifeSense",
   description: "Understand what drives the patterns in your life.",
 };
 

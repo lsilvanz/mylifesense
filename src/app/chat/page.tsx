@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { AppHeader, Loading, Pill } from "@/components/ui";
 import { MIN_SAMPLE_SIZE, computeCorrelations, targetEntryCount } from "@/lib/stats";
 import { SUGGESTED_QUESTIONS, answerQuestion, type StatsSummary } from "@/lib/narrative";
@@ -13,7 +13,15 @@ interface Msg {
 }
 
 export default function ChatPage() {
-  const { id } = useParams<{ id: string }>();
+  return (
+    <Suspense fallback={<Loading />}>
+      <ChatInner />
+    </Suspense>
+  );
+}
+
+function ChatInner() {
+  const id = useSearchParams().get("sense") ?? "";
   const { ready, getSense, factorsFor, entriesFor } = useStore();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");

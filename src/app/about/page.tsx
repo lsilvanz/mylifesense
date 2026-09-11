@@ -48,7 +48,7 @@ export default function AboutPage() {
       </Card>
 
       <p className="mt-6 px-1 text-xs leading-relaxed text-faint">
-        MyPatterns prototype · Phase 1 core loop + client-side Insights. Chat and correlations are
+        MyLifeSense prototype · Phase 1 core loop + client-side Insights. Chat and correlations are
         gated at {""}
         <strong>15 entries</strong> to avoid reporting noise as signal.
       </p>

@@ -1,4 +1,4 @@
-# MyPatterns — local prototype
+# MyLifeSense — prototype
 
 A self-tracking app: define a **Sense** (something you want to understand about
 yourself), give it **Sense Factors** (the variables you think matter, with one of
@@ -8,14 +8,23 @@ and a narrative.
 Built per `MyPatterns-Technical-Brief.md`. This is **Phase 1 (core loop)** plus a
 real client-side **Insights** stats layer with honest sample-size gating.
 
-## Run
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3100. It ships seeded with a rich **Chest Pain** demo Sense
+Open http://localhost:3100.
+
+## Deploy (Cloudflare Pages)
+
+Pure client-side app (localStorage, no backend), exported as a static site:
+
+```bash
+npm run build        # -> ./out
+npx wrangler pages deploy out --project-name mylifesense
+``` It ships seeded with a rich **Chest Pain** demo Sense
 (26 entries, real correlations) and a sparse **Lack of Concentration** Sense that
 demonstrates the "not enough data yet" gating.
 

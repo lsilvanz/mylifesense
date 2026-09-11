@@ -1,4 +1,4 @@
-// Core data model for MyPatterns.
+// Core data model for MyLifeSense.
 // Mirrors the technical brief (section 2). Factors belong to a Sense (not a
 // global library); EntryValue.value is polymorphic and stored loosely so new
 // entry types never require a schema migration.

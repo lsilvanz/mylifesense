@@ -130,7 +130,7 @@ export function Wordmark() {
         ◵
       </span>
       <span className="text-xl font-extrabold tracking-tight">
-        My<span className="text-accent">Patterns</span>
+        My<span className="text-accent">LifeSense</span>
       </span>
     </div>
   );

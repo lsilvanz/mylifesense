@@ -97,13 +97,13 @@ function FeaturedCard({
         {targetLabel && <span>Tracking: {targetLabel}</span>}
       </div>
       <div className="grid grid-cols-3 gap-2 p-4 pt-3">
-        <LinkButton href={`/sense/${sense.id}/log`} variant="primary">
+        <LinkButton href={`/log?sense=${sense.id}`} variant="primary">
           Log
         </LinkButton>
-        <LinkButton href={`/sense/${sense.id}/insights`} variant="soft">
+        <LinkButton href={`/insights?sense=${sense.id}`} variant="soft">
           Insights
         </LinkButton>
-        <LinkButton href={`/sense/${sense.id}/chat`} variant="outline">
+        <LinkButton href={`/chat?sense=${sense.id}`} variant="outline">
           Chat
         </LinkButton>
       </div>
@@ -132,13 +132,13 @@ function CompactCard({
         </div>
       </div>
       <div className="mt-3 flex gap-2">
-        <LinkButton href={`/sense/${sense.id}/log`} variant="soft" className="flex-1">
+        <LinkButton href={`/log?sense=${sense.id}`} variant="soft" className="flex-1">
           Log
         </LinkButton>
-        <LinkButton href={`/sense/${sense.id}/insights`} variant="ghost">
+        <LinkButton href={`/insights?sense=${sense.id}`} variant="ghost">
           Insights
         </LinkButton>
-        <LinkButton href={`/sense/${sense.id}/chat`} variant="ghost">
+        <LinkButton href={`/chat?sense=${sense.id}`} variant="ghost">
           Chat
         </LinkButton>
       </div>

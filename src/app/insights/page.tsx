@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo } from "react";
 import { AppHeader, Card, LinkButton, Loading } from "@/components/ui";
 import { CorrelationBars } from "@/components/correlation-bars";
 import { TrendChart } from "@/components/trend-chart";
@@ -15,8 +15,15 @@ import { headlineNarrative } from "@/lib/narrative";
 import { useStore } from "@/lib/store";
 
 export default function InsightsPage() {
-  const { id } = useParams<{ id: string }>();
-  const router = useRouter();
+  return (
+    <Suspense fallback={<Loading />}>
+      <InsightsInner />
+    </Suspense>
+  );
+}
+
+function InsightsInner() {
+  const id = useSearchParams().get("sense") ?? "";
   const { ready, getSense, factorsFor, entriesFor } = useStore();
 
   const model = useMemo(() => {
@@ -119,10 +126,10 @@ export default function InsightsPage() {
       )}
 
       <div className="mt-6 flex gap-3">
-        <LinkButton href={`/sense/${id}/log`} variant="soft" className="flex-1">
+        <LinkButton href={`/log?sense=${id}`} variant="soft" className="flex-1">
           Log an entry
         </LinkButton>
-        <LinkButton href={`/sense/${id}/chat`} variant="outline" className="flex-1">
+        <LinkButton href={`/chat?sense=${id}`} variant="outline" className="flex-1">
           Ask a question
         </LinkButton>
       </div>
