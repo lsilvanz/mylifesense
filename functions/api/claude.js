@@ -22,6 +22,19 @@ Rules:
   severe or persistent symptoms.
 - Be concise: 2-4 sentences for a narrative; a direct, friendly answer for a chat question.`;
 
+const FACTOR_SYSTEM = `You help design a "Sense" in a self-tracking app — something a person wants to understand about themselves. Given the Sense's title and question, propose candidate factors to track.
+
+Return ONLY valid JSON (no markdown fences, no prose) shaped exactly as:
+{"factors":[{"label":"Short name","category":"Symptoms|Food|Exercise|Sleep|Environment|Mood|Custom","entryType":"yes_no|scale_0_10|low_med_high|number|free_text|list","controllable":true,"isTarget":false,"goalDirection":"minimize","unit":"cups","options":["A","B"]}]}
+
+Rules:
+- Suggest 4 to 6 factors.
+- EXACTLY ONE factor has "isTarget":true — the thing being measured/understood, derived from the question. Give the target a "goalDirection" ("minimize" if lower is better like pain, "maximize" if higher is better like focus). Non-target factors omit goalDirection.
+- Include factors that plausibly influence or relate to the target. Skip any already-chosen factors listed by the user.
+- Prefer quantifiable entry types (yes_no, scale_0_10, low_med_high, number). Use "number" with a "unit" for counts/amounts. "unit" only for number; "options" only for list.
+- "controllable":true for behaviours the person can change (exercise, food, sleep habits, screen time); false for context they can't directly change (weather, symptoms, external stress).
+- Keep labels to 2-4 words. Return only the JSON object.`;
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -44,23 +57,36 @@ export async function onRequestPost(context) {
     return json({ error: "bad_request" }, 400);
   }
 
-  const { mode, summary, question } = body || {};
-  if (!summary) return json({ error: "missing_summary" }, 400);
+  const { mode, summary, question, title, sense_question, existing } = body || {};
 
-  const userText =
-    mode === "chat"
-      ? `Data summary:\n${JSON.stringify(summary)}\n\nThe user asks: ${JSON.stringify(
-          String(question || "")
-        )}\nAnswer them directly.`
-      : `Data summary:\n${JSON.stringify(
-          summary
-        )}\n\nWrite a short, encouraging headline insight (2-3 sentences) that highlights the most important, actionable pattern.`;
+  let system = SYSTEM;
+  let userText;
+  let maxTokens = 700;
+
+  if (mode === "suggest_factors") {
+    if (!title) return json({ error: "missing_title" }, 400);
+    system = FACTOR_SYSTEM;
+    maxTokens = 900;
+    userText = `Sense title: ${title}\nQuestion: ${sense_question || ""}\nAlready chosen factors: ${
+      Array.isArray(existing) && existing.length ? existing.join(", ") : "none"
+    }\nSuggest factors as JSON.`;
+  } else {
+    if (!summary) return json({ error: "missing_summary" }, 400);
+    userText =
+      mode === "chat"
+        ? `Data summary:\n${JSON.stringify(summary)}\n\nThe user asks: ${JSON.stringify(
+            String(question || "")
+          )}\nAnswer them directly.`
+        : `Data summary:\n${JSON.stringify(
+            summary
+          )}\n\nWrite a short, encouraging headline insight (2-3 sentences) that highlights the most important, actionable pattern.`;
+  }
 
   const model = env.ANTHROPIC_MODEL || "claude-opus-5";
   const base = {
     model,
-    max_tokens: 700,
-    system: SYSTEM,
+    max_tokens: maxTokens,
+    system,
     messages: [{ role: "user", content: userText }],
   };
 

@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppHeader, Button, Card, Pill } from "@/components/ui";
 import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/entryTypes";
+import { suggestFactors } from "@/lib/ai";
 import { useStore } from "@/lib/store";
-import type { EntryType, FactorCategory, Frequency } from "@/lib/types";
+import type { EntryType, FactorCategory, FactorConfig, Frequency } from "@/lib/types";
 
 interface DraftFactor {
   key: string;
@@ -17,6 +18,7 @@ interface DraftFactor {
   provider: string; // for integration
   metric: string;
   isTarget: boolean;
+  controllable?: boolean;
 }
 
 const SUGGESTED: { label: string; category: FactorCategory; entryType: EntryType }[] = [
@@ -41,6 +43,8 @@ export default function NewSensePage() {
   const [frequency, setFrequency] = useState<Frequency>("daily");
   const [factors, setFactors] = useState<DraftFactor[]>([]);
   const [goalDir, setGoalDir] = useState<"minimize" | "maximize">("minimize");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiMsg, setAiMsg] = useState<string | null>(null);
 
   const addFactor = (seed?: Partial<DraftFactor>) => {
     setFactors((prev) => [
@@ -73,6 +77,45 @@ export default function NewSensePage() {
   const setTarget = (key: string) =>
     setFactors((prev) => prev.map((f) => ({ ...f, isTarget: f.key === key })));
 
+  const suggestWithAI = async () => {
+    setAiBusy(true);
+    setAiMsg(null);
+    const existing = factors.map((f) => f.label).filter(Boolean);
+    const suggestions = await suggestFactors(title.trim(), question.trim(), existing);
+    if (!suggestions) {
+      setAiMsg("AI suggestions aren't available on this deployment (or nothing came back).");
+      setAiBusy(false);
+      return;
+    }
+    setFactors((prev) => {
+      const have = new Set(prev.map((f) => f.label.trim().toLowerCase()));
+      const alreadyHasTarget = prev.some((f) => f.isTarget);
+      const additions: DraftFactor[] = [];
+      for (const s of suggestions) {
+        if (have.has(s.label.toLowerCase())) continue;
+        have.add(s.label.toLowerCase());
+        const makeTarget = s.isTarget === true && !alreadyHasTarget && additions.every((a) => !a.isTarget);
+        if (makeTarget && s.goalDirection) setGoalDir(s.goalDirection);
+        additions.push({
+          key: nextKey(),
+          label: s.label,
+          category: s.category,
+          entryType: s.entryType,
+          options: s.options?.join(", ") ?? "",
+          unit: s.unit ?? "",
+          provider: "fitbit",
+          metric: "steps",
+          isTarget: makeTarget,
+          controllable: s.controllable,
+        });
+      }
+      const combined = [...prev, ...additions];
+      if (combined.length && !combined.some((f) => f.isTarget)) combined[0].isTarget = true;
+      return combined;
+    });
+    setAiBusy(false);
+  };
+
   const canStep1 = title.trim().length > 0 && question.trim().length > 0;
   const namedFactors = factors.filter((f) => f.label.trim().length > 0);
   const canStep2 = namedFactors.length >= 2 && namedFactors.some((f) => f.isTarget);
@@ -91,12 +134,15 @@ export default function NewSensePage() {
             : f.entryType === "integration"
             ? { provider: f.provider.trim(), metric: f.metric.trim() }
             : {};
+        const config: FactorConfig = { ...base };
+        if (f.isTarget) config.goalDirection = goalDir;
+        if (typeof f.controllable === "boolean") config.controllable = f.controllable;
         return {
           label: f.label.trim(),
           category: f.category,
           entryType: f.entryType,
           isTarget: f.isTarget,
-          config: f.isTarget ? { ...base, goalDirection: goalDir } : base,
+          config,
         };
       }),
     });
@@ -140,9 +186,27 @@ export default function NewSensePage() {
               you want to explain.
             </p>
 
+            <Card className="overflow-hidden">
+              <div className="relative overflow-hidden bg-accent-soft px-4 py-3.5">
+                <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-gradient-accent opacity-25 blur-2xl" />
+                <div className="relative flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-ink">✦ Let Claude suggest factors</p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      Based on your question, get a tailored starting set to tweak.
+                    </p>
+                  </div>
+                  <Button className="shrink-0" disabled={aiBusy || !title.trim()} onClick={suggestWithAI}>
+                    {aiBusy ? "Thinking…" : "Suggest"}
+                  </Button>
+                </div>
+              </div>
+              {aiMsg && <p className="px-4 py-2 text-xs text-negative">{aiMsg}</p>}
+            </Card>
+
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-faint">
-                Suggestions
+                Quick suggestions
               </p>
               <div className="flex flex-wrap gap-2">
                 {SUGGESTED.map((s) => (

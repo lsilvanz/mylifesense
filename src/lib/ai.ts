@@ -1,4 +1,5 @@
 import type { Analysis } from "./insights";
+import type { EntryType, FactorCategory } from "./types";
 
 // Compact, privacy-preserving summary sent to the serverless Claude endpoint —
 // only computed statistics, never raw entries.
@@ -55,4 +56,96 @@ export function askClaudeChat(a: Analysis, question: string) {
 
 export function askClaudeNarrative(a: Analysis) {
   return callClaude("narrative", a);
+}
+
+// ---- AI factor suggestions ------------------------------------------------
+export interface SuggestedFactor {
+  label: string;
+  category: FactorCategory;
+  entryType: EntryType;
+  controllable?: boolean;
+  isTarget?: boolean;
+  goalDirection?: "minimize" | "maximize";
+  unit?: string;
+  options?: string[];
+}
+
+const CATEGORIES: FactorCategory[] = [
+  "Symptoms",
+  "Food",
+  "Exercise",
+  "Sleep",
+  "Environment",
+  "Mood",
+  "Custom",
+];
+const ENTRY_TYPES: EntryType[] = [
+  "yes_no",
+  "scale_0_10",
+  "low_med_high",
+  "number",
+  "free_text",
+  "integration",
+  "list",
+];
+
+function extractJson(text: string): unknown {
+  const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start === -1 || end === -1) return null;
+  try {
+    return JSON.parse(cleaned.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
+// Returns suggested factors, or null when AI is unavailable/unparseable.
+export async function suggestFactors(
+  title: string,
+  question: string,
+  existing: string[]
+): Promise<SuggestedFactor[] | null> {
+  try {
+    const res = await fetch("/api/claude", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ mode: "suggest_factors", title, sense_question: question, existing }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { text?: string; error?: string };
+    if (data.error || !data.text) return null;
+    const parsed = extractJson(data.text) as { factors?: unknown[] } | null;
+    if (!parsed || !Array.isArray(parsed.factors)) return null;
+
+    const out: SuggestedFactor[] = [];
+    for (const raw of parsed.factors) {
+      const f = raw as Record<string, unknown>;
+      const label = typeof f.label === "string" ? f.label.trim() : "";
+      if (!label) continue;
+      const category = CATEGORIES.includes(f.category as FactorCategory)
+        ? (f.category as FactorCategory)
+        : "Custom";
+      const entryType = ENTRY_TYPES.includes(f.entryType as EntryType)
+        ? (f.entryType as EntryType)
+        : "yes_no";
+      out.push({
+        label,
+        category,
+        entryType,
+        controllable: typeof f.controllable === "boolean" ? f.controllable : undefined,
+        isTarget: f.isTarget === true,
+        goalDirection:
+          f.goalDirection === "minimize" || f.goalDirection === "maximize"
+            ? (f.goalDirection as "minimize" | "maximize")
+            : undefined,
+        unit: typeof f.unit === "string" ? f.unit : undefined,
+        options: Array.isArray(f.options) ? (f.options as unknown[]).map(String) : undefined,
+      });
+    }
+    return out.length ? out : null;
+  } catch {
+    return null;
+  }
 }
