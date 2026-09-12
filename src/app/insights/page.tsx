@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppHeader, Button, Card, LinkButton, Loading } from "@/components/ui";
 import { TrendChart } from "@/components/trend-chart";
 import { MIN_SAMPLE_SIZE } from "@/lib/stats";
-import { analyzeSense, type Confidence, type Finding } from "@/lib/insights";
+import { analyzeSense, type Confidence, type Finding, type IntegrationOverlay } from "@/lib/insights";
 import { headlineNarrative } from "@/lib/narrative";
 import { categoryEmoji } from "@/lib/entryTypes";
 import { askClaudeNarrative } from "@/lib/ai";
 import { useStore } from "@/lib/store";
-import { fetchMetric, getSession } from "@/lib/fitbit";
-
-function ymd(d: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
+import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
 
 export default function InsightsPage() {
   return (
@@ -28,16 +23,13 @@ export default function InsightsPage() {
 
 function InsightsInner() {
   const id = useSearchParams().get("sense") ?? "";
-  const { ready, getSense, factorsFor, entriesFor, applyIntegrationData } = useStore();
-  const [syncing, setSyncing] = useState(false);
-  const [syncMsg, setSyncMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const { ready, getSense, factorsFor, entriesFor } = useStore();
   const [aiText, setAiText] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
-
-  const analysis = useMemo(() => {
-    if (!ready) return null;
-    return analyzeSense(factorsFor(id), entriesFor(id));
-  }, [ready, id, factorsFor, entriesFor]);
+  // Live Fitbit data, held in memory only (never written to entries).
+  const [overlay, setOverlay] = useState<IntegrationOverlay | null>(null);
+  const [fbLoading, setFbLoading] = useState(false);
+  const [fbNonce, setFbNonce] = useState(0);
 
   const fitbitFactors = useMemo(
     () =>
@@ -47,31 +39,31 @@ function InsightsInner() {
     [ready, factorsFor, id]
   );
 
-  const syncFitbit = async () => {
-    if (!getSession()) {
-      setSyncMsg({ ok: false, text: "Connect Fitbit in About → Connect devices first." });
+  // Pull live Fitbit data when the Sense has Fitbit factors and we're connected.
+  useEffect(() => {
+    if (!ready) return;
+    const factors = factorsFor(id);
+    const hasFitbit = factors.some(
+      (f) => f.entryType === "integration" && (f.config.provider ?? "").toLowerCase() === "fitbit"
+    );
+    if (!hasFitbit || !isConnected()) {
+      setOverlay(null);
       return;
     }
-    setSyncing(true);
-    setSyncMsg(null);
-    try {
-      const end = ymd(new Date());
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);
-      const start = ymd(startDate);
-      let points = 0;
-      for (const f of fitbitFactors) {
-        const series = await fetchMetric(f.config.metric ?? "steps", start, end);
-        applyIntegrationData(f.id, series);
-        points += series.length;
-      }
-      setSyncMsg({ ok: true, text: `Synced ${points} days from Fitbit.` });
-    } catch (e) {
-      setSyncMsg({ ok: false, text: e instanceof Error ? e.message : "Fitbit sync failed." });
-    } finally {
-      setSyncing(false);
-    }
-  };
+    let cancelled = false;
+    setFbLoading(true);
+    fetchIntegrationData(factors)
+      .then((o) => !cancelled && setOverlay(o))
+      .finally(() => !cancelled && setFbLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, id, factorsFor, fbNonce]);
+
+  const analysis = useMemo(() => {
+    if (!ready) return null;
+    return analyzeSense(factorsFor(id), entriesFor(id), overlay ?? undefined);
+  }, [ready, id, factorsFor, entriesFor, overlay]);
 
   if (!ready) return <Loading />;
   const sense = getSense(id);
@@ -142,17 +134,33 @@ function InsightsInner() {
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">⌚ Fitbit</p>
             <p className="mt-0.5 text-xs text-muted">
-              Pull the last 30 days into {fitbitFactors.map((f) => f.label).join(", ")}.
+              {!isConnected()
+                ? `Connect Fitbit to fold ${fitbitFactors
+                    .map((f) => f.label)
+                    .join(", ")} into these insights.`
+                : fbLoading
+                ? "Loading live Fitbit data…"
+                : overlay && Object.keys(overlay).length
+                ? `Using live ${fitbitFactors
+                    .map((f) => f.label)
+                    .join(", ")} — analysis only, not saved to your entries.`
+                : "No Fitbit data returned for this range yet."}
             </p>
-            {syncMsg && (
-              <p className={`mt-1 text-xs ${syncMsg.ok ? "text-positive" : "text-negative"}`}>
-                {syncMsg.text}
-              </p>
-            )}
           </div>
-          <Button className="shrink-0" disabled={syncing} onClick={syncFitbit}>
-            {syncing ? "Syncing…" : "Sync Fitbit"}
-          </Button>
+          {isConnected() ? (
+            <Button
+              variant="outline"
+              className="shrink-0"
+              disabled={fbLoading}
+              onClick={() => setFbNonce((n) => n + 1)}
+            >
+              {fbLoading ? "…" : "Refresh"}
+            </Button>
+          ) : (
+            <LinkButton href="/about" variant="soft" className="shrink-0">
+              Connect
+            </LinkButton>
+          )}
         </Card>
       )}
 

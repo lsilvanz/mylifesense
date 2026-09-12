@@ -195,7 +195,6 @@ interface StoreValue {
   setTargetFactor: (senseId: string, factorId: string) => void;
   deleteFactor: (factorId: string) => void;
   addFactorToSense: (senseId: string, input: NewFactorInput) => void;
-  applyIntegrationData: (factorId: string, series: { date: string; value: number }[]) => void;
   resetDemo: () => void;
   signInWithEmail: (email: string) => Promise<AuthResult>;
   signInWithGoogle: () => Promise<AuthResult>;
@@ -557,77 +556,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setDb(next);
         persist(next);
         if (supabase) supabase.from("factors").insert(factorToRow(factor)).then(logError("addFactor"));
-      },
-
-      // Merge a synced daily series (e.g. Fitbit steps) onto the entries of the
-      // factor's Sense: set the value on the entry that already exists for that
-      // calendar day (so it pairs with the target for correlation), or create a
-      // new entry for days that have none.
-      applyIntegrationData: (factorId, series) => {
-        const factor = db.factors.find((f) => f.id === factorId);
-        if (!factor) return;
-        const senseId = factor.senseId;
-        const localDate = (iso: string) => {
-          const d = new Date(iso);
-          const pad = (n: number) => String(n).padStart(2, "0");
-          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-        };
-
-        const entries = db.entries.map((e) => ({ ...e, values: [...e.values] }));
-        const byDate = new Map<string, Entry>();
-        for (const e of entries) {
-          if (e.senseId !== senseId) continue;
-          const key = localDate(e.loggedAt);
-          if (!byDate.has(key)) byDate.set(key, e);
-        }
-
-        const created: Entry[] = [];
-        const upserts: { entry_id: string; factor_id: string; value: EntryValueData }[] = [];
-        for (const { date, value } of series) {
-          const existing = byDate.get(date);
-          if (existing) {
-            existing.values = existing.values.filter((v) => v.factorId !== factorId);
-            existing.values.push({ factorId, value });
-            upserts.push({ entry_id: existing.id, factor_id: factorId, value });
-          } else {
-            const entry: Entry = {
-              id: uid(),
-              senseId,
-              loggedAt: new Date(`${date}T12:00:00`).toISOString(),
-              values: [{ factorId, value }],
-            };
-            entries.push(entry);
-            byDate.set(date, entry);
-            created.push(entry);
-          }
-        }
-
-        const next = { ...db, entries };
-        setDb(next);
-        persist(next);
-        if (supabase) {
-          (async () => {
-            if (created.length) {
-              logError("integration/entries")(
-                await supabase
-                  .from("entries")
-                  .insert(created.map((e) => ({ id: e.id, sense_id: senseId, logged_at: e.loggedAt })))
-              );
-              logError("integration/newValues")(
-                await supabase
-                  .from("entry_values")
-                  .insert(
-                    created.flatMap((e) =>
-                      e.values.map((v) => ({ entry_id: e.id, factor_id: v.factorId, value: v.value }))
-                    )
-                  )
-              );
-            }
-            if (upserts.length) {
-              logError("integration/upsert")(await supabase.from("entry_values").upsert(upserts));
-            }
-          })();
-        }
       },
 
       resetDemo: () => {

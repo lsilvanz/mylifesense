@@ -52,8 +52,22 @@ export function isControllable(f: SenseFactor): boolean {
   return LEVER_CATEGORIES.includes(f.category);
 }
 
+// Live data pulled from a provider (e.g. Fitbit) at analysis time — used for
+// insights/chat only, never written into the user's entries.
+export type IntegrationOverlay = Record<string, { date: string; value: number }[]>;
+
 // One numeric value per calendar day (mean if a day has several entries).
-function dailySeries(entries: Entry[], factor: SenseFactor): Map<string, number> {
+// Integration-typed factors draw from the live overlay when present.
+function dailySeries(
+  entries: Entry[],
+  factor: SenseFactor,
+  overlay?: IntegrationOverlay
+): Map<string, number> {
+  if (overlay && overlay[factor.id]) {
+    const out = new Map<string, number>();
+    for (const p of overlay[factor.id]) out.set(p.date, p.value);
+    return out;
+  }
   const buckets = new Map<string, number[]>();
   for (const e of entries) {
     const v = e.values.find((x) => x.factorId === factor.id);
@@ -115,7 +129,11 @@ function cap(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export function analyzeSense(factors: SenseFactor[], entries: Entry[]): Analysis | null {
+export function analyzeSense(
+  factors: SenseFactor[],
+  entries: Entry[],
+  overlay?: IntegrationOverlay
+): Analysis | null {
   const target = factors.find((f) => f.isTarget) ?? factors[0];
   if (!target) return null;
   const goal = goalOf(target);
@@ -125,7 +143,7 @@ export function analyzeSense(factors: SenseFactor[], entries: Entry[]): Analysis
   const trend = targetTrend(entries, target.id, target.entryType);
   const targetLabel = target.label.toLowerCase();
 
-  const targetDaily = dailySeries(entries, target);
+  const targetDaily = dailySeries(entries, target, overlay);
 
   interface Raw {
     factor: SenseFactor;
@@ -140,7 +158,7 @@ export function analyzeSense(factors: SenseFactor[], entries: Entry[]): Analysis
 
   for (const factor of factors) {
     if (factor.id === target.id) continue;
-    const factorDaily = dailySeries(entries, factor);
+    const factorDaily = dailySeries(entries, factor, overlay);
     if (factorDaily.size < 3) continue;
 
     // Pick the lag (same-day vs previous-day) with the stronger relationship.

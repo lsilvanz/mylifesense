@@ -1,12 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { AppHeader, Loading, Pill } from "@/components/ui";
 import { MIN_SAMPLE_SIZE } from "@/lib/stats";
-import { analyzeSense, type Analysis } from "@/lib/insights";
+import { analyzeSense, type Analysis, type IntegrationOverlay } from "@/lib/insights";
 import { SUGGESTED_QUESTIONS, answerQuestion } from "@/lib/narrative";
 import { askClaudeChat } from "@/lib/ai";
+import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
 import { useStore } from "@/lib/store";
 
 interface Msg {
@@ -32,11 +33,31 @@ function ChatInner() {
   const toBottom = () =>
     requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 1e9, behavior: "smooth" }));
 
+  const [overlay, setOverlay] = useState<IntegrationOverlay | null>(null);
+
+  // Fold live Fitbit data into the analysis (in memory only).
+  useEffect(() => {
+    if (!ready || !getSense(id)) return;
+    const factors = factorsFor(id);
+    const hasFitbit = factors.some(
+      (f) => f.entryType === "integration" && (f.config.provider ?? "").toLowerCase() === "fitbit"
+    );
+    if (!hasFitbit || !isConnected()) {
+      setOverlay(null);
+      return;
+    }
+    let cancelled = false;
+    fetchIntegrationData(factors).then((o) => !cancelled && setOverlay(o));
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, id, getSense, factorsFor]);
+
   const analysis = useMemo<Analysis | null>(() => {
     if (!ready) return null;
     if (!getSense(id)) return null;
-    return analyzeSense(factorsFor(id), entriesFor(id));
-  }, [ready, id, getSense, factorsFor, entriesFor]);
+    return analyzeSense(factorsFor(id), entriesFor(id), overlay ?? undefined);
+  }, [ready, id, getSense, factorsFor, entriesFor, overlay]);
 
   if (!ready) return <Loading />;
   const sense = getSense(id);

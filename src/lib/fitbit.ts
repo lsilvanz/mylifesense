@@ -152,3 +152,31 @@ export async function fetchMetric(
   }
   throw new Error(`Unsupported Fitbit metric: ${metric}`);
 }
+
+function ymd(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+// Pull live daily data for a Sense's Fitbit factors, keyed by factor id. Returns
+// {} when not connected or there are no Fitbit factors. This feeds insights/chat
+// in memory only — it is never written to the user's entries.
+export async function fetchIntegrationData(
+  factors: { id: string; entryType: string; config: { provider?: string; metric?: string } }[],
+  days = 90
+): Promise<Record<string, DailyPoint[]>> {
+  const out: Record<string, DailyPoint[]> = {};
+  if (!getSession()) return out;
+  const end = ymd(new Date());
+  const start = ymd(new Date(Date.now() - days * 86400000));
+  for (const f of factors) {
+    if (f.entryType === "integration" && (f.config.provider ?? "").toLowerCase() === "fitbit") {
+      try {
+        out[f.id] = await fetchMetric(f.config.metric ?? "steps", start, end);
+      } catch {
+        /* skip this factor on error */
+      }
+    }
+  }
+  return out;
+}

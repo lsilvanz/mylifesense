@@ -6,9 +6,7 @@ import { Integrations } from "@/components/integrations";
 import { useStore } from "@/lib/store";
 
 export default function AboutPage() {
-  const { resetDemo, senses, usingSupabase, user, signInWithEmail, signInWithGoogle, signOut } =
-    useStore();
-  const [done, setDone] = useState(false);
+  const { senses, usingSupabase, user, signInWithEmail, signInWithGoogle, signOut } = useStore();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -122,26 +120,6 @@ export default function AboutPage() {
       )}
 
       <Integrations />
-
-      <Card className="mt-4 p-5">
-        <p className="text-sm font-semibold text-ink">Prototype data</p>
-        <p className="mt-1 text-sm text-muted">
-          {usingSupabase
-            ? "Your data is stored in Supabase, tied to your account. Reset replaces it with the seeded demo Senses."
-            : "All data lives in this browser (localStorage). Reset to restore the seeded demo Senses with their sample history."}
-        </p>
-        <Button
-          variant="outline"
-          className="mt-3"
-          onClick={() => {
-            resetDemo();
-            setDone(true);
-            setTimeout(() => setDone(false), 1500);
-          }}
-        >
-          {done ? "Reset ✓" : "Reset demo data"}
-        </Button>
-      </Card>
 
       <p className="mt-6 px-1 text-xs leading-relaxed text-faint">
         MyLifeSense prototype · Phase 1 core loop + client-side Insights. Chat and correlations are
