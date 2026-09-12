@@ -56,23 +56,37 @@ export async function onRequestPost(context) {
           summary
         )}\n\nWrite a short, encouraging headline insight (2-3 sentences) that highlights the most important, actionable pattern.`;
 
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const model = env.ANTHROPIC_MODEL || "claude-opus-5";
+  const base = {
+    model,
+    max_tokens: 700,
+    system: SYSTEM,
+    messages: [{ role: "user", content: userText }],
+  };
+
+  const post = (payload) =>
+    fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "x-api-key": env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
       },
-      body: JSON.stringify({
-        model: env.ANTHROPIC_MODEL || "claude-opus-5",
-        max_tokens: 700,
-        system: SYSTEM,
-        output_config: { effort: "low" },
-        messages: [{ role: "user", content: userText }],
-      }),
+      body: JSON.stringify(payload),
     });
 
+  try {
+    // `effort` isn't supported on every model (e.g. Haiku 4.5). Send it, and if
+    // the model rejects it, retry once without it.
+    let res = await post({ ...base, output_config: { effort: "low" } });
+    if (!res.ok) {
+      const detail = await res.text();
+      if (res.status === 400 && detail.includes("effort")) {
+        res = await post(base);
+      } else {
+        return json({ error: `anthropic_${res.status}`, detail }, 502);
+      }
+    }
     if (!res.ok) {
       const detail = await res.text();
       return json({ error: `anthropic_${res.status}`, detail }, 502);
