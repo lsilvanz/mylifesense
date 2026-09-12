@@ -5,6 +5,7 @@ import { Suspense, useMemo, useState } from "react";
 import { AppHeader, Button, Card, LinkButton, Loading, Pill } from "@/components/ui";
 import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/entryTypes";
 import { goalOf, isControllable } from "@/lib/insights";
+import { FactorSuggestions } from "@/components/factor-suggestions";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, SenseFactor } from "@/lib/types";
 
@@ -70,6 +71,28 @@ function SettingsInner() {
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-bold text-ink">Factors</h2>
           <span className="text-xs text-faint">{factors.length} total</span>
+        </div>
+
+        <div className="mb-3">
+          <FactorSuggestions
+            title={sense.title}
+            question={sense.question}
+            existing={factors.map((f) => f.label)}
+            onAdd={(chosen) =>
+              chosen.forEach((s) =>
+                addFactorToSense(id, {
+                  label: s.label,
+                  category: s.category,
+                  entryType: s.entryType,
+                  config: {
+                    ...(s.entryType === "number" && s.unit ? { unit: s.unit } : {}),
+                    ...(s.entryType === "list" && s.options ? { options: s.options } : {}),
+                    ...(typeof s.controllable === "boolean" ? { controllable: s.controllable } : {}),
+                  },
+                })
+              )
+            }
+          />
         </div>
 
         <div className="space-y-3">
