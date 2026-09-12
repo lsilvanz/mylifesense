@@ -195,6 +195,7 @@ interface StoreValue {
   setTargetFactor: (senseId: string, factorId: string) => void;
   deleteFactor: (factorId: string) => void;
   addFactorToSense: (senseId: string, input: NewFactorInput) => void;
+  addFactorsToSense: (senseId: string, inputs: NewFactorInput[]) => void;
   resetDemo: () => void;
   signInWithEmail: (email: string) => Promise<AuthResult>;
   signInWithGoogle: () => Promise<AuthResult>;
@@ -556,6 +557,30 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setDb(next);
         persist(next);
         if (supabase) supabase.from("factors").insert(factorToRow(factor)).then(logError("addFactor"));
+      },
+
+      // Add several factors in one state update (a loop of addFactorToSense would
+      // clobber itself via the stale `db` closure).
+      addFactorsToSense: (senseId, inputs) => {
+        if (inputs.length === 0) return;
+        const maxSort = db.factors
+          .filter((f) => f.senseId === senseId)
+          .reduce((m, f) => Math.max(m, f.sortOrder), -1);
+        const newFactors: SenseFactor[] = inputs.map((input, i) => ({
+          id: uid(),
+          senseId,
+          label: input.label,
+          category: input.category,
+          entryType: input.entryType,
+          config: input.config,
+          sortOrder: maxSort + 1 + i,
+          isTarget: false,
+        }));
+        const next = { ...db, factors: [...db.factors, ...newFactors] };
+        setDb(next);
+        persist(next);
+        if (supabase)
+          supabase.from("factors").insert(newFactors.map(factorToRow)).then(logError("addFactors"));
       },
 
       resetDemo: () => {

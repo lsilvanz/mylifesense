@@ -29,6 +29,7 @@ function SettingsInner() {
     setTargetFactor,
     deleteFactor,
     addFactorToSense,
+    addFactorsToSense,
     deleteSense,
   } = useStore();
 
@@ -79,8 +80,9 @@ function SettingsInner() {
             question={sense.question}
             existing={factors.map((f) => f.label)}
             onAdd={(chosen) =>
-              chosen.forEach((s) =>
-                addFactorToSense(id, {
+              addFactorsToSense(
+                id,
+                chosen.map((s) => ({
                   label: s.label,
                   category: s.category,
                   entryType: s.entryType,
@@ -89,7 +91,7 @@ function SettingsInner() {
                     ...(s.entryType === "list" && s.options ? { options: s.options } : {}),
                     ...(typeof s.controllable === "boolean" ? { controllable: s.controllable } : {}),
                   },
-                })
+                }))
               )
             }
           />
