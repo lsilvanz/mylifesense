@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useMemo } from "react";
-import { AppHeader, Card, LinkButton, Loading } from "@/components/ui";
+import { Suspense, useMemo, useState } from "react";
+import { AppHeader, Button, Card, LinkButton, Loading } from "@/components/ui";
 import { CorrelationBars } from "@/components/correlation-bars";
 import { TrendChart } from "@/components/trend-chart";
 import {
@@ -14,6 +14,12 @@ import {
 } from "@/lib/stats";
 import { headlineNarrative } from "@/lib/narrative";
 import { useStore } from "@/lib/store";
+import { fetchMetric, getSession } from "@/lib/fitbit";
+
+function ymd(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 export default function InsightsPage() {
   return (
@@ -25,7 +31,43 @@ export default function InsightsPage() {
 
 function InsightsInner() {
   const id = useSearchParams().get("sense") ?? "";
-  const { ready, getSense, factorsFor, entriesFor } = useStore();
+  const { ready, getSense, factorsFor, entriesFor, applyIntegrationData } = useStore();
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const fitbitFactors = useMemo(
+    () =>
+      (ready ? factorsFor(id) : []).filter(
+        (f) => f.entryType === "integration" && (f.config.provider ?? "").toLowerCase() === "fitbit"
+      ),
+    [ready, factorsFor, id]
+  );
+
+  const syncFitbit = async () => {
+    if (!getSession()) {
+      setSyncMsg({ ok: false, text: "Connect Fitbit in About → Connect devices first." });
+      return;
+    }
+    setSyncing(true);
+    setSyncMsg(null);
+    try {
+      const end = ymd(new Date());
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);
+      const start = ymd(startDate);
+      let points = 0;
+      for (const f of fitbitFactors) {
+        const series = await fetchMetric(f.config.metric ?? "steps", start, end);
+        applyIntegrationData(f.id, series);
+        points += series.length;
+      }
+      setSyncMsg({ ok: true, text: `Synced ${points} days from Fitbit.` });
+    } catch (e) {
+      setSyncMsg({ ok: false, text: e instanceof Error ? e.message : "Fitbit sync failed." });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const model = useMemo(() => {
     if (!ready) return null;
@@ -96,6 +138,28 @@ function InsightsInner() {
           over the summary (no raw entries sent to a model).
         </p>
       </Card>
+
+      {fitbitFactors.length > 0 && (
+        <Card className="mt-4 flex items-center justify-between gap-3 p-4">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+              ⌚ Fitbit
+            </p>
+            <p className="mt-0.5 text-xs text-muted">
+              Pull the last 30 days into{" "}
+              {fitbitFactors.map((f) => f.label).join(", ")}.
+            </p>
+            {syncMsg && (
+              <p className={`mt-1 text-xs ${syncMsg.ok ? "text-positive" : "text-negative"}`}>
+                {syncMsg.text}
+              </p>
+            )}
+          </div>
+          <Button className="shrink-0" disabled={syncing} onClick={syncFitbit}>
+            {syncing ? "Syncing…" : "Sync Fitbit"}
+          </Button>
+        </Card>
+      )}
 
       {!model.enoughData && (
         <Card className="mt-4 border-dashed p-4">
