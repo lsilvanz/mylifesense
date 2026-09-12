@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import { AppHeader, Button, Card, Loading, Pill } from "@/components/ui";
+import { AppHeader, Button, Card, LinkButton, Loading, Pill } from "@/components/ui";
 import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/entryTypes";
 import { goalOf, isControllable } from "@/lib/insights";
 import { useStore } from "@/lib/store";
@@ -60,7 +60,13 @@ function SettingsInner() {
     <main className="px-4 pb-24">
       <AppHeader title={`Manage · ${sense.title}`} back={`/insights?sense=${id}`} />
 
-      <section className="mt-4">
+      <div className="mt-4">
+        <LinkButton href={`/sense/entries?sense=${id}`} variant="soft" className="w-full text-sm">
+          Browse &amp; edit entries ({entries.length})
+        </LinkButton>
+      </div>
+
+      <section className="mt-6">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-bold text-ink">Factors</h2>
           <span className="text-xs text-faint">{factors.length} total</span>

@@ -14,21 +14,32 @@ const FREQUENCY_LABEL: Record<string, string> = {
 };
 
 export default function HomePage() {
-  const { ready, senses, factorsFor, entriesFor, resetDemo, initError } = useStore();
+  const { ready, senses, factorsFor, entriesFor, resetDemo, initError, focusedSenseId } = useStore();
   if (!ready) return <Loading />;
 
-  const [featured, ...rest] = senses;
+  const featured = senses.find((s) => s.id === focusedSenseId) ?? senses[0];
+  const rest = senses.filter((s) => s.id !== featured?.id);
 
   return (
     <main className="px-4 pb-24">
       <div className="flex items-center justify-between py-4">
         <Wordmark />
-        <Link
-          href="/about"
-          className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-muted transition hover:text-ink"
-        >
-          About me
-        </Link>
+        <div className="flex items-center gap-2">
+          {senses.length > 0 && (
+            <Link
+              href="/senses"
+              className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-muted transition hover:text-ink"
+            >
+              Senses
+            </Link>
+          )}
+          <Link
+            href="/about"
+            className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-muted transition hover:text-ink"
+          >
+            About me
+          </Link>
+        </div>
       </div>
 
       <p className="mb-5 text-[15px] leading-relaxed text-muted">
@@ -106,7 +117,7 @@ function FeaturedCard({
           ⚙
         </Link>
         <div className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80">
-          <span className="h-1.5 w-1.5 rounded-full bg-white" /> Active Sense
+          <span className="h-1.5 w-1.5 rounded-full bg-white" /> In Focus
         </div>
         <h2 className="relative mt-1.5 text-2xl font-extrabold tracking-tight text-white">
           {sense.title}

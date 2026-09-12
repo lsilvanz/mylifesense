@@ -45,7 +45,7 @@ export default function AboutPage() {
               {signedIn ? user?.email : "You"}
             </p>
             <p className="text-sm text-muted">
-              {senses.length} active Senses ·{" "}
+              {senses.length} {senses.length === 1 ? "Sense" : "Senses"} ·{" "}
               {!usingSupabase
                 ? "stored on this device"
                 : signedIn

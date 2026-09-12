@@ -213,6 +213,11 @@ function InsightsInner() {
           Ask a question
         </LinkButton>
       </div>
+      <div className="mt-3">
+        <LinkButton href={`/sense/entries?sense=${id}`} variant="ghost" className="w-full">
+          Browse &amp; edit entries
+        </LinkButton>
+      </div>
     </main>
   );
 }

@@ -162,6 +162,7 @@ interface NewFactorInput {
 }
 
 const GUEST_KEY = "mylifesense.guest";
+const FOCUS_KEY = "mylifesense.focus";
 
 interface StoreValue {
   ready: boolean;
@@ -181,6 +182,10 @@ interface StoreValue {
     factors: NewFactorInput[];
   }) => string;
   addEntry: (senseId: string, values: EntryValue[], loggedAt?: string) => void;
+  updateEntry: (entryId: string, values: EntryValue[], loggedAt?: string) => void;
+  deleteEntry: (entryId: string) => void;
+  focusedSenseId: string | null;
+  setFocusedSense: (senseId: string) => void;
   archiveSense: (senseId: string) => void;
   deleteSense: (senseId: string) => void;
   updateFactor: (
@@ -207,12 +212,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [initError, setInitError] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [guest, setGuest] = useState(false);
+  const [focusedSenseId, setFocusedId] = useState<string | null>(null);
   const currentUserId = useRef<string | null>(null);
 
-  // Remember a visitor's choice to skip the sign-in gate.
+  // Remember a visitor's choice to skip the sign-in gate + which Sense is focused.
   useEffect(() => {
     try {
       if (window.localStorage.getItem(GUEST_KEY) === "1") setGuest(true);
+      setFocusedId(window.localStorage.getItem(FOCUS_KEY));
     } catch {
       /* ignore */
     }
@@ -398,6 +405,54 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               );
             }
           })();
+        }
+      },
+
+      updateEntry: (entryId, values, loggedAt) => {
+        const next = {
+          ...db,
+          entries: db.entries.map((e) =>
+            e.id === entryId ? { ...e, values, loggedAt: loggedAt ?? e.loggedAt } : e
+          ),
+        };
+        setDb(next);
+        persist(next);
+        if (supabase) {
+          (async () => {
+            if (loggedAt) {
+              logError("updateEntry/at")(
+                await supabase.from("entries").update({ logged_at: loggedAt }).eq("id", entryId)
+              );
+            }
+            // Replace this entry's values wholesale.
+            logError("updateEntry/clear")(
+              await supabase.from("entry_values").delete().eq("entry_id", entryId)
+            );
+            if (values.length) {
+              logError("updateEntry/insert")(
+                await supabase
+                  .from("entry_values")
+                  .insert(values.map((v) => ({ entry_id: entryId, factor_id: v.factorId, value: v.value })))
+              );
+            }
+          })();
+        }
+      },
+
+      deleteEntry: (entryId) => {
+        const next = { ...db, entries: db.entries.filter((e) => e.id !== entryId) };
+        setDb(next);
+        persist(next);
+        if (supabase) supabase.from("entries").delete().eq("id", entryId).then(logError("deleteEntry"));
+      },
+
+      focusedSenseId,
+      setFocusedSense: (senseId) => {
+        setFocusedId(senseId);
+        try {
+          window.localStorage.setItem(FOCUS_KEY, senseId);
+        } catch {
+          /* ignore */
         }
       },
 
@@ -647,7 +702,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         await supabase.auth.signInAnonymously();
       },
     };
-  }, [db, ready, initError, user, guest, persist]);
+  }, [db, ready, initError, user, guest, focusedSenseId, persist]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
