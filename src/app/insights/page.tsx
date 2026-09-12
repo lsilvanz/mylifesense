@@ -9,6 +9,7 @@ import { MIN_SAMPLE_SIZE } from "@/lib/stats";
 import { analyzeSense, type Confidence, type Finding } from "@/lib/insights";
 import { headlineNarrative } from "@/lib/narrative";
 import { categoryEmoji } from "@/lib/entryTypes";
+import { askClaudeNarrative } from "@/lib/ai";
 import { useStore } from "@/lib/store";
 import { fetchMetric, getSession } from "@/lib/fitbit";
 
@@ -30,6 +31,8 @@ function InsightsInner() {
   const { ready, getSense, factorsFor, entriesFor, applyIntegrationData } = useStore();
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [aiText, setAiText] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const analysis = useMemo(() => {
     if (!ready) return null;
@@ -84,6 +87,13 @@ function InsightsInner() {
   const targetLabel = analysis.target.label.toLowerCase();
   const narrative = headlineNarrative(analysis);
 
+  const personalize = async () => {
+    setAiLoading(true);
+    const t = await askClaudeNarrative(analysis);
+    setAiText(t ?? "AI narrative isn't set up on this deployment yet — showing the computed summary.");
+    setAiLoading(false);
+  };
+
   return (
     <main className="px-4 pb-24">
       <AppHeader
@@ -107,11 +117,23 @@ function InsightsInner() {
           <div className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
             ✦ AI narrative
           </div>
-          <p className="relative mt-1.5 text-[15px] leading-relaxed text-ink">{narrative}</p>
+          <p className="relative mt-1.5 whitespace-pre-line text-[15px] leading-relaxed text-ink">
+            {aiText ?? narrative}
+          </p>
+          {analysis.enoughData && (
+            <button
+              onClick={personalize}
+              disabled={aiLoading}
+              className="relative mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-surface/70 px-3 py-1 text-xs font-semibold text-accent-ink shadow-card transition hover:brightness-105 disabled:opacity-60"
+            >
+              {aiLoading ? "Thinking…" : aiText ? "↻ Regenerate with AI" : "✦ Personalize with AI"}
+            </button>
+          )}
         </div>
         <p className="px-5 py-2 text-xs text-faint">
           From {analysis.entryCount} entries · Spearman correlations, effect sizes and same-/next-day
           lags computed on-device; findings pass a false-discovery check.
+          {aiText ? " Narrative written by Claude over the summary." : ""}
         </p>
       </Card>
 

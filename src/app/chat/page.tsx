@@ -6,6 +6,7 @@ import { AppHeader, Loading, Pill } from "@/components/ui";
 import { MIN_SAMPLE_SIZE } from "@/lib/stats";
 import { analyzeSense, type Analysis } from "@/lib/insights";
 import { SUGGESTED_QUESTIONS, answerQuestion } from "@/lib/narrative";
+import { askClaudeChat } from "@/lib/ai";
 import { useStore } from "@/lib/store";
 
 interface Msg {
@@ -26,7 +27,10 @@ function ChatInner() {
   const { ready, getSense, factorsFor, entriesFor } = useStore();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
+  const [thinking, setThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const toBottom = () =>
+    requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 1e9, behavior: "smooth" }));
 
   const analysis = useMemo<Analysis | null>(() => {
     if (!ready) return null;
@@ -45,13 +49,20 @@ function ChatInner() {
     );
   }
 
-  const ask = (q: string) => {
+  const ask = async (q: string) => {
     const question = q.trim();
-    if (!question) return;
-    const answer = answerQuestion(question, analysis);
-    setMessages((prev) => [...prev, { role: "user", text: question }, { role: "assistant", text: answer }]);
+    if (!question || thinking) return;
+    setMessages((prev) => [...prev, { role: "user", text: question }]);
     setDraft("");
-    requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 1e9, behavior: "smooth" }));
+    setThinking(true);
+    toBottom();
+    // Try the real Claude endpoint; fall back to the deterministic layer when
+    // AI isn't configured (e.g. local dev, or no API key set in production).
+    const ai = await askClaudeChat(analysis, question);
+    const answer = ai ?? answerQuestion(question, analysis);
+    setMessages((prev) => [...prev, { role: "assistant", text: answer }]);
+    setThinking(false);
+    toBottom();
   };
 
   return (
@@ -81,6 +92,17 @@ function ChatInner() {
             </div>
           </div>
         ))}
+        {thinking && (
+          <div className="flex justify-start">
+            <div className="glass rounded-2xl border border-line px-4 py-3 text-sm text-muted">
+              <span className="inline-flex gap-1">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent [animation-delay:-0.2s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent [animation-delay:-0.1s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent" />
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-line bg-ground/90 px-4 py-3 backdrop-blur">
