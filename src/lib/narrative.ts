@@ -49,13 +49,17 @@ export function answerQuestion(q: string, a: Analysis): string {
     if (bad.length === 0) return `Nothing you're tracking clearly worsens ${targetLabel}.`;
     return `Linked to worse ${targetLabel}: ${bad.slice(0, 3).map((f) => f.factor.label.toLowerCase()).join(", ")}.`;
   }
-  if (/better|reduce|lower|help|improve|fix/.test(query)) {
+  if (/better|reduce|lower|help|improve|fix|try|should|recommend|suggest|advice|do/.test(query)) {
     const good = a.findings.filter(
       (f) => f.confidence !== "none" && f.beneficialIncrease === true && f.controllable
     );
-    if (good.length === 0) return `Nothing you're tracking clearly improves ${targetLabel} yet.`;
-    const rec = good[0].recommendation;
-    return rec ?? `Linked to better ${targetLabel}: ${good.map((f) => f.factor.label.toLowerCase()).join(", ")}.`;
+    if (good.length === 0) return `Nothing you're tracking clearly improves ${targetLabel} yet — keep logging.`;
+    const recs = good
+      .slice(0, 2)
+      .map((f) => f.recommendation)
+      .filter(Boolean);
+    if (recs.length) return recs.join("\n\n");
+    return `Linked to better ${targetLabel}: ${good.map((f) => f.factor.label.toLowerCase()).join(", ")}.`;
   }
 
   return headlineNarrative(a) + ` You have ${a.entryCount} entries so far — ask about a specific factor for detail.`;
