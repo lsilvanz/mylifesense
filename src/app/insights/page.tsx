@@ -84,11 +84,12 @@ function InsightsInner() {
 
       {/* Headline narrative */}
       <Card className="mt-4 overflow-hidden">
-        <div className="bg-accent-soft/60 px-5 py-4">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
+        <div className="relative overflow-hidden bg-accent-soft px-5 py-4">
+          <div className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-gradient-accent opacity-25 blur-3xl" />
+          <div className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
             ✦ AI narrative
           </div>
-          <p className="mt-1.5 text-[15px] leading-relaxed text-ink">{narrative}</p>
+          <p className="relative mt-1.5 text-[15px] leading-relaxed text-ink">{narrative}</p>
         </div>
         <p className="px-5 py-2 text-xs text-faint">
           Generated from {model.entryCount} entries · statistics computed on-device, prose written

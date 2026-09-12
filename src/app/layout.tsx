@@ -1,7 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
 import { AuthGate } from "@/components/auth-gate";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "MyLifeSense",
@@ -11,15 +18,15 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f5f1ea",
+  themeColor: "#12101d",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <body className="min-h-screen">
         <StoreProvider>
-          <div className="mx-auto min-h-screen w-full max-w-2xl bg-ground">
+          <div className="mx-auto min-h-screen w-full max-w-2xl">
             <AuthGate>{children}</AuthGate>
           </div>
         </StoreProvider>

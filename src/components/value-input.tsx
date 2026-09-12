@@ -50,8 +50,8 @@ export function ValueInput({
                 onClick={() => onChange(n)}
                 className={`h-9 w-9 rounded-lg text-sm font-semibold transition ${
                   current === n
-                    ? "bg-accent text-white"
-                    : "bg-raised text-muted hover:text-ink border border-line"
+                    ? "bg-gradient-accent text-white shadow-glow"
+                    : "glass text-muted hover:text-ink border border-line"
                 }`}
               >
                 {n}

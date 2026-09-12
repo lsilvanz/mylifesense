@@ -42,7 +42,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
           <Wordmark />
         </div>
 
-        <h1 className="text-center text-2xl font-extrabold tracking-tight text-ink">
+        <h1 className="text-center text-3xl font-extrabold tracking-tight text-gradient">
           Understand your patterns
         </h1>
         <p className="mx-auto mt-2 max-w-xs text-center text-[15px] leading-relaxed text-muted">

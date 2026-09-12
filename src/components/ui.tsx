@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 type Variant = "primary" | "soft" | "ghost" | "outline";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-accent text-white hover:brightness-105 shadow-card",
-  soft: "bg-accent-soft text-accent-ink hover:brightness-[0.98]",
-  ghost: "text-muted hover:text-ink hover:bg-raised",
-  outline: "border border-line text-ink hover:bg-raised",
+  primary: "bg-gradient-accent text-white shadow-glow hover:brightness-110",
+  soft: "bg-accent-soft text-accent-ink border border-line hover:brightness-110",
+  ghost: "text-muted hover:text-ink hover:bg-raised/60",
+  outline: "glass border border-line text-ink hover:border-line-strong",
 };
 
 export function Button({
@@ -57,9 +57,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-line bg-surface shadow-card ${className}`}>
-      {children}
-    </div>
+    <div className={`rounded-2xl border border-line glass shadow-card ${className}`}>{children}</div>
   );
 }
 
@@ -77,8 +75,8 @@ export function Pill({
   const base =
     "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition select-none";
   const look = active
-    ? "bg-accent text-white"
-    : "bg-raised text-muted hover:text-ink border border-line";
+    ? "bg-gradient-accent text-white shadow-glow"
+    : "glass text-muted hover:text-ink border border-line hover:border-line-strong";
   return (
     <button type="button" onClick={onClick} className={`${base} ${look} ${className}`}>
       {children}
@@ -97,7 +95,7 @@ export function AppHeader({
 }) {
   const router = useRouter();
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-ground/85 px-4 py-3 backdrop-blur">
+    <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line glass px-4 py-3">
       {back !== undefined ? (
         <button
           onClick={() => (back ? router.push(back) : router.back())}
@@ -107,7 +105,7 @@ export function AppHeader({
           ‹
         </button>
       ) : (
-        <div className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-lg text-white shadow-card">
+        <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-accent text-lg text-white shadow-glow">
           ◵
         </div>
       )}
@@ -126,11 +124,11 @@ export function AppHeader({
 export function Wordmark() {
   return (
     <div className="flex items-center gap-2">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-lg text-white shadow-card">
+      <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-accent text-lg text-white shadow-glow">
         ◵
       </span>
       <span className="text-xl font-extrabold tracking-tight">
-        My<span className="text-accent">LifeSense</span>
+        My<span className="text-gradient">LifeSense</span>
       </span>
     </div>
   );

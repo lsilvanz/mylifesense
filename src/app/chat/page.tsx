@@ -79,8 +79,8 @@ function ChatInner() {
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                 m.role === "user"
-                  ? "bg-accent text-white"
-                  : "border border-line bg-surface text-ink"
+                  ? "bg-gradient-accent text-white shadow-glow"
+                  : "glass border border-line text-ink"
               }`}
             >
               {m.text}
@@ -115,7 +115,7 @@ function ChatInner() {
           <button
             type="submit"
             disabled={!draft.trim()}
-            className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-white transition disabled:opacity-40"
+            className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-accent text-white shadow-glow transition disabled:opacity-40 disabled:shadow-none"
             aria-label="Send"
           >
             ↑

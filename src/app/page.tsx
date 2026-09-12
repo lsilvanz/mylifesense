@@ -95,19 +95,22 @@ function FeaturedCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="relative bg-accent-soft/60 px-5 py-4">
+      <div className="relative overflow-hidden bg-accent-soft px-5 py-5">
+        <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-gradient-accent opacity-30 blur-3xl" />
         <Link
           href={`/sense/settings?sense=${sense.id}`}
           aria-label="Manage Sense"
-          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-accent-ink/70 transition hover:bg-white/30 hover:text-accent-ink"
+          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full text-accent-ink transition hover:bg-raised"
         >
           ⚙
         </Link>
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Active Sense
+        <div className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
+          <span className="h-1.5 w-1.5 rounded-full bg-gradient-accent" /> Active Sense
         </div>
-        <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-ink">{sense.title}</h2>
-        <p className="mt-1 text-sm text-muted">{sense.question}</p>
+        <h2 className="relative mt-1.5 text-2xl font-extrabold tracking-tight text-ink">
+          {sense.title}
+        </h2>
+        <p className="relative mt-1 text-sm text-muted">{sense.question}</p>
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-1 px-5 pt-3 text-xs text-faint">
         <span>{factorCount} factors</span>
