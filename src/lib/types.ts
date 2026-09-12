@@ -31,6 +31,11 @@ export interface FactorConfig {
   // integration
   provider?: string;
   metric?: string;
+  // insights metadata (stored in jsonb — no schema migration needed)
+  //   goalDirection: only meaningful on the target — is lower or higher better?
+  //   controllable:  is this a "lever" the user can change, vs. context?
+  goalDirection?: "minimize" | "maximize";
+  controllable?: boolean;
 }
 
 export interface SenseFactor {

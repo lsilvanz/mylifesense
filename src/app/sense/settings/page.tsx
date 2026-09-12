@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { AppHeader, Button, Card, Loading, Pill } from "@/components/ui";
 import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/entryTypes";
+import { goalOf, isControllable } from "@/lib/insights";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, SenseFactor } from "@/lib/types";
 
@@ -223,6 +224,33 @@ function FactorRow({
             className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-semibold text-muted hover:text-ink"
           >
             Set as target
+          </button>
+        )}
+      </div>
+
+      {/* Insights metadata: lever vs context, and the target's goal direction. */}
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <button
+          onClick={() => onUpdate({ config: { ...factor.config, controllable: !isControllable(factor) } })}
+          className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-medium text-muted transition hover:text-ink"
+          title="Can you directly change this?"
+        >
+          {isControllable(factor) ? "🎚️ Lever" : "🌦️ Context"}
+        </button>
+        {factor.isTarget && (
+          <button
+            onClick={() =>
+              onUpdate({
+                config: {
+                  ...factor.config,
+                  goalDirection: goalOf(factor) === "minimize" ? "maximize" : "minimize",
+                },
+              })
+            }
+            className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-medium text-muted transition hover:text-ink"
+            title="Which direction is better?"
+          >
+            {goalOf(factor) === "minimize" ? "🎯 Lower is better" : "🎯 Higher is better"}
           </button>
         )}
       </div>

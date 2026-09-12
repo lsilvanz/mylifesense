@@ -4,15 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { AppHeader, Button, Card, LinkButton, Loading } from "@/components/ui";
-import { CorrelationBars } from "@/components/correlation-bars";
 import { TrendChart } from "@/components/trend-chart";
-import {
-  MIN_SAMPLE_SIZE,
-  computeCorrelations,
-  targetEntryCount,
-  targetTrend,
-} from "@/lib/stats";
+import { MIN_SAMPLE_SIZE } from "@/lib/stats";
+import { analyzeSense, type Confidence, type Finding } from "@/lib/insights";
 import { headlineNarrative } from "@/lib/narrative";
+import { categoryEmoji } from "@/lib/entryTypes";
 import { useStore } from "@/lib/store";
 import { fetchMetric, getSession } from "@/lib/fitbit";
 
@@ -34,6 +30,11 @@ function InsightsInner() {
   const { ready, getSense, factorsFor, entriesFor, applyIntegrationData } = useStore();
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const analysis = useMemo(() => {
+    if (!ready) return null;
+    return analyzeSense(factorsFor(id), entriesFor(id));
+  }, [ready, id, factorsFor, entriesFor]);
 
   const fitbitFactors = useMemo(
     () =>
@@ -69,29 +70,9 @@ function InsightsInner() {
     }
   };
 
-  const model = useMemo(() => {
-    if (!ready) return null;
-    const factors = factorsFor(id);
-    const entries = entriesFor(id);
-    const target = factors.find((f) => f.isTarget) ?? factors[0];
-    if (!target) return null;
-    const correlations = computeCorrelations(factors, entries, target.id);
-    const entryCount = targetEntryCount(entries, target.id);
-    const enoughData = entryCount >= MIN_SAMPLE_SIZE;
-    const trend = targetTrend(entries, target.id, target.entryType);
-    return {
-      target,
-      correlations,
-      entryCount,
-      enoughData,
-      trend,
-      sense: getSense(id)!,
-    };
-  }, [ready, id, factorsFor, entriesFor, getSense]);
-
   if (!ready) return <Loading />;
   const sense = getSense(id);
-  if (!sense || !model) {
+  if (!sense || !analysis) {
     return (
       <main className="px-4">
         <AppHeader title="Insights" back="/" />
@@ -100,13 +81,8 @@ function InsightsInner() {
     );
   }
 
-  const narrative = headlineNarrative({
-    sense,
-    target: model.target,
-    entryCount: model.entryCount,
-    correlations: model.correlations,
-    enoughData: model.enoughData,
-  });
+  const targetLabel = analysis.target.label.toLowerCase();
+  const narrative = headlineNarrative(analysis);
 
   return (
     <main className="px-4 pb-24">
@@ -124,7 +100,7 @@ function InsightsInner() {
         }
       />
 
-      {/* Headline narrative */}
+      {/* Headline */}
       <Card className="mt-4 overflow-hidden">
         <div className="relative overflow-hidden bg-accent-soft px-5 py-4">
           <div className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-gradient-accent opacity-25 blur-3xl" />
@@ -134,20 +110,17 @@ function InsightsInner() {
           <p className="relative mt-1.5 text-[15px] leading-relaxed text-ink">{narrative}</p>
         </div>
         <p className="px-5 py-2 text-xs text-faint">
-          Generated from {model.entryCount} entries · statistics computed on-device, prose written
-          over the summary (no raw entries sent to a model).
+          From {analysis.entryCount} entries · Spearman correlations, effect sizes and same-/next-day
+          lags computed on-device; findings pass a false-discovery check.
         </p>
       </Card>
 
       {fitbitFactors.length > 0 && (
         <Card className="mt-4 flex items-center justify-between gap-3 p-4">
           <div className="min-w-0">
-            <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-              ⌚ Fitbit
-            </p>
+            <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">⌚ Fitbit</p>
             <p className="mt-0.5 text-xs text-muted">
-              Pull the last 30 days into{" "}
-              {fitbitFactors.map((f) => f.label).join(", ")}.
+              Pull the last 30 days into {fitbitFactors.map((f) => f.label).join(", ")}.
             </p>
             {syncMsg && (
               <p className={`mt-1 text-xs ${syncMsg.ok ? "text-positive" : "text-negative"}`}>
@@ -161,44 +134,51 @@ function InsightsInner() {
         </Card>
       )}
 
-      {!model.enoughData && (
+      {!analysis.enoughData && (
         <Card className="mt-4 border-dashed p-4">
           <p className="text-sm font-semibold text-ink">Not enough data yet</p>
           <div className="mt-2 h-2 w-full rounded-full bg-raised">
             <div
-              className="h-full rounded-full bg-accent transition-all"
-              style={{ width: `${Math.min(100, (model.entryCount / MIN_SAMPLE_SIZE) * 100)}%` }}
+              className="h-full rounded-full bg-gradient-accent transition-all"
+              style={{ width: `${Math.min(100, (analysis.entryCount / MIN_SAMPLE_SIZE) * 100)}%` }}
             />
           </div>
           <p className="mt-2 text-xs text-muted">
-            {model.entryCount} / {MIN_SAMPLE_SIZE} entries. Below this a correlation is mostly
-            noise, so we won&apos;t show one — and neither will Chat.
+            {analysis.entryCount} / {MIN_SAMPLE_SIZE} entries. Below this a pattern is mostly noise,
+            so we won&apos;t claim one — and neither will Chat.
           </p>
         </Card>
       )}
 
-      {/* Trend */}
-      {model.trend.length > 1 && (
+      {analysis.trend.length > 1 && (
         <section className="mt-6">
-          <h2 className="mb-2 text-sm font-bold text-ink">{model.target.label} over time</h2>
+          <h2 className="mb-2 text-sm font-bold text-ink">{analysis.target.label} over time</h2>
           <Card className="p-4">
-            <TrendChart data={model.trend} label={model.target.label} />
+            <TrendChart data={analysis.trend} label={analysis.target.label} />
           </Card>
         </section>
       )}
 
-      {/* Correlations */}
-      {model.enoughData && (
+      {/* Top insights + recommendations */}
+      {analysis.topInsights.length > 0 && (
         <section className="mt-6">
-          <h2 className="mb-1 text-sm font-bold text-ink">
-            What moves with {model.target.label.toLowerCase()}
-          </h2>
-          <p className="mb-3 text-xs text-faint">
-            <span className="text-positive">Green</span> = goes with lower{" "}
-            {model.target.label.toLowerCase()}, <span className="text-negative">red</span> = higher.
-          </p>
-          <Card className="p-4">
-            <CorrelationBars correlations={model.correlations} targetLabel={model.target.label} />
+          <h2 className="mb-2 text-sm font-bold text-ink">Top insights</h2>
+          <div className="space-y-3">
+            {analysis.topInsights.map((f) => (
+              <InsightCard key={f.factor.id} f={f} targetLabel={targetLabel} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* All signals */}
+      {analysis.enoughData && analysis.findings.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-2 text-sm font-bold text-ink">All signals</h2>
+          <Card className="divide-y divide-line">
+            {analysis.findings.map((f) => (
+              <SignalRow key={f.factor.id} f={f} />
+            ))}
           </Card>
         </section>
       )}
@@ -212,5 +192,75 @@ function InsightsInner() {
         </LinkButton>
       </div>
     </main>
+  );
+}
+
+const CONF_META: Record<Confidence, { label: string; cls: string }> = {
+  strong: { label: "Strong", cls: "bg-gradient-accent text-white" },
+  moderate: { label: "Moderate", cls: "bg-accent-soft text-accent-ink" },
+  tentative: { label: "Early signal", cls: "bg-raised text-muted border border-line" },
+  none: { label: "No clear link", cls: "bg-raised text-faint border border-line" },
+};
+
+function ConfBadge({ c }: { c: Confidence }) {
+  const m = CONF_META[c];
+  return (
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${m.cls}`}>
+      {m.label}
+    </span>
+  );
+}
+
+function InsightCard({ f, targetLabel }: { f: Finding; targetLabel: string }) {
+  return (
+    <Card className="p-4">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-sm font-bold text-ink">
+          <span>{categoryEmoji(f.factor.category)}</span>
+          {f.factor.label}
+          {f.lag === 1 && (
+            <span className="rounded-full bg-raised px-1.5 py-0.5 text-[10px] font-medium text-muted">
+              next-day
+            </span>
+          )}
+        </span>
+        <ConfBadge c={f.confidence} />
+      </div>
+      <p className="text-sm leading-relaxed text-muted">{f.headline}</p>
+      {f.recommendation ? (
+        <div className="mt-2.5 rounded-xl bg-accent-soft px-3 py-2.5 text-[13px] leading-relaxed text-accent-ink">
+          💡 {f.recommendation}
+        </div>
+      ) : (
+        !f.controllable && (
+          <p className="mt-1.5 text-xs text-faint">
+            Context, not a lever — useful to know, but not something to act on directly.
+          </p>
+        )
+      )}
+    </Card>
+  );
+}
+
+function SignalRow({ f }: { f: Finding }) {
+  const good = f.confidence !== "none" && f.beneficialIncrease;
+  const bad = f.confidence !== "none" && f.beneficialIncrease === false;
+  const dot = good ? "bg-positive" : bad ? "bg-negative" : "bg-faint";
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
+        <span className="truncate text-sm font-medium text-ink">
+          {categoryEmoji(f.factor.category)} {f.factor.label}
+        </span>
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="tabular-nums text-xs text-faint">
+          r={f.r >= 0 ? "+" : ""}
+          {f.r.toFixed(2)} · n={f.n}
+        </span>
+        <ConfBadge c={f.confidence} />
+      </div>
+    </div>
   );
 }

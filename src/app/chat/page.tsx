@@ -3,8 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { AppHeader, Loading, Pill } from "@/components/ui";
-import { MIN_SAMPLE_SIZE, computeCorrelations, targetEntryCount } from "@/lib/stats";
-import { SUGGESTED_QUESTIONS, answerQuestion, type StatsSummary } from "@/lib/narrative";
+import { MIN_SAMPLE_SIZE } from "@/lib/stats";
+import { analyzeSense, type Analysis } from "@/lib/insights";
+import { SUGGESTED_QUESTIONS, answerQuestion } from "@/lib/narrative";
 import { useStore } from "@/lib/store";
 
 interface Msg {
@@ -27,22 +28,15 @@ function ChatInner() {
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const summary = useMemo<StatsSummary | null>(() => {
+  const analysis = useMemo<Analysis | null>(() => {
     if (!ready) return null;
-    const sense = getSense(id);
-    if (!sense) return null;
-    const factors = factorsFor(id);
-    const entries = entriesFor(id);
-    const target = factors.find((f) => f.isTarget) ?? factors[0];
-    if (!target) return null;
-    const correlations = computeCorrelations(factors, entries, target.id);
-    const entryCount = targetEntryCount(entries, target.id);
-    return { sense, target, correlations, entryCount, enoughData: entryCount >= MIN_SAMPLE_SIZE };
+    if (!getSense(id)) return null;
+    return analyzeSense(factorsFor(id), entriesFor(id));
   }, [ready, id, getSense, factorsFor, entriesFor]);
 
   if (!ready) return <Loading />;
   const sense = getSense(id);
-  if (!sense || !summary) {
+  if (!sense || !analysis) {
     return (
       <main className="px-4">
         <AppHeader title="Chat" back="/" />
@@ -54,7 +48,7 @@ function ChatInner() {
   const ask = (q: string) => {
     const question = q.trim();
     if (!question) return;
-    const answer = answerQuestion(question, summary);
+    const answer = answerQuestion(question, analysis);
     setMessages((prev) => [...prev, { role: "user", text: question }, { role: "assistant", text: answer }]);
     setDraft("");
     requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 1e9, behavior: "smooth" }));

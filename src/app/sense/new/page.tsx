@@ -40,6 +40,7 @@ export default function NewSensePage() {
   const [question, setQuestion] = useState("");
   const [frequency, setFrequency] = useState<Frequency>("daily");
   const [factors, setFactors] = useState<DraftFactor[]>([]);
+  const [goalDir, setGoalDir] = useState<"minimize" | "maximize">("minimize");
 
   const addFactor = (seed?: Partial<DraftFactor>) => {
     setFactors((prev) => [
@@ -81,20 +82,23 @@ export default function NewSensePage() {
       title: title.trim(),
       question: question.trim(),
       frequency,
-      factors: namedFactors.map((f) => ({
-        label: f.label.trim(),
-        category: f.category,
-        entryType: f.entryType,
-        isTarget: f.isTarget,
-        config:
+      factors: namedFactors.map((f) => {
+        const base =
           f.entryType === "list"
             ? { options: f.options.split(",").map((o) => o.trim()).filter(Boolean) }
             : f.entryType === "number"
             ? { unit: f.unit.trim() || undefined }
             : f.entryType === "integration"
             ? { provider: f.provider.trim(), metric: f.metric.trim() }
-            : {},
-      })),
+            : {};
+        return {
+          label: f.label.trim(),
+          category: f.category,
+          entryType: f.entryType,
+          isTarget: f.isTarget,
+          config: f.isTarget ? { ...base, goalDirection: goalDir } : base,
+        };
+      }),
     });
     router.push(`/log?sense=${id}`);
   };
@@ -182,6 +186,22 @@ export default function NewSensePage() {
                   </Pill>
                 ))}
               </div>
+            </Field>
+
+            <Field
+              label={`For "${namedFactors.find((f) => f.isTarget)?.label ?? "your target"}", which is better?`}
+            >
+              <div className="flex flex-wrap gap-2">
+                <Pill active={goalDir === "minimize"} onClick={() => setGoalDir("minimize")}>
+                  🎯 Lower is better
+                </Pill>
+                <Pill active={goalDir === "maximize"} onClick={() => setGoalDir("maximize")}>
+                  🎯 Higher is better
+                </Pill>
+              </div>
+              <p className="mt-1.5 text-xs text-faint">
+                Drives the recommendations — e.g. lower for pain, higher for focus.
+              </p>
             </Field>
 
             <div>
