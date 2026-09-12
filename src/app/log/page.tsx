@@ -63,7 +63,7 @@ function LogEntryInner() {
     const loggedAt = when ? new Date(when).toISOString() : new Date().toISOString();
     addEntry(id, entryValues, loggedAt);
     setSaved(true);
-    setTimeout(() => router.push(`/insights?sense=${id}`), 700);
+    setTimeout(() => router.push("/"), 700);
   };
 
   return (
