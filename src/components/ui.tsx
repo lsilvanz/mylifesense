@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 type Variant = "primary" | "soft" | "ghost" | "outline";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-gradient-accent text-white shadow-glow hover:brightness-110",
-  soft: "bg-accent-soft text-accent-ink border border-line hover:brightness-110",
-  ghost: "text-muted hover:text-ink hover:bg-raised/60",
-  outline: "glass border border-line text-ink hover:border-line-strong",
+  primary: "bg-gradient-accent text-white shadow-glow hover:brightness-105",
+  soft: "bg-accent-soft text-accent-ink hover:brightness-[0.97]",
+  ghost: "text-muted hover:text-ink hover:bg-raised",
+  outline: "bg-surface border border-line text-ink hover:border-line-strong hover:bg-raised",
 };
 
 export function Button({
@@ -57,7 +57,9 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-line glass shadow-card ${className}`}>{children}</div>
+    <div className={`rounded-2xl border border-line bg-surface shadow-card ${className}`}>
+      {children}
+    </div>
   );
 }
 
@@ -76,7 +78,7 @@ export function Pill({
     "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition select-none";
   const look = active
     ? "bg-gradient-accent text-white shadow-glow"
-    : "glass text-muted hover:text-ink border border-line hover:border-line-strong";
+    : "bg-raised text-muted hover:text-ink border border-line hover:border-line-strong";
   return (
     <button type="button" onClick={onClick} className={`${base} ${look} ${className}`}>
       {children}

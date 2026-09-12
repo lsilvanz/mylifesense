@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { Button, Loading, Wordmark } from "./ui";
+import { Button, Loading } from "./ui";
+import { Clouds, Sparkle } from "./decor";
 
 // Shown on entry when the visitor isn't signed into a real account. Offers
 // Google + email sign-in / sign-up, plus a remembered "continue as guest".
@@ -36,20 +37,27 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <main className="flex min-h-screen flex-col justify-center px-5 py-10">
+    <main className="flex min-h-screen flex-col justify-center px-5 py-8">
       <div className="mx-auto w-full max-w-sm">
-        <div className="mb-6 flex justify-center">
-          <Wordmark />
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-accent px-6 pb-8 pt-10 text-center shadow-glow">
+          <Clouds className="pointer-events-none absolute inset-x-0 -top-1 h-24 w-full text-white opacity-80" />
+          <Sparkle className="absolute right-7 top-7 h-4 w-4 text-white/70" />
+          <Sparkle className="absolute left-8 top-20 h-3 w-3 text-white/50" />
+          <div className="relative flex items-center justify-center gap-2">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 text-lg text-white">
+              ◵
+            </span>
+            <span className="text-xl font-extrabold tracking-tight text-white">MyLifeSense</span>
+          </div>
+          <h1 className="relative mt-5 text-2xl font-extrabold tracking-tight text-white">
+            Understand your patterns
+          </h1>
+          <p className="relative mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-white/85">
+            Sign in or create your account to track what matters and keep it across your devices.
+          </p>
         </div>
 
-        <h1 className="text-center text-3xl font-extrabold tracking-tight text-gradient">
-          Understand your patterns
-        </h1>
-        <p className="mx-auto mt-2 max-w-xs text-center text-[15px] leading-relaxed text-muted">
-          Sign in or create your account to track what matters and keep it across your devices.
-        </p>
-
-        <div className="mt-7 space-y-3">
+        <div className="mt-6 space-y-3">
           <Button variant="outline" className="w-full" disabled={busy} onClick={google}>
             <GoogleMark /> Continue with Google
           </Button>

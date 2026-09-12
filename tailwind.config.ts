@@ -30,8 +30,8 @@ const config: Config = {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        card: "0 1px 0 oklch(1 0 0 / 0.05) inset, 0 12px 40px oklch(0 0 0 / 0.45)",
-        glow: "0 8px 30px oklch(0.6 0.2 296 / 0.4)",
+        card: "0 2px 4px oklch(0.5 0.12 283 / 0.06), 0 14px 34px oklch(0.5 0.12 283 / 0.1)",
+        glow: "0 10px 26px oklch(0.55 0.19 281 / 0.4)",
       },
     },
   },

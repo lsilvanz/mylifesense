@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { Button, Card, LinkButton, Loading, Wordmark, EmptyState } from "@/components/ui";
+import { Clouds } from "@/components/decor";
 import { categoryEmoji } from "@/lib/entryTypes";
 import type { Sense } from "@/lib/types";
 
@@ -95,22 +96,22 @@ function FeaturedCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="relative overflow-hidden bg-accent-soft px-5 py-5">
-        <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-gradient-accent opacity-30 blur-3xl" />
+      <div className="relative overflow-hidden bg-gradient-accent px-5 py-6">
+        <Clouds className="pointer-events-none absolute -top-3 right-0 h-28 w-64 text-white opacity-80" />
         <Link
           href={`/sense/settings?sense=${sense.id}`}
           aria-label="Manage Sense"
-          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full text-accent-ink transition hover:bg-raised"
+          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full text-white/90 transition hover:bg-white/20"
         >
           ⚙
         </Link>
-        <div className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
-          <span className="h-1.5 w-1.5 rounded-full bg-gradient-accent" /> Active Sense
+        <div className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80">
+          <span className="h-1.5 w-1.5 rounded-full bg-white" /> Active Sense
         </div>
-        <h2 className="relative mt-1.5 text-2xl font-extrabold tracking-tight text-ink">
+        <h2 className="relative mt-1.5 text-2xl font-extrabold tracking-tight text-white">
           {sense.title}
         </h2>
-        <p className="relative mt-1 text-sm text-muted">{sense.question}</p>
+        <p className="relative mt-1 text-sm text-white/85">{sense.question}</p>
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-1 px-5 pt-3 text-xs text-faint">
         <span>{factorCount} factors</span>
