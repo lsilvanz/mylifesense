@@ -60,7 +60,8 @@ export async function onRequestPost(context) {
     return json({ error: "bad_request" }, 400);
   }
 
-  const { mode, summary, question, title, sense_question, existing, context } = body || {};
+  const { mode, summary, question, title, sense_question, existing, context: userContext } =
+    body || {};
 
   let system = SYSTEM;
   let userText;
@@ -72,7 +73,9 @@ export async function onRequestPost(context) {
     maxTokens = 900;
     userText = `Sense title: ${title}\nQuestion: ${sense_question || ""}\nAlready chosen factors: ${
       Array.isArray(existing) && existing.length ? existing.join(", ") : "none"
-    }${context ? `\n\nUser context (use it to tailor suggestions):\n${context}` : ""}\nSuggest factors as JSON.`;
+    }${
+      userContext ? `\n\nUser context (use it to tailor suggestions):\n${userContext}` : ""
+    }\nSuggest factors as JSON.`;
   } else {
     if (!summary) return json({ error: "missing_summary" }, 400);
     userText =
