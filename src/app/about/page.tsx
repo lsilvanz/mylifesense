@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AppHeader, Button, Card } from "@/components/ui";
 import { Integrations } from "@/components/integrations";
 import { ContextEditor } from "@/components/context-editor";
+import { NotificationsToggle } from "@/components/notifications-toggle";
 import { ME_ID } from "@/lib/context";
 import { useStore } from "@/lib/store";
 
@@ -125,6 +126,8 @@ export default function AboutPage() {
           )}
         </Card>
       )}
+
+      <NotificationsToggle />
 
       <Integrations />
 

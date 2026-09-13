@@ -7,6 +7,7 @@ import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/ent
 import { goalOf, isControllable } from "@/lib/insights";
 import { FactorSuggestions } from "@/components/factor-suggestions";
 import { ContextEditor } from "@/components/context-editor";
+import { RemindersSection } from "@/components/reminders-section";
 import { combinedContextForAI } from "@/lib/context";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, SenseFactor } from "@/lib/types";
@@ -83,6 +84,10 @@ function SettingsInner() {
       <section className="mt-6">
         <h2 className="mb-2 text-sm font-bold text-ink">Context</h2>
         <ContextEditor senseId={id} />
+      </section>
+
+      <section className="mt-6">
+        <RemindersSection senseId={id} senseFrequency={sense.frequency} factors={factors} />
       </section>
 
       <section className="mt-6">
