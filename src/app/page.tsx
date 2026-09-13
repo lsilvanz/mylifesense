@@ -1,11 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { Button, Card, LinkButton, Loading, Wordmark, EmptyState } from "@/components/ui";
 import { Clouds } from "@/components/decor";
+import { VoiceLogModal } from "@/components/voice-log-modal";
 import { categoryEmoji } from "@/lib/entryTypes";
 import type { Sense } from "@/lib/types";
+
+function MicButton({ onClick, className = "" }: { onClick: () => void; className?: string }) {
+  return (
+    <button onClick={onClick} aria-label="Log by voice" title="Log by voice" className={className}>
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+        <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z" />
+        <path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21a1 1 0 1 0 2 0v-3.08A7 7 0 0 0 19 11z" />
+      </svg>
+    </button>
+  );
+}
 
 const FREQUENCY_LABEL: Record<string, string> = {
   daily: "Daily",
@@ -15,6 +28,7 @@ const FREQUENCY_LABEL: Record<string, string> = {
 
 export default function HomePage() {
   const { ready, senses, factorsFor, entriesFor, resetDemo, initError, focusedSenseId } = useStore();
+  const [voiceSense, setVoiceSense] = useState<string | null>(null);
   if (!ready) return <Loading />;
 
   const featured = senses.find((s) => s.id === focusedSenseId) ?? senses[0];
@@ -72,6 +86,7 @@ export default function HomePage() {
               factorCount={factorsFor(featured.id).length}
               entryCount={entriesFor(featured.id).length}
               targetLabel={factorsFor(featured.id).find((f) => f.isTarget)?.label}
+              onVoice={() => setVoiceSense(featured.id)}
             />
           )}
           {rest.map((s) => (
@@ -80,10 +95,13 @@ export default function HomePage() {
               sense={s}
               factorCount={factorsFor(s.id).length}
               entryCount={entriesFor(s.id).length}
+              onVoice={() => setVoiceSense(s.id)}
             />
           ))}
         </div>
       )}
+
+      {voiceSense && <VoiceLogModal senseId={voiceSense} onClose={() => setVoiceSense(null)} />}
 
       <div className="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t border-line bg-ground/90 px-4 py-3 backdrop-blur">
         <LinkButton href="/sense/new" className="w-full">
@@ -99,24 +117,22 @@ function FeaturedCard({
   factorCount,
   entryCount,
   targetLabel,
+  onVoice,
 }: {
   sense: Sense;
   factorCount: number;
   entryCount: number;
   targetLabel?: string;
+  onVoice: () => void;
 }) {
   return (
     <Card className="overflow-hidden">
       <div className="relative overflow-hidden bg-gradient-accent px-5 py-6">
         <Clouds className="pointer-events-none absolute -top-3 right-0 h-28 w-64 text-white opacity-80" />
-        <Link
-          href={`/log?sense=${sense.id}&voice=1`}
-          aria-label="Log by voice"
-          title="Log by voice"
+        <MicButton
+          onClick={onVoice}
           className="absolute right-12 top-3 z-10 grid h-8 w-8 place-items-center rounded-full text-white/90 transition hover:bg-white/20"
-        >
-          🎤
-        </Link>
+        />
         <Link
           href={`/sense/settings?sense=${sense.id}`}
           aria-label="Manage Sense"
@@ -157,10 +173,12 @@ function CompactCard({
   sense,
   factorCount,
   entryCount,
+  onVoice,
 }: {
   sense: Sense;
   factorCount: number;
   entryCount: number;
+  onVoice: () => void;
 }) {
   return (
     <Card className="p-4">
@@ -180,10 +198,11 @@ function CompactCard({
           ⚙
         </Link>
       </div>
-      <div className="mt-3 flex gap-2">
-        <LinkButton href={`/log?sense=${sense.id}&voice=1`} variant="soft" className="px-3">
-          🎤
-        </LinkButton>
+      <div className="mt-3 flex items-stretch gap-2">
+        <MicButton
+          onClick={onVoice}
+          className="grid place-items-center rounded-xl bg-accent-soft px-3 text-accent-ink transition hover:brightness-95"
+        />
         <LinkButton href={`/log?sense=${sense.id}`} variant="soft" className="flex-1">
           Log
         </LinkButton>
