@@ -68,6 +68,7 @@ export interface SuggestedFactor {
   goalDirection?: "minimize" | "maximize";
   unit?: string;
   options?: string[];
+  multiple?: boolean;
 }
 
 const CATEGORIES: FactorCategory[] = [
@@ -142,6 +143,7 @@ export async function suggestFactors(
             : undefined,
         unit: typeof f.unit === "string" ? f.unit : undefined,
         options: Array.isArray(f.options) ? (f.options as unknown[]).map(String) : undefined,
+        multiple: typeof f.multiple === "boolean" ? f.multiple : undefined,
       });
     }
     return out.length ? out : null;

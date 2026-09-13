@@ -26,6 +26,7 @@ export type FactorCategory =
 export interface FactorConfig {
   // list
   options?: string[];
+  multiple?: boolean; // list: allow selecting more than one option
   // number
   unit?: string;
   // integration

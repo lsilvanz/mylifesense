@@ -25,13 +25,13 @@ Rules:
 const FACTOR_SYSTEM = `You help design a "Sense" in a self-tracking app — something a person wants to understand about themselves. Given the Sense's title and question, propose candidate factors to track.
 
 Return ONLY valid JSON (no markdown fences, no prose) shaped exactly as:
-{"factors":[{"label":"Short name","category":"Symptoms|Food|Exercise|Sleep|Environment|Mood|Custom","entryType":"yes_no|scale_0_10|low_med_high|number|free_text|list","controllable":true,"isTarget":false,"goalDirection":"minimize","unit":"cups","options":["A","B"]}]}
+{"factors":[{"label":"Short name","category":"Symptoms|Food|Exercise|Sleep|Environment|Mood|Custom","entryType":"yes_no|scale_0_10|low_med_high|number|free_text|list","controllable":true,"isTarget":false,"goalDirection":"minimize","unit":"cups","options":["A","B"],"multiple":true}]}
 
 Rules:
 - Suggest 4 to 6 factors.
 - EXACTLY ONE factor has "isTarget":true — the thing being measured/understood, derived from the question. Give the target a "goalDirection" ("minimize" if lower is better like pain, "maximize" if higher is better like focus). Non-target factors omit goalDirection.
 - Include factors that plausibly influence or relate to the target. Skip any already-chosen factors listed by the user.
-- Prefer quantifiable entry types (yes_no, scale_0_10, low_med_high, number). Use "number" with a "unit" for counts/amounts. "unit" only for number; "options" only for list.
+- Prefer quantifiable entry types (yes_no, scale_0_10, low_med_high, number). Use "number" with a "unit" for counts/amounts. "unit" only for number; "options" and "multiple" only for list. Set "multiple":true when several options can apply at once (e.g. symptoms, foods eaten), false when exactly one applies (e.g. weather).
 - "controllable":true for behaviours the person can change (exercise, food, sleep habits, screen time); false for context they can't directly change (weather, symptoms, external stress).
 - Keep labels to 2-4 words. Return only the JSON object.`;
 

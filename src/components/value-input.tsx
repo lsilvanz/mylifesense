@@ -82,22 +82,29 @@ export function ValueInput({
       );
 
     case "list": {
-      // Multi-select: value is an array of chosen options (legacy single
-      // strings are treated as a one-item array).
+      const options = factor.config.options ?? [];
+      const multiple = factor.config.multiple === true;
       const chosen = Array.isArray(value) ? value : value ? [value as string] : [];
+
       const toggle = (opt: string) => {
-        const next = chosen.includes(opt) ? chosen.filter((o) => o !== opt) : [...chosen, opt];
-        onChange(next.length ? next : null);
+        if (multiple) {
+          const next = chosen.includes(opt) ? chosen.filter((o) => o !== opt) : [...chosen, opt];
+          onChange(next.length ? next : null);
+        } else {
+          // Single-select: clicking the chosen option clears it.
+          onChange(chosen.includes(opt) ? null : opt);
+        }
       };
+
       return (
         <div className="flex flex-wrap gap-2">
-          {(factor.config.options ?? []).map((opt) => (
+          {options.map((opt) => (
             <Pill key={opt} active={chosen.includes(opt)} onClick={() => toggle(opt)}>
-              {chosen.includes(opt) ? "✓ " : ""}
+              {multiple && chosen.includes(opt) ? "✓ " : ""}
               {opt}
             </Pill>
           ))}
-          {(factor.config.options ?? []).length === 0 && (
+          {options.length === 0 && (
             <span className="text-sm text-faint">No options defined.</span>
           )}
         </div>

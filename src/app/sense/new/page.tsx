@@ -19,6 +19,7 @@ interface DraftFactor {
   metric: string;
   isTarget: boolean;
   controllable?: boolean;
+  multiple?: boolean; // list: allow multiple selection
 }
 
 const SUGGESTED: { label: string; category: FactorCategory; entryType: EntryType }[] = [
@@ -107,6 +108,7 @@ export default function NewSensePage() {
           metric: "steps",
           isTarget: makeTarget,
           controllable: s.controllable,
+          multiple: s.multiple,
         });
       }
       const combined = [...prev, ...additions];
@@ -128,7 +130,10 @@ export default function NewSensePage() {
       factors: namedFactors.map((f) => {
         const base =
           f.entryType === "list"
-            ? { options: f.options.split(",").map((o) => o.trim()).filter(Boolean) }
+            ? {
+                options: f.options.split(",").map((o) => o.trim()).filter(Boolean),
+                multiple: f.multiple ?? false,
+              }
             : f.entryType === "number"
             ? { unit: f.unit.trim() || undefined }
             : f.entryType === "integration"
@@ -422,12 +427,35 @@ function FactorEditor({
       </div>
 
       {factor.entryType === "list" && (
-        <input
-          value={factor.options}
-          onChange={(e) => onChange({ options: e.target.value })}
-          placeholder="Options, comma-separated: Sunny, Cloudy, Rain"
-          className="mt-2 w-full rounded-lg border border-line bg-surface px-3 py-2 text-xs outline-none focus:border-accent"
-        />
+        <div className="mt-2 space-y-2">
+          <input
+            value={factor.options}
+            onChange={(e) => onChange({ options: e.target.value })}
+            placeholder="Options, comma-separated: Sunny, Cloudy, Rain"
+            className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-xs outline-none focus:border-accent"
+          />
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-faint">Selection:</span>
+            <button
+              type="button"
+              onClick={() => onChange({ multiple: false })}
+              className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
+                !factor.multiple ? "bg-accent text-white" : "border border-line bg-surface text-muted"
+              }`}
+            >
+              Single
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ multiple: true })}
+              className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
+                factor.multiple ? "bg-accent text-white" : "border border-line bg-surface text-muted"
+              }`}
+            >
+              Multiple
+            </button>
+          </div>
+        </div>
       )}
       {factor.entryType === "number" && (
         <input
