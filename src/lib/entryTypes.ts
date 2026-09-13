@@ -13,7 +13,7 @@ export const ENTRY_TYPES: EntryTypeMeta[] = [
   { type: "scale_0_10", label: "Scale 0–10", hint: "Rate intensity or amount.", quantifiable: true },
   { type: "low_med_high", label: "Low / Med / High", hint: "Three-level rating.", quantifiable: true },
   { type: "number", label: "Number", hint: "A measured value with a unit.", quantifiable: true },
-  { type: "list", label: "Pick from list", hint: "Choose one of your options.", quantifiable: false },
+  { type: "list", label: "Pick from list", hint: "Pick from your options (single or multiple).", quantifiable: false },
   { type: "free_text", label: "Free text", hint: "A note in your own words.", quantifiable: false },
   { type: "integration", label: "Integration", hint: "Pulled from a connected app.", quantifiable: true },
 ];
