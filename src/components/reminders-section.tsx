@@ -2,8 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { Button, Card } from "./ui";
-import { deleteReminder, listReminders, localTz, upsertReminder, type Reminder } from "@/lib/reminders";
+import {
+  deleteReminder,
+  isSetupError,
+  listReminders,
+  localTz,
+  upsertReminder,
+  type Reminder,
+} from "@/lib/reminders";
 import type { Frequency, SenseFactor } from "@/lib/types";
+
+const SETUP_MSG = "Reminders need a one-time database setup — run supabase/reminders.sql in Supabase.";
 
 const FREQS: { value: Frequency; label: string }[] = [
   { value: "daily", label: "Daily" },
@@ -21,31 +30,49 @@ export function RemindersSection({
   factors: SenseFactor[];
 }) {
   const [items, setItems] = useState<Reminder[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    listReminders(senseId).then((r) => !cancelled && setItems(r));
+    listReminders(senseId)
+      .then((r) => !cancelled && setItems(r))
+      .catch((e) => {
+        if (cancelled) return;
+        setItems([]);
+        setError(isSetupError(e) ? SETUP_MSG : "Couldn't load reminders.");
+      });
     return () => {
       cancelled = true;
     };
   }, [senseId]);
 
   const add = async () => {
-    const created = await upsertReminder({
-      senseId,
-      factorId: null,
-      frequency: senseFrequency,
-      timeLocal: "09:00",
-      tz: localTz(),
-      enabled: true,
-    });
-    if (created) setItems((prev) => [...(prev ?? []), created]);
+    try {
+      const created = await upsertReminder({
+        senseId,
+        factorId: null,
+        frequency: senseFrequency,
+        timeLocal: "09:00",
+        tz: localTz(),
+        enabled: true,
+      });
+      if (created) {
+        setItems((prev) => [...(prev ?? []), created]);
+        setError(null);
+      }
+    } catch (e) {
+      setError(isSetupError(e) ? SETUP_MSG : "Couldn't save the reminder.");
+    }
   };
 
   const patch = async (r: Reminder, changes: Partial<Reminder>) => {
     const next = { ...r, ...changes };
     setItems((prev) => (prev ?? []).map((x) => (x.id === r.id ? next : x)));
-    await upsertReminder(next);
+    try {
+      await upsertReminder(next);
+    } catch (e) {
+      setError(isSetupError(e) ? SETUP_MSG : "Couldn't save the change.");
+    }
   };
 
   const remove = async (id: string) => {
@@ -63,6 +90,12 @@ export function RemindersSection({
         Get a push notification to log — for the whole Sense or a specific factor. Enable
         notifications in <span className="font-medium text-ink">About me</span> to receive them.
       </p>
+
+      {error && (
+        <p className="mt-2 rounded-lg border border-negative/40 bg-negative/10 px-3 py-2 text-xs text-negative">
+          {error}
+        </p>
+      )}
 
       {items === null ? (
         <p className="mt-3 text-xs text-faint">Loading…</p>

@@ -23,11 +23,14 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
   return out;
 }
 
-async function saveSubscription(sub: PushSubscription) {
-  if (!supabase) return;
+async function saveSubscription(sub: PushSubscription): Promise<boolean> {
+  if (!supabase) return true;
   const json = sub.toJSON() as { endpoint?: string };
-  if (!json.endpoint) return;
-  await supabase.from("push_subscriptions").upsert({ endpoint: json.endpoint, subscription: json });
+  if (!json.endpoint) return false;
+  const { error } = await supabase
+    .from("push_subscriptions")
+    .upsert({ endpoint: json.endpoint, subscription: json });
+  return !error;
 }
 
 export async function isPushEnabled(): Promise<boolean> {
@@ -59,7 +62,12 @@ export async function enablePush(): Promise<{ ok: boolean; message: string }> {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
     }
-    await saveSubscription(sub);
+    const saved = await saveSubscription(sub);
+    if (!saved)
+      return {
+        ok: false,
+        message: "Allowed, but couldn't register — reminders storage isn't set up yet (run supabase/reminders.sql).",
+      };
     return { ok: true, message: "Notifications enabled on this device." };
   } catch (e) {
     return { ok: false, message: e instanceof Error ? e.message : "Couldn't enable notifications." };

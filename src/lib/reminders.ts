@@ -30,9 +30,17 @@ export function localTz(): string {
   }
 }
 
+export function isSetupError(e: unknown): boolean {
+  const err = e as { code?: string; message?: string } | null;
+  return Boolean(
+    err && (err.code === "PGRST205" || (err.message ?? "").toLowerCase().includes("schema cache"))
+  );
+}
+
 export async function listReminders(senseId: string): Promise<Reminder[]> {
   if (!supabase) return [];
-  const { data } = await supabase.from("reminders").select("*").eq("sense_id", senseId);
+  const { data, error } = await supabase.from("reminders").select("*").eq("sense_id", senseId);
+  if (error) throw error;
   return (data ?? []).map(map);
 }
 
@@ -47,10 +55,12 @@ export async function upsertReminder(r: Omit<Reminder, "id"> & { id?: string }):
     enabled: r.enabled,
   };
   if (r.id) {
-    await supabase.from("reminders").update(row).eq("id", r.id);
+    const { error } = await supabase.from("reminders").update(row).eq("id", r.id);
+    if (error) throw error;
     return { ...(r as Reminder) };
   }
-  const { data } = await supabase.from("reminders").insert(row).select().single();
+  const { data, error } = await supabase.from("reminders").insert(row).select().single();
+  if (error) throw error;
   return data ? map(data) : null;
 }
 
