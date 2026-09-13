@@ -83,49 +83,51 @@ const seedToDraft = (s: Seed, origin: DraftFactor["origin"]): DraftFactor => ({
   origin,
 });
 
-const STARTERS: { key: string; emoji: string; title: string; question: string }[] = [
-  { key: "sleep", emoji: "🌙", title: "My sleep", question: "What helps me sleep well — and what wrecks it?" },
-  { key: "energy", emoji: "⚡", title: "My energy", question: "What makes my energy crash or soar during the day?" },
-  { key: "symptom", emoji: "🩺", title: "A symptom", question: "What makes this symptom better or worse?" },
-  { key: "focus", emoji: "🎯", title: "My focus", question: "What helps me focus — and what breaks it?" },
-  { key: "mood", emoji: "🙂", title: "My mood", question: "What lifts or lowers my mood?" },
-  { key: "fitness", emoji: "🏃", title: "My workouts", question: "What drives how good my workouts feel?" },
+const STARTERS: { key: string; icon: string; title: string; question: string }[] = [
+  { key: "health", icon: "health", title: "Health issue", question: "What makes this health issue better or worse?" },
+  { key: "sport", icon: "sport", title: "Sport & performance", question: "What drives how well I perform?" },
+  { key: "money", icon: "money", title: "Money & finances", question: "What shapes my spending, saving and money stress?" },
+  { key: "people", icon: "people", title: "People & social", question: "What makes my relationships better or worse?" },
+  { key: "mind", icon: "mind", title: "Mind & mood", question: "What lifts or lowers how I feel?" },
+  { key: "work", icon: "work", title: "Work & focus", question: "What helps me focus and get things done?" },
+  { key: "sleep", icon: "sleep", title: "Sleep & energy", question: "What helps me rest and feel energised?" },
+  { key: "else", icon: "else", title: "", question: "" },
 ];
 
 const FALLBACK: Record<string, Seed[]> = {
-  sleep: [
-    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high", isTarget: true, goalDirection: "maximize" },
-    { label: "Caffeine after noon", category: "Food", entryType: "yes_no", controllable: true },
-    { label: "Screen time before bed", category: "Environment", entryType: "low_med_high", controllable: true },
-    { label: "Exercised today", category: "Exercise", entryType: "yes_no", controllable: true },
-    { label: "Stress level", category: "Mood", entryType: "scale_0_10" },
-    { label: "Alcohol", category: "Food", entryType: "yes_no", controllable: true },
-  ],
-  energy: [
-    { label: "Energy level", category: "Mood", entryType: "scale_0_10", isTarget: true, goalDirection: "maximize" },
-    { label: "Hours slept", category: "Sleep", entryType: "number", unit: "hours" },
-    { label: "Caffeine", category: "Food", entryType: "number", unit: "cups", controllable: true },
-    { label: "Skipped a meal", category: "Food", entryType: "yes_no", controllable: true },
-    { label: "Exercised today", category: "Exercise", entryType: "yes_no", controllable: true },
-    { label: "Mood", category: "Mood", entryType: "low_med_high" },
-  ],
-  symptom: [
+  health: [
     { label: "Symptom severity", category: "Symptoms", entryType: "scale_0_10", isTarget: true, goalDirection: "minimize" },
+    { label: "Took medication", category: "Symptoms", entryType: "yes_no", controllable: true },
+    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high" },
+    { label: "Stress level", category: "Mood", entryType: "scale_0_10" },
     { label: "Ate a trigger food", category: "Food", entryType: "yes_no", controllable: true },
     { label: "Exercised today", category: "Exercise", entryType: "yes_no", controllable: true },
-    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high" },
-    { label: "Stress level", category: "Mood", entryType: "scale_0_10" },
-    { label: "Took medication", category: "Symptoms", entryType: "yes_no", controllable: true },
   ],
-  focus: [
-    { label: "Focus level", category: "Mood", entryType: "scale_0_10", isTarget: true, goalDirection: "maximize" },
-    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high" },
-    { label: "Caffeine", category: "Food", entryType: "number", unit: "cups", controllable: true },
-    { label: "Exercised today", category: "Exercise", entryType: "yes_no", controllable: true },
-    { label: "Deep-work blocks", category: "Custom", entryType: "number", controllable: true },
-    { label: "Distractions", category: "Environment", entryType: "low_med_high" },
+  sport: [
+    { label: "Performance", category: "Exercise", entryType: "scale_0_10", isTarget: true, goalDirection: "maximize" },
+    { label: "Hours slept", category: "Sleep", entryType: "number", unit: "hours" },
+    { label: "Nutrition quality", category: "Food", entryType: "low_med_high", controllable: true },
+    { label: "Rest day yesterday", category: "Exercise", entryType: "yes_no" },
+    { label: "Soreness", category: "Symptoms", entryType: "low_med_high" },
+    { label: "Hydration", category: "Food", entryType: "low_med_high", controllable: true },
   ],
-  mood: [
+  money: [
+    { label: "Money stress", category: "Mood", entryType: "scale_0_10", isTarget: true, goalDirection: "minimize" },
+    { label: "Checked my finances", category: "Custom", entryType: "yes_no", controllable: true },
+    { label: "Impulse purchase", category: "Custom", entryType: "yes_no", controllable: true },
+    { label: "Spending vs plan", category: "Custom", entryType: "low_med_high", controllable: true },
+    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high" },
+    { label: "Mood", category: "Mood", entryType: "low_med_high" },
+  ],
+  people: [
+    { label: "Relationship satisfaction", category: "Custom", entryType: "low_med_high", isTarget: true, goalDirection: "maximize" },
+    { label: "Quality time together", category: "Custom", entryType: "yes_no", controllable: true },
+    { label: "Conflict today", category: "Custom", entryType: "yes_no" },
+    { label: "Social time", category: "Custom", entryType: "yes_no", controllable: true },
+    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high" },
+    { label: "Mood", category: "Mood", entryType: "low_med_high" },
+  ],
+  mind: [
     { label: "Mood", category: "Mood", entryType: "low_med_high", isTarget: true, goalDirection: "maximize" },
     { label: "Sleep quality", category: "Sleep", entryType: "low_med_high" },
     { label: "Exercised today", category: "Exercise", entryType: "yes_no", controllable: true },
@@ -133,13 +135,21 @@ const FALLBACK: Record<string, Seed[]> = {
     { label: "Social time", category: "Custom", entryType: "yes_no", controllable: true },
     { label: "Stress level", category: "Mood", entryType: "scale_0_10" },
   ],
-  fitness: [
-    { label: "How the workout felt", category: "Exercise", entryType: "scale_0_10", isTarget: true, goalDirection: "maximize" },
+  work: [
+    { label: "Focus level", category: "Mood", entryType: "scale_0_10", isTarget: true, goalDirection: "maximize" },
+    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high" },
+    { label: "Caffeine", category: "Food", entryType: "number", unit: "cups", controllable: true },
+    { label: "Deep-work blocks", category: "Custom", entryType: "number", controllable: true },
+    { label: "Distractions", category: "Environment", entryType: "low_med_high" },
+    { label: "Exercised today", category: "Exercise", entryType: "yes_no", controllable: true },
+  ],
+  sleep: [
+    { label: "Sleep quality", category: "Sleep", entryType: "low_med_high", isTarget: true, goalDirection: "maximize" },
     { label: "Hours slept", category: "Sleep", entryType: "number", unit: "hours" },
-    { label: "Ate well", category: "Food", entryType: "yes_no", controllable: true },
-    { label: "Rest day yesterday", category: "Exercise", entryType: "yes_no" },
-    { label: "Soreness", category: "Symptoms", entryType: "low_med_high" },
-    { label: "Hydration", category: "Food", entryType: "low_med_high", controllable: true },
+    { label: "Caffeine after noon", category: "Food", entryType: "yes_no", controllable: true },
+    { label: "Screen time before bed", category: "Environment", entryType: "low_med_high", controllable: true },
+    { label: "Exercised today", category: "Exercise", entryType: "yes_no", controllable: true },
+    { label: "Energy level", category: "Mood", entryType: "scale_0_10" },
   ],
 };
 
@@ -456,6 +466,63 @@ export default function NewSensePage() {
 
 /* ---------------------------------- Steps --------------------------------- */
 
+// Simple, monochrome line icons (currentColor) for a clean, clinical feel.
+function StarterIcon({ name, className = "" }: { name: string; className?: string }) {
+  const paths: Record<string, React.ReactNode> = {
+    health: <path d="M12 20s-6.5-4-9-8.2C1.2 8.6 2.7 5.5 6 5.5c1.8 0 3 1 4 2 1-1 2.2-2 4-2 3.3 0 4.8 3.1 3 6.3C18.5 16 12 20 12 20z" />,
+    sport: <path d="M3 12h4l2 6 4-14 2 8h4" />,
+    money: (
+      <>
+        <path d="M3 17l6-6 4 4 7-7" />
+        <path d="M17 8h4v4" />
+      </>
+    ),
+    people: (
+      <>
+        <circle cx="9" cy="8" r="3" />
+        <path d="M3 20v-1a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v1" />
+        <path d="M16 5.5a3 3 0 0 1 0 5" />
+        <path d="M21 20v-1a5 5 0 0 0-3-4.6" />
+      </>
+    ),
+    mind: (
+      <>
+        <path d="M9.5 18h5" />
+        <path d="M10.5 21h3" />
+        <path d="M12 3a6 6 0 0 0-3.7 10.7c.5.4.7 1 .7 1.6v.2h6v-.2c0-.6.2-1.2.7-1.6A6 6 0 0 0 12 3z" />
+      </>
+    ),
+    work: (
+      <>
+        <circle cx="12" cy="12" r="8.5" />
+        <circle cx="12" cy="12" r="4.5" />
+        <circle cx="12" cy="12" r="1" />
+      </>
+    ),
+    sleep: <path d="M20.5 13A8 8 0 1 1 11 3.5a6.2 6.2 0 0 0 9.5 9.5z" />,
+    else: (
+      <>
+        <path d="M12 5v14" />
+        <path d="M5 12h14" />
+      </>
+    ),
+  };
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths[name] ?? paths.else}
+    </svg>
+  );
+}
+
 function TopicStep({
   title,
   question,
@@ -481,22 +548,28 @@ function TopicStep({
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {STARTERS.map((s) => (
-          <button
-            key={s.key}
-            onClick={() => onPickStarter(s)}
-            className={`flex flex-col items-start gap-1 rounded-2xl border p-3 text-left transition ${
-              starterKey === s.key
-                ? "border-transparent bg-gradient-accent text-white shadow-glow"
-                : "border-line bg-surface hover:border-line-strong hover:bg-raised"
-            }`}
-          >
-            <span className="text-xl">{s.emoji}</span>
-            <span className={`text-sm font-semibold ${starterKey === s.key ? "text-white" : "text-ink"}`}>
-              {s.title}
-            </span>
-          </button>
-        ))}
+        {STARTERS.map((s) => {
+          const active = starterKey === s.key;
+          return (
+            <button
+              key={s.key}
+              onClick={() => onPickStarter(s)}
+              className={`flex flex-col items-start gap-2.5 rounded-xl border p-3 text-left transition ${
+                active
+                  ? "border-accent bg-accent-soft"
+                  : "border-line bg-surface hover:border-line-strong hover:bg-raised"
+              }`}
+            >
+              <StarterIcon
+                name={s.icon}
+                className={`h-6 w-6 ${active ? "text-accent-ink" : "text-muted"}`}
+              />
+              <span className={`text-sm font-semibold ${active ? "text-accent-ink" : "text-ink"}`}>
+                {s.title || "Something else"}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <Field label="Give it a name">
