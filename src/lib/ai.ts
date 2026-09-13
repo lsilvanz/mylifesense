@@ -1,5 +1,5 @@
 import type { Analysis } from "./insights";
-import type { EntryType, FactorCategory } from "./types";
+import type { EntryType, EntryValueData, FactorCategory, SenseFactor } from "./types";
 
 // Compact, privacy-preserving summary sent to the serverless Claude endpoint —
 // only computed statistics (never raw entries) plus any user-provided context.
@@ -105,6 +105,85 @@ function extractJson(text: string): unknown {
 }
 
 // Returns suggested factors, or null when AI is unavailable/unparseable.
+// ---- Voice / text -> structured log values --------------------------------
+function coerce(factor: SenseFactor, raw: unknown): EntryValueData | undefined {
+  switch (factor.entryType) {
+    case "yes_no":
+      if (typeof raw === "boolean") return raw;
+      if (typeof raw === "string") return /^(y|t|true|yes)/i.test(raw);
+      return undefined;
+    case "scale_0_10": {
+      const n = Math.round(Number(raw));
+      return Number.isFinite(n) ? Math.min(10, Math.max(0, n)) : undefined;
+    }
+    case "number": {
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : undefined;
+    }
+    case "low_med_high": {
+      const s = String(raw).toLowerCase();
+      if (s.startsWith("l")) return "low";
+      if (s.startsWith("h")) return "high";
+      if (s.startsWith("m")) return "med";
+      return undefined;
+    }
+    case "list": {
+      const opts = factor.config.options ?? [];
+      const match = (v: unknown) =>
+        opts.find((o) => o.toLowerCase() === String(v).toLowerCase());
+      if (factor.config.multiple) {
+        const arr = (Array.isArray(raw) ? raw : [raw]).map(match).filter(Boolean) as string[];
+        return arr.length ? arr : undefined;
+      }
+      return match(Array.isArray(raw) ? raw[0] : raw);
+    }
+    case "free_text":
+      return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
+    default:
+      return undefined;
+  }
+}
+
+// Returns a map of factorId -> value parsed from a transcript, or null on failure.
+export async function parseLog(
+  transcript: string,
+  factors: SenseFactor[]
+): Promise<Record<string, EntryValueData> | null> {
+  try {
+    const slim = factors
+      .filter((f) => f.entryType !== "integration")
+      .map((f) => ({
+        id: f.id,
+        label: f.label,
+        entryType: f.entryType,
+        options: f.config.options,
+        unit: f.config.unit,
+        multiple: f.config.multiple,
+      }));
+    const res = await fetch("/api/claude", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ mode: "parse_log", transcript, factors: slim }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { text?: string; error?: string };
+    if (data.error || !data.text) return null;
+    const parsed = extractJson(data.text) as { values?: { factorId: string; value: unknown }[] } | null;
+    if (!parsed || !Array.isArray(parsed.values)) return null;
+
+    const out: Record<string, EntryValueData> = {};
+    for (const v of parsed.values) {
+      const factor = factors.find((f) => f.id === v.factorId);
+      if (!factor) continue;
+      const value = coerce(factor, v.value);
+      if (value !== undefined) out[factor.id] = value;
+    }
+    return out;
+  } catch {
+    return null;
+  }
+}
+
 export async function suggestFactors(
   title: string,
   question: string,

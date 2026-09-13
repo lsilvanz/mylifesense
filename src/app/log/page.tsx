@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppHeader, Button, Card, Loading } from "@/components/ui";
 import { ValueInput } from "@/components/value-input";
+import { VoiceEntry } from "@/components/voice-entry";
 import { categoryEmoji, formatValue, hasValue } from "@/lib/entryTypes";
 import { useStore } from "@/lib/store";
 import type { EntryValueData } from "@/lib/types";
@@ -90,6 +91,13 @@ function LogEntryInner() {
               Now
             </button>
           </div>
+        </div>
+
+        <div className="mb-4">
+          <VoiceEntry
+            factors={factors}
+            onValues={(m) => setValues((prev) => ({ ...prev, ...m }))}
+          />
         </div>
 
         <div className="space-y-3">

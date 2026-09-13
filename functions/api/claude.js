@@ -38,6 +38,23 @@ Rules:
 - If user context is provided, use it to tailor which factors you suggest.
 - Keep labels to 2-4 words. Return only the JSON object.`;
 
+const LOG_SYSTEM = `You convert a spoken or typed description of someone's day into structured log values for a self-tracking Sense.
+You are given the Sense's factors (id, label, entryType, options, unit) and a transcript of what the person said.
+
+Return ONLY valid JSON (no markdown, no prose): {"values":[{"factorId":"<id>","value":<value>}]}
+
+Rules:
+- Include a factor ONLY if the transcript clearly indicates a value for it. Omit everything else. Never invent values.
+- Match "value" to the factor's entryType:
+  - yes_no -> true or false
+  - scale_0_10 -> integer 0..10
+  - low_med_high -> "low" | "med" | "high"
+  - number -> a number only (strip units/words, e.g. "two coffees" -> 2)
+  - list -> if the factor is multiple:true, an array of option strings; otherwise a single option string. Only use strings from that factor's "options".
+  - free_text -> a short string
+  - integration -> never include (auto-synced)
+- Use the factor "id" values exactly as given. Return only the JSON object.`;
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -60,7 +77,7 @@ export async function onRequestPost(context) {
     return json({ error: "bad_request" }, 400);
   }
 
-  const { mode, summary, question, title, sense_question, existing, context: userContext } =
+  const { mode, summary, question, title, sense_question, existing, context: userContext, transcript, factors } =
     body || {};
 
   let system = SYSTEM;
@@ -76,6 +93,11 @@ export async function onRequestPost(context) {
     }${
       userContext ? `\n\nUser context (use it to tailor suggestions):\n${userContext}` : ""
     }\nSuggest factors as JSON.`;
+  } else if (mode === "parse_log") {
+    if (!transcript || !Array.isArray(factors)) return json({ error: "missing_transcript" }, 400);
+    system = LOG_SYSTEM;
+    maxTokens = 600;
+    userText = `Factors:\n${JSON.stringify(factors)}\n\nWhat the person said:\n"${transcript}"\n\nExtract the values as JSON.`;
   } else {
     if (!summary) return json({ error: "missing_summary" }, 400);
     userText =
