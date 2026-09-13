@@ -129,10 +129,6 @@ function FeaturedCard({
     <Card className="overflow-hidden">
       <div className="relative overflow-hidden bg-gradient-accent px-5 py-6">
         <Clouds className="pointer-events-none absolute -top-3 right-0 h-28 w-64 text-white opacity-80" />
-        <MicButton
-          onClick={onVoice}
-          className="absolute right-12 top-3 z-10 grid h-8 w-8 place-items-center rounded-full text-white/90 transition hover:bg-white/20"
-        />
         <Link
           href={`/sense/settings?sense=${sense.id}`}
           aria-label="Manage Sense"
@@ -154,8 +150,12 @@ function FeaturedCard({
         <span>{FREQUENCY_LABEL[sense.frequency]}</span>
         {targetLabel && <span>Tracking: {targetLabel}</span>}
       </div>
-      <div className="grid grid-cols-3 gap-2 p-4 pt-3">
-        <LinkButton href={`/log?sense=${sense.id}`} variant="primary">
+      <div className="flex items-stretch gap-2 p-4 pt-3">
+        <MicButton
+          onClick={onVoice}
+          className="grid shrink-0 place-items-center rounded-xl bg-accent-soft px-3 text-accent-ink transition hover:brightness-95"
+        />
+        <LinkButton href={`/log?sense=${sense.id}`} variant="primary" className="flex-1">
           Log
         </LinkButton>
         <LinkButton href={`/insights?sense=${sense.id}`} variant="soft">
