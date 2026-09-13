@@ -7,7 +7,7 @@ import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/ent
 import { goalOf, isControllable } from "@/lib/insights";
 import { FactorSuggestions } from "@/components/factor-suggestions";
 import { ContextEditor } from "@/components/context-editor";
-import { contextForAI } from "@/lib/context";
+import { combinedContextForAI } from "@/lib/context";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, SenseFactor } from "@/lib/types";
 
@@ -86,7 +86,7 @@ function SettingsInner() {
             title={sense.title}
             question={sense.question}
             existing={factors.map((f) => f.label)}
-            context={contextForAI(id)}
+            context={combinedContextForAI(id)}
             onAdd={(chosen) =>
               addFactorsToSense(
                 id,

@@ -10,7 +10,7 @@ import { analyzeSense, type Confidence, type Finding, type IntegrationOverlay } 
 import { headlineNarrative } from "@/lib/narrative";
 import { categoryEmoji } from "@/lib/entryTypes";
 import { askClaudeNarrative } from "@/lib/ai";
-import { contextForAI } from "@/lib/context";
+import { combinedContextForAI } from "@/lib/context";
 import { useStore } from "@/lib/store";
 import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
 
@@ -82,7 +82,7 @@ function InsightsInner() {
 
   const personalize = async () => {
     setAiLoading(true);
-    const t = await askClaudeNarrative(analysis, contextForAI(id));
+    const t = await askClaudeNarrative(analysis, combinedContextForAI(id));
     setAiText(t ?? "AI narrative isn't set up on this deployment yet — showing the computed summary.");
     setAiLoading(false);
   };

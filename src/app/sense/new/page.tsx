@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AppHeader, Button, Card, Pill } from "@/components/ui";
 import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/entryTypes";
 import { suggestFactors } from "@/lib/ai";
+import { combinedContextForAI } from "@/lib/context";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, FactorConfig, Frequency } from "@/lib/types";
 
@@ -82,7 +83,12 @@ export default function NewSensePage() {
     setAiBusy(true);
     setAiMsg(null);
     const existing = factors.map((f) => f.label).filter(Boolean);
-    const suggestions = await suggestFactors(title.trim(), question.trim(), existing);
+    const suggestions = await suggestFactors(
+      title.trim(),
+      question.trim(),
+      existing,
+      combinedContextForAI()
+    );
     if (!suggestions) {
       setAiMsg("AI suggestions aren't available on this deployment (or nothing came back).");
       setAiBusy(false);

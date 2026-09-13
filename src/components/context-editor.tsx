@@ -4,7 +4,17 @@ import { useRef, useState } from "react";
 import { Button, Card } from "./ui";
 import { getContext, setContext, MAX_CONTEXT_CHARS } from "@/lib/context";
 
-export function ContextEditor({ senseId }: { senseId: string }) {
+export function ContextEditor({
+  senseId,
+  title = "Context for AI",
+  description = "Background that helps Chat, Insights and suggestions understand your situation — conditions, goals, routine, anything relevant. Used only to interpret your data; stored in this browser.",
+  placeholder = "e.g. I'm 45 with GERD, desk job, training for a 10k. Doctor mentioned anxiety. I usually skip breakfast…",
+}: {
+  senseId: string;
+  title?: string;
+  description?: string;
+  placeholder?: string;
+}) {
   const [text, setText] = useState(() => getContext(senseId));
   const [saved, setSaved] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -41,16 +51,13 @@ export function ContextEditor({ senseId }: { senseId: string }) {
 
   return (
     <Card className="p-4">
-      <p className="text-sm font-semibold text-ink">Context for AI</p>
-      <p className="mt-1 text-xs leading-relaxed text-muted">
-        Background that helps Chat, Insights and suggestions understand your situation — conditions,
-        goals, routine, anything relevant. Used only to interpret your data; stored in this browser.
-      </p>
+      <p className="text-sm font-semibold text-ink">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted">{description}</p>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={5}
-        placeholder="e.g. I'm 45 with GERD, desk job, training for a 10k. Doctor mentioned anxiety. I usually skip breakfast…"
+        placeholder={placeholder}
         className="mt-2 w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent"
       />
       <div className="mt-2 flex flex-wrap items-center gap-2">

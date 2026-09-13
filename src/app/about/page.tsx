@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { AppHeader, Button, Card } from "@/components/ui";
 import { Integrations } from "@/components/integrations";
+import { ContextEditor } from "@/components/context-editor";
+import { ME_ID } from "@/lib/context";
 import { useStore } from "@/lib/store";
 
 export default function AboutPage() {
@@ -52,11 +54,16 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-muted">
-          This space is where a future version keeps the context that helps interpret your
-          patterns — age, baseline health, goals. For this prototype it&apos;s a placeholder.
-        </p>
       </Card>
+
+      <div className="mt-4">
+        <ContextEditor
+          senseId={ME_ID}
+          title="About me"
+          description="Background about you that applies to every Sense — age, baseline health, goals, routine, anything that helps interpret your patterns. Folded into Chat, Insights and suggestions across all your Senses. Stored in this browser."
+          placeholder="e.g. 45, mostly desk-based work, history of migraines, aiming to sleep better and lose 5kg…"
+        />
+      </div>
 
       {/* Account / auth */}
       {usingSupabase && (

@@ -5,6 +5,9 @@
 
 const KEY = (senseId: string) => `mylifesense.context.${senseId}`;
 
+// Global "about me" context applies to every Sense (a uuid never equals this).
+export const ME_ID = "__me__";
+
 export const MAX_CONTEXT_CHARS = 8000; // stored cap
 export const AI_CONTEXT_CHARS = 6000; // sent-to-Claude cap
 
@@ -27,8 +30,14 @@ export function setContext(senseId: string, text: string) {
   }
 }
 
-// What actually goes to the model (trimmed).
-export function contextForAI(senseId: string): string | undefined {
-  const c = getContext(senseId).trim();
-  return c ? c.slice(0, AI_CONTEXT_CHARS) : undefined;
+// The global "about me" context plus (optionally) a Sense's own context,
+// combined and trimmed for the model.
+export function combinedContextForAI(senseId?: string): string | undefined {
+  const me = getContext(ME_ID).trim();
+  const sense = senseId && senseId !== ME_ID ? getContext(senseId).trim() : "";
+  const parts: string[] = [];
+  if (me) parts.push(`About the person:\n${me}`);
+  if (sense) parts.push(`About this Sense:\n${sense}`);
+  if (!parts.length) return undefined;
+  return parts.join("\n\n").slice(0, AI_CONTEXT_CHARS);
 }
