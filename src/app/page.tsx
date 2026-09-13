@@ -110,6 +110,14 @@ function FeaturedCard({
       <div className="relative overflow-hidden bg-gradient-accent px-5 py-6">
         <Clouds className="pointer-events-none absolute -top-3 right-0 h-28 w-64 text-white opacity-80" />
         <Link
+          href={`/log?sense=${sense.id}&voice=1`}
+          aria-label="Log by voice"
+          title="Log by voice"
+          className="absolute right-12 top-3 z-10 grid h-8 w-8 place-items-center rounded-full text-white/90 transition hover:bg-white/20"
+        >
+          🎤
+        </Link>
+        <Link
           href={`/sense/settings?sense=${sense.id}`}
           aria-label="Manage Sense"
           className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full text-white/90 transition hover:bg-white/20"
@@ -173,6 +181,9 @@ function CompactCard({
         </Link>
       </div>
       <div className="mt-3 flex gap-2">
+        <LinkButton href={`/log?sense=${sense.id}&voice=1`} variant="soft" className="px-3">
+          🎤
+        </LinkButton>
         <LinkButton href={`/log?sense=${sense.id}`} variant="soft" className="flex-1">
           Log
         </LinkButton>

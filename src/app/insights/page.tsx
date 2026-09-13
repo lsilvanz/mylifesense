@@ -11,6 +11,7 @@ import { headlineNarrative } from "@/lib/narrative";
 import { categoryEmoji } from "@/lib/entryTypes";
 import { askClaudeNarrative } from "@/lib/ai";
 import { combinedContextForAI } from "@/lib/context";
+import { speak, ttsSupported } from "@/lib/speak";
 import { useStore } from "@/lib/store";
 import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
 
@@ -107,8 +108,18 @@ function InsightsInner() {
       <Card className="mt-4 overflow-hidden">
         <div className="relative overflow-hidden bg-accent-soft px-5 py-4">
           <div className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-gradient-accent opacity-25 blur-3xl" />
-          <div className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
-            ✦ AI narrative
+          <div className="relative flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-accent-ink">
+            <span>✦ AI narrative</span>
+            {ttsSupported() && (
+              <button
+                onClick={() => speak(aiText ?? narrative)}
+                aria-label="Read aloud"
+                title="Read aloud"
+                className="rounded-full px-1.5 text-sm transition hover:opacity-70"
+              >
+                🔊
+              </button>
+            )}
           </div>
           <p className="relative mt-1.5 whitespace-pre-line text-[15px] leading-relaxed text-ink">
             {aiText ?? narrative}

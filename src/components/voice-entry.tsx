@@ -9,9 +9,11 @@ import type { EntryValueData, SenseFactor } from "@/lib/types";
 export function VoiceEntry({
   factors,
   onValues,
+  autoStart = false,
 }: {
   factors: SenseFactor[];
   onValues: (values: Record<string, EntryValueData>) => void;
+  autoStart?: boolean;
 }) {
   const [text, setText] = useState("");
   const [listening, setListening] = useState(false);
@@ -38,6 +40,17 @@ export function VoiceEntry({
     rec.onend = () => setListening(false);
     rec.onerror = () => setListening(false);
     recRef.current = rec;
+    // Best-effort auto-start when opened via the Home "speak" shortcut.
+    if (autoStart) {
+      setTimeout(() => {
+        try {
+          rec.start();
+          setListening(true);
+        } catch {
+          /* needs a tap — user can press Speak */
+        }
+      }, 400);
+    }
     return () => {
       try {
         rec.stop();
@@ -45,7 +58,7 @@ export function VoiceEntry({
         /* ignore */
       }
     };
-  }, []);
+  }, [autoStart]);
 
   const toggle = () => {
     const rec = recRef.current;

@@ -9,6 +9,7 @@ import { SUGGESTED_QUESTIONS, answerQuestion } from "@/lib/narrative";
 import { askClaudeChat } from "@/lib/ai";
 import { combinedContextForAI } from "@/lib/context";
 import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
+import { getAutoSpeak, setAutoSpeak, speak, stopSpeaking, ttsSupported } from "@/lib/speak";
 import { useStore } from "@/lib/store";
 
 interface Msg {
@@ -30,9 +31,15 @@ function ChatInner() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [autoSpeak, setAuto] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const toBottom = () =>
     requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 1e9, behavior: "smooth" }));
+
+  useEffect(() => {
+    setAuto(getAutoSpeak());
+    return () => stopSpeaking(); // stop reading aloud when leaving Chat
+  }, []);
 
   const [overlay, setOverlay] = useState<IntegrationOverlay | null>(null);
 
@@ -85,11 +92,36 @@ function ChatInner() {
     setMessages((prev) => [...prev, { role: "assistant", text: answer }]);
     setThinking(false);
     toBottom();
+    if (autoSpeak) speak(answer);
+  };
+
+  const toggleAuto = () => {
+    const next = !autoSpeak;
+    setAuto(next);
+    setAutoSpeak(next);
+    if (!next) stopSpeaking();
   };
 
   return (
     <main className="flex h-screen flex-col">
-      <AppHeader title={`Chat · ${sense.title}`} back="/" />
+      <AppHeader
+        title={`Chat · ${sense.title}`}
+        back="/"
+        right={
+          ttsSupported() ? (
+            <button
+              onClick={toggleAuto}
+              aria-label={autoSpeak ? "Turn off spoken replies" : "Read replies aloud"}
+              title={autoSpeak ? "Spoken replies on" : "Read replies aloud"}
+              className={`grid h-9 w-9 place-items-center rounded-full transition ${
+                autoSpeak ? "bg-gradient-accent text-white shadow-glow" : "text-muted hover:bg-raised hover:text-ink"
+              }`}
+            >
+              {autoSpeak ? "🔊" : "🔇"}
+            </button>
+          ) : undefined
+        }
+      />
 
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {messages.length === 0 && (
@@ -103,14 +135,25 @@ function ChatInner() {
         )}
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[85%] whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                m.role === "user"
-                  ? "bg-gradient-accent text-white shadow-glow"
-                  : "glass border border-line text-ink"
-              }`}
-            >
-              {m.text}
+            <div className="max-w-[85%]">
+              <div
+                className={`whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                  m.role === "user"
+                    ? "bg-gradient-accent text-white shadow-glow"
+                    : "glass border border-line text-ink"
+                }`}
+              >
+                {m.text}
+              </div>
+              {m.role === "assistant" && ttsSupported() && (
+                <button
+                  onClick={() => speak(m.text)}
+                  className="mt-1 text-xs text-faint transition hover:text-accent-ink"
+                  aria-label="Read aloud"
+                >
+                  🔊 Read aloud
+                </button>
+              )}
             </div>
           </div>
         ))}

@@ -26,7 +26,9 @@ export default function LogEntryPage() {
 }
 
 function LogEntryInner() {
-  const id = useSearchParams().get("sense") ?? "";
+  const params = useSearchParams();
+  const id = params.get("sense") ?? "";
+  const voiceStart = params.get("voice") === "1";
   const router = useRouter();
   const { ready, getSense, factorsFor, entriesFor, addEntry } = useStore();
 
@@ -96,6 +98,7 @@ function LogEntryInner() {
         <div className="mb-4">
           <VoiceEntry
             factors={factors}
+            autoStart={voiceStart}
             onValues={(m) => setValues((prev) => ({ ...prev, ...m }))}
           />
         </div>
