@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppHeader, Button, Card, Loading } from "@/components/ui";
 import { ValueInput } from "@/components/value-input";
-import { categoryEmoji, formatValue } from "@/lib/entryTypes";
+import { categoryEmoji, formatValue, hasValue } from "@/lib/entryTypes";
 import { useStore } from "@/lib/store";
 import type { EntryValueData } from "@/lib/types";
 
@@ -47,17 +47,11 @@ function LogEntryInner() {
   const sense = getSense(id);
   if (!sense) return <NotFound onBack={() => router.push("/")} />;
 
-  const filledCount = factors.filter((f) => {
-    const v = values[f.id];
-    return v !== undefined && v !== null && v !== "";
-  }).length;
+  const filledCount = factors.filter((f) => hasValue(values[f.id])).length;
 
   const save = () => {
     const entryValues = factors
-      .filter((f) => {
-        const v = values[f.id];
-        return v !== undefined && v !== null && v !== "";
-      })
+      .filter((f) => hasValue(values[f.id]))
       .map((f) => ({ factorId: f.id, value: values[f.id] }));
     if (entryValues.length === 0) return;
     const loggedAt = when ? new Date(when).toISOString() : new Date().toISOString();
@@ -101,7 +95,7 @@ function LogEntryInner() {
         <div className="space-y-3">
           {factors.map((f) => {
             const v = values[f.id];
-            const isFilled = v !== undefined && v !== null && v !== "";
+            const isFilled = hasValue(v);
             return (
               <Card key={f.id} className="p-4">
                 <div className="mb-2.5 flex items-center justify-between">

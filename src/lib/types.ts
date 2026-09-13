@@ -66,9 +66,9 @@ export interface Sense {
 //   low_med_high  -> "low" | "med" | "high"
 //   number        -> number
 //   free_text     -> string
-//   list          -> string (one of config.options)
+//   list          -> string[] (one or more of config.options; legacy: a string)
 //   integration   -> number (synthetic in the prototype)
-export type EntryValueData = boolean | number | string | null;
+export type EntryValueData = boolean | number | string | string[] | null;
 
 export interface EntryValue {
   factorId: string;

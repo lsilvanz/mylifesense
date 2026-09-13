@@ -81,11 +81,19 @@ export function ValueInput({
         </div>
       );
 
-    case "list":
+    case "list": {
+      // Multi-select: value is an array of chosen options (legacy single
+      // strings are treated as a one-item array).
+      const chosen = Array.isArray(value) ? value : value ? [value as string] : [];
+      const toggle = (opt: string) => {
+        const next = chosen.includes(opt) ? chosen.filter((o) => o !== opt) : [...chosen, opt];
+        onChange(next.length ? next : null);
+      };
       return (
         <div className="flex flex-wrap gap-2">
           {(factor.config.options ?? []).map((opt) => (
-            <Pill key={opt} active={value === opt} onClick={() => onChange(opt)}>
+            <Pill key={opt} active={chosen.includes(opt)} onClick={() => toggle(opt)}>
+              {chosen.includes(opt) ? "✓ " : ""}
               {opt}
             </Pill>
           ))}
@@ -94,6 +102,7 @@ export function ValueInput({
           )}
         </div>
       );
+    }
 
     case "free_text":
       return (

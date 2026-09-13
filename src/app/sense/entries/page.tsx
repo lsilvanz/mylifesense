@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { AppHeader, Button, Card, LinkButton, Loading } from "@/components/ui";
 import { ValueInput } from "@/components/value-input";
-import { categoryEmoji, formatValue } from "@/lib/entryTypes";
+import { categoryEmoji, formatValue, hasValue } from "@/lib/entryTypes";
 import { useStore } from "@/lib/store";
 import type { Entry, EntryValueData, SenseFactor } from "@/lib/types";
 
@@ -106,10 +106,7 @@ function EntryRow({
 
   const save = () => {
     const out = factors
-      .filter((f) => {
-        const v = values[f.id];
-        return v !== undefined && v !== null && v !== "";
-      })
+      .filter((f) => hasValue(values[f.id]))
       .map((f) => ({ factorId: f.id, value: values[f.id] }));
     onSave(out, new Date(when).toISOString());
     setEditing(false);

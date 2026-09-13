@@ -54,9 +54,16 @@ export function toNumeric(type: EntryType, value: EntryValueData): number | null
   }
 }
 
+// True when a value counts as answered (empty arrays/strings/null do not).
+export function hasValue(value: EntryValueData): boolean {
+  if (value === null || value === undefined || value === "") return false;
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
 // Human-readable rendering of a stored value.
 export function formatValue(type: EntryType, value: EntryValueData, unit?: string): string {
-  if (value === null || value === undefined || value === "") return "—";
+  if (!hasValue(value)) return "—";
   switch (type) {
     case "yes_no":
       return value ? "Yes" : "No";
@@ -67,6 +74,8 @@ export function formatValue(type: EntryType, value: EntryValueData, unit?: strin
       return `${value}${unit ? ` ${unit}` : ""}`;
     case "scale_0_10":
       return `${value} / 10`;
+    case "list":
+      return Array.isArray(value) ? value.join(", ") : String(value);
     default:
       return String(value);
   }
