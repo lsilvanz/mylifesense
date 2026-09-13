@@ -32,6 +32,7 @@ function SettingsInner() {
     deleteFactor,
     addFactorToSense,
     addFactorsToSense,
+    updateSense,
     deleteSense,
   } = useStore();
 
@@ -63,6 +64,15 @@ function SettingsInner() {
   return (
     <main className="px-4 pb-24">
       <AppHeader title={`Manage · ${sense.title}`} back={`/insights?sense=${id}`} />
+
+      <section className="mt-4">
+        <SenseDetails
+          key={sense.id}
+          initialTitle={sense.title}
+          initialQuestion={sense.question}
+          onSave={(patch) => updateSense(id, patch)}
+        />
+      </section>
 
       <div className="mt-4">
         <LinkButton href={`/sense/entries?sense=${id}`} variant="soft" className="w-full text-sm">
@@ -397,5 +407,49 @@ function DeleteConfirm({
         </div>
       </Card>
     </div>
+  );
+}
+
+function SenseDetails({
+  initialTitle,
+  initialQuestion,
+  onSave,
+}: {
+  initialTitle: string;
+  initialQuestion: string;
+  onSave: (patch: { title?: string; question?: string }) => void;
+}) {
+  const [title, setTitle] = useState(initialTitle);
+  const [question, setQuestion] = useState(initialQuestion);
+
+  return (
+    <Card className="p-4">
+      <label className="block">
+        <span className="mb-1 block text-xs font-semibold text-ink">Name</span>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={() => {
+            const t = title.trim();
+            if (t && t !== initialTitle) onSave({ title: t });
+            else if (!t) setTitle(initialTitle);
+          }}
+          className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm font-semibold outline-none focus:border-accent"
+        />
+      </label>
+      <label className="mt-3 block">
+        <span className="mb-1 block text-xs font-semibold text-ink">Question</span>
+        <textarea
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          rows={2}
+          onBlur={() => {
+            const q = question.trim();
+            if (q !== initialQuestion) onSave({ question: q });
+          }}
+          className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent"
+        />
+      </label>
+    </Card>
   );
 }

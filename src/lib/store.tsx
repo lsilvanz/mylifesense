@@ -186,6 +186,7 @@ interface StoreValue {
   deleteEntry: (entryId: string) => void;
   focusedSenseId: string | null;
   setFocusedSense: (senseId: string) => void;
+  updateSense: (senseId: string, patch: Partial<Pick<Sense, "title" | "question" | "frequency">>) => void;
   archiveSense: (senseId: string) => void;
   deleteSense: (senseId: string) => void;
   updateFactor: (
@@ -444,6 +445,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setDb(next);
         persist(next);
         if (supabase) supabase.from("entries").delete().eq("id", entryId).then(logError("deleteEntry"));
+      },
+
+      updateSense: (senseId, patch) => {
+        const next = {
+          ...db,
+          senses: db.senses.map((s) => (s.id === senseId ? { ...s, ...patch } : s)),
+        };
+        setDb(next);
+        persist(next);
+        if (supabase) {
+          const row: Row = {};
+          if (patch.title !== undefined) row.title = patch.title;
+          if (patch.question !== undefined) row.question = patch.question;
+          if (patch.frequency !== undefined) row.frequency = patch.frequency;
+          supabase.from("senses").update(row).eq("id", senseId).then(logError("updateSense"));
+        }
       },
 
       focusedSenseId,
