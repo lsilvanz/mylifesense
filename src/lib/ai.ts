@@ -2,14 +2,15 @@ import type { Analysis } from "./insights";
 import type { EntryType, FactorCategory } from "./types";
 
 // Compact, privacy-preserving summary sent to the serverless Claude endpoint —
-// only computed statistics, never raw entries.
-export function buildSummary(a: Analysis) {
+// only computed statistics (never raw entries) plus any user-provided context.
+export function buildSummary(a: Analysis, context?: string) {
   return {
     target: a.target.label,
     goal: a.goal,
     isSymptom: a.isSymptom,
     entryCount: a.entryCount,
     enoughData: a.enoughData,
+    ...(context ? { context } : {}),
     findings: a.findings.slice(0, 8).map((f) => ({
       factor: f.factor.label,
       controllable: f.controllable,
@@ -33,13 +34,14 @@ export function buildSummary(a: Analysis) {
 async function callClaude(
   mode: "chat" | "narrative",
   a: Analysis,
-  question?: string
+  question?: string,
+  context?: string
 ): Promise<string | null> {
   try {
     const res = await fetch("/api/claude", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ mode, summary: buildSummary(a), question }),
+      body: JSON.stringify({ mode, summary: buildSummary(a, context), question }),
     });
     if (!res.ok) return null;
     const data = (await res.json()) as { text?: string; error?: string };
@@ -50,12 +52,12 @@ async function callClaude(
   }
 }
 
-export function askClaudeChat(a: Analysis, question: string) {
-  return callClaude("chat", a, question);
+export function askClaudeChat(a: Analysis, question: string, context?: string) {
+  return callClaude("chat", a, question, context);
 }
 
-export function askClaudeNarrative(a: Analysis) {
-  return callClaude("narrative", a);
+export function askClaudeNarrative(a: Analysis, context?: string) {
+  return callClaude("narrative", a, undefined, context);
 }
 
 // ---- AI factor suggestions ------------------------------------------------
@@ -106,13 +108,20 @@ function extractJson(text: string): unknown {
 export async function suggestFactors(
   title: string,
   question: string,
-  existing: string[]
+  existing: string[],
+  context?: string
 ): Promise<SuggestedFactor[] | null> {
   try {
     const res = await fetch("/api/claude", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ mode: "suggest_factors", title, sense_question: question, existing }),
+      body: JSON.stringify({
+        mode: "suggest_factors",
+        title,
+        sense_question: question,
+        existing,
+        context,
+      }),
     });
     if (!res.ok) return null;
     const data = (await res.json()) as { text?: string; error?: string };

@@ -6,6 +6,8 @@ import { AppHeader, Button, Card, LinkButton, Loading, Pill } from "@/components
 import { CATEGORIES, ENTRY_TYPES, categoryEmoji, entryTypeMeta } from "@/lib/entryTypes";
 import { goalOf, isControllable } from "@/lib/insights";
 import { FactorSuggestions } from "@/components/factor-suggestions";
+import { ContextEditor } from "@/components/context-editor";
+import { contextForAI } from "@/lib/context";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, SenseFactor } from "@/lib/types";
 
@@ -69,6 +71,11 @@ function SettingsInner() {
       </div>
 
       <section className="mt-6">
+        <h2 className="mb-2 text-sm font-bold text-ink">Context</h2>
+        <ContextEditor senseId={id} />
+      </section>
+
+      <section className="mt-6">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-bold text-ink">Factors</h2>
           <span className="text-xs text-faint">{factors.length} total</span>
@@ -79,6 +86,7 @@ function SettingsInner() {
             title={sense.title}
             question={sense.question}
             existing={factors.map((f) => f.label)}
+            context={contextForAI(id)}
             onAdd={(chosen) =>
               addFactorsToSense(
                 id,

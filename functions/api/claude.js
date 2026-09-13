@@ -20,6 +20,8 @@ Rules:
 - If "enoughData" is false, say there isn't enough data yet and encourage logging; do NOT assert patterns.
 - If "isSymptom" is true, add a brief reminder that this isn't medical advice and to see a clinician for
   severe or persistent symptoms.
+- If the summary has a "context" field (user-provided background), use it to interpret the data and
+  personalize your answer — but never contradict the computed numbers.
 - Be concise: 2-4 sentences for a narrative; a direct, friendly answer for a chat question.`;
 
 const FACTOR_SYSTEM = `You help design a "Sense" in a self-tracking app — something a person wants to understand about themselves. Given the Sense's title and question, propose candidate factors to track.
@@ -33,6 +35,7 @@ Rules:
 - Include factors that plausibly influence or relate to the target. Skip any already-chosen factors listed by the user.
 - Prefer quantifiable entry types (yes_no, scale_0_10, low_med_high, number). Use "number" with a "unit" for counts/amounts. "unit" only for number; "options" and "multiple" only for list. Set "multiple":true when several options can apply at once (e.g. symptoms, foods eaten), false when exactly one applies (e.g. weather).
 - "controllable":true for behaviours the person can change (exercise, food, sleep habits, screen time); false for context they can't directly change (weather, symptoms, external stress).
+- If user context is provided, use it to tailor which factors you suggest.
 - Keep labels to 2-4 words. Return only the JSON object.`;
 
 export async function onRequestPost(context) {
@@ -57,7 +60,7 @@ export async function onRequestPost(context) {
     return json({ error: "bad_request" }, 400);
   }
 
-  const { mode, summary, question, title, sense_question, existing } = body || {};
+  const { mode, summary, question, title, sense_question, existing, context } = body || {};
 
   let system = SYSTEM;
   let userText;
@@ -69,7 +72,7 @@ export async function onRequestPost(context) {
     maxTokens = 900;
     userText = `Sense title: ${title}\nQuestion: ${sense_question || ""}\nAlready chosen factors: ${
       Array.isArray(existing) && existing.length ? existing.join(", ") : "none"
-    }\nSuggest factors as JSON.`;
+    }${context ? `\n\nUser context (use it to tailor suggestions):\n${context}` : ""}\nSuggest factors as JSON.`;
   } else {
     if (!summary) return json({ error: "missing_summary" }, 400);
     userText =

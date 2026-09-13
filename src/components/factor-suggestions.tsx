@@ -11,11 +11,13 @@ export function FactorSuggestions({
   title,
   question,
   existing,
+  context,
   onAdd,
 }: {
   title: string;
   question: string;
   existing: string[];
+  context?: string;
   onAdd: (factors: SuggestedFactor[]) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ export function FactorSuggestions({
   const run = async () => {
     setLoading(true);
     setMsg(null);
-    const s = await suggestFactors(title, question, existing);
+    const s = await suggestFactors(title, question, existing, context);
     setLoading(false);
     if (!s) {
       setMsg("AI suggestions aren't available right now.");

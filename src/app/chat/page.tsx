@@ -7,6 +7,7 @@ import { MIN_SAMPLE_SIZE } from "@/lib/stats";
 import { analyzeSense, type Analysis, type IntegrationOverlay } from "@/lib/insights";
 import { SUGGESTED_QUESTIONS, answerQuestion } from "@/lib/narrative";
 import { askClaudeChat } from "@/lib/ai";
+import { contextForAI } from "@/lib/context";
 import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
 import { useStore } from "@/lib/store";
 
@@ -79,7 +80,7 @@ function ChatInner() {
     toBottom();
     // Try the real Claude endpoint; fall back to the deterministic layer when
     // AI isn't configured (e.g. local dev, or no API key set in production).
-    const ai = await askClaudeChat(analysis, question);
+    const ai = await askClaudeChat(analysis, question, contextForAI(id));
     const answer = ai ?? answerQuestion(question, analysis);
     setMessages((prev) => [...prev, { role: "assistant", text: answer }]);
     setThinking(false);
