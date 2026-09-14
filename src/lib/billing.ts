@@ -1,3 +1,4 @@
+import { supabase, supabaseEnabled } from "./supabase";
 import type { BillingCycle } from "./plan";
 
 // Kick off a Stripe Checkout subscription. Redirects to Stripe's hosted page on
@@ -25,18 +26,21 @@ export async function startCheckout(
   }
 }
 
-// Redeem a promo code for Plus. Validated server-side against the PROMO_CODES
-// env var so codes never ship in the client bundle. On success the caller marks
-// the user as Plus.
+// Redeem a promo code for Plus via the redeem_promo() RPC, which checks the
+// database for the code's validity, expiry and remaining uses, records the
+// redemption for this user, and is idempotent per user. Returns the RPC's
+// { ok, error } (error ∈ invalid | expired | exhausted | auth).
 export async function redeemCode(code: string): Promise<{ ok: boolean; error?: string }> {
+  if (!supabaseEnabled || !supabase) return { ok: false, error: "not_configured" };
   try {
-    const res = await fetch("/api/redeem", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ code }),
-    });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-    return { ok: Boolean(data.ok), error: data.error };
+    const { data, error } = await supabase.rpc("redeem_promo", { p_code: code });
+    if (error) {
+      // RPC missing = migration (supabase/promo.sql) not applied yet.
+      const missing = error.code === "PGRST202" || /function|does not exist/i.test(error.message ?? "");
+      return { ok: false, error: missing ? "not_configured" : "network" };
+    }
+    const d = (data ?? {}) as { ok?: boolean; error?: string };
+    return { ok: Boolean(d.ok), error: d.error };
   } catch {
     return { ok: false, error: "network" };
   }

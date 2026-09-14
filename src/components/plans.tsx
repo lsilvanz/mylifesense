@@ -159,7 +159,11 @@ export function PromoRedeem({
         ok: false,
         text:
           res.error === "not_configured"
-            ? "Promo codes aren't active yet."
+            ? "Promo codes aren't set up on this deployment."
+            : res.error === "expired"
+            ? "That code has expired."
+            : res.error === "exhausted"
+            ? "That code has reached its limit."
             : res.error === "network"
             ? "Couldn't reach the server. Try again."
             : "That code isn't valid.",
