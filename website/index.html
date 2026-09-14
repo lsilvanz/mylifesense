@@ -1,51 +1,418 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MyLifeSense</title>
-    <meta name="description" content="Understand what drives the patterns in your life." />
-    <meta name="theme-color" content="#7c6ce4" />
-    <link rel="icon" href="/app/icon.png" />
-    <link rel="apple-touch-icon" href="/app/icon.png" />
-    <style>
-      :root { --ink: #2a2648; --muted: #6b6690; --ground: #e9e8fb; --accent: #7c6ce4; --accent2: #a48bf0; }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; height: 100%; }
-      body {
-        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
-        color: var(--ink);
-        background:
-          radial-gradient(1200px 600px at 80% -10%, #d9d4fb 0%, transparent 60%),
-          radial-gradient(900px 500px at -10% 110%, #efe9ff 0%, transparent 55%),
-          var(--ground);
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-      main { max-width: 560px; text-align: center; }
-      .logo { width: 88px; height: 88px; border-radius: 22px; box-shadow: 0 18px 40px rgba(124,108,228,.35); }
-      h1 { font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin: 20px 0 6px; }
-      h1 .g { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-      p { font-size: 18px; line-height: 1.6; color: var(--muted); margin: 0 auto 28px; max-width: 30rem; }
-      .cta {
-        display: inline-flex; align-items: center; gap: 8px;
-        background: linear-gradient(90deg, var(--accent), var(--accent2));
-        color: #fff; text-decoration: none; font-weight: 700; font-size: 16px;
-        padding: 14px 28px; border-radius: 14px; box-shadow: 0 12px 28px rgba(124,108,228,.4);
-        transition: filter .15s ease;
-      }
-      .cta:hover { filter: brightness(1.06); }
-      .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
-    </style>
-  </head>
-  <body>
-    <main>
-      <img class="logo" src="/app/icon.png" alt="MyLifeSense" />
-      <h1>My<span class="g">LifeSense</span></h1>
-      <p>Track the things you want to understand about yourself — and let the patterns surface.</p>
-      <a class="cta" href="/app">Open the app →</a>
-      <p class="note">The full website is on its way.</p>
-    </main>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLifeSense — What if the answer is somewhere you haven't looked?</title>
+<meta name="description" content="MyLifeSense helps you discover the hidden patterns behind how you feel, perform, spend, work, and live.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f6f6fd;
+    --surface: #ffffff;
+    --surface-2: #ecefff;
+    --ink: #1c1830;
+    --ink-muted: #6b6690;
+    --line: #e3e2f5;
+    --primary: #7d64d9;
+    --primary-strong: #5c46b8;
+    --primary-soft: #ece8fb;
+    --grad-start: #7562da;
+    --grad-end: #8a6ee9;
+    --shadow: 0 20px 48px -22px rgba(58,38,140,0.35);
+    --cat-relationship: #c1567f;
+    --cat-work: #33628f;
+    --cat-performance: #b17a1f;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #120f22;
+      --surface: #191531;
+      --surface-2: #201c3d;
+      --ink: #f0eefc;
+      --ink-muted: #a79fcf;
+      --line: #2c2750;
+      --primary: #9c86f0;
+      --primary-strong: #b4a0ff;
+      --primary-soft: #241f45;
+      --grad-start: #7562da;
+      --grad-end: #9c86f0;
+      --shadow: 0 20px 48px -20px rgba(0,0,0,0.65);
+      --cat-relationship: #e087ab;
+      --cat-work: #7fabdb;
+      --cat-performance: #d6a44f;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #120f22;
+    --surface: #191531;
+    --surface-2: #201c3d;
+    --ink: #f0eefc;
+    --ink-muted: #a79fcf;
+    --line: #2c2750;
+    --primary: #9c86f0;
+    --primary-strong: #b4a0ff;
+    --primary-soft: #241f45;
+    --grad-start: #7562da;
+    --grad-end: #9c86f0;
+    --shadow: 0 20px 48px -20px rgba(0,0,0,0.65);
+    --cat-relationship: #e087ab;
+    --cat-work: #7fabdb;
+    --cat-performance: #d6a44f;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ background: var(--bg); }
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+  h1, h2, h3{
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+    color: var(--ink);
+  }
+  em{ font-style: italic; color: var(--primary); font-weight: 500; }
+  a{ color: inherit; }
+  img{ display:block; max-width: 100%; }
+  .label{
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+
+  .wrap{
+    max-width: 1140px;
+    margin-inline: auto;
+    padding-inline: clamp(20px, 5vw, 48px);
+  }
+
+  /* header */
+  .top{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .brand{ display: flex; align-items: center; gap: 10px; }
+  .brand .wordmark{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.35rem;
+    letter-spacing: -0.01em;
+  }
+  .brand .tagline{
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    margin-left: 6px;
+    padding-left: 14px;
+    border-left: 1px solid var(--line);
+    display: none;
+  }
+  @media (min-width: 640px){ .brand .tagline{ display: inline; } }
+
+  .btn-primary{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
+    color: #ffffff;
+    text-decoration: none;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    padding: 14px 24px;
+    border-radius: 999px;
+    font-size: 0.96rem;
+    box-shadow: var(--shadow);
+  }
+  .btn-primary:hover{ filter: brightness(1.06); }
+  .btn-mini{ font-size: 0.85rem; padding: 10px 18px; }
+  .link-quiet{
+    text-decoration: none;
+    color: var(--ink-muted);
+    font-weight: 600;
+    font-size: 0.93rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 2px;
+  }
+  .link-quiet:hover{ color: var(--primary); border-color: var(--primary); }
+
+  /* hero */
+  .hero{
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-block: clamp(8px, 2vw, 20px) clamp(44px, 6vw, 76px);
+    min-height: clamp(460px, 56vw, 660px);
+    display: flex;
+    align-items: flex-end;
+  }
+  .hero-bg{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .hero-panel{
+    position: relative;
+    z-index: 1;
+    margin: clamp(22px, 4.5vw, 48px);
+    max-width: min(540px, calc(100% - 40px));
+    background: rgba(255,255,255,0.62);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    border: 1px solid rgba(255,255,255,0.55);
+    border-radius: 22px;
+    padding: clamp(26px, 4vw, 40px);
+    box-shadow: 0 20px 50px -22px rgba(28,24,48,0.28);
+  }
+  .hero-panel .label{ color: var(--primary); }
+  .hero-panel h1.headline{ color: #1c1830; }
+  h1.headline{
+    font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+    line-height: 1.14;
+  }
+  .hero-panel .sub{ color: #322c4a; }
+  .sub{
+    margin-top: 18px;
+    font-size: 1.05rem;
+    max-width: 44ch;
+  }
+  .cta-row{
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .hero-panel .link-quiet{ color: #4b4564; border-color: rgba(28,24,48,0.18); }
+  @media (max-width: 560px){ .hero-panel{ margin: 14px; padding: 22px; } }
+
+  /* reframe */
+  section{ padding-block: clamp(40px, 6vw, 72px); }
+  .reframe{ background: var(--surface-2); border-radius: 26px; }
+  .reframe .wrap{ padding-block: clamp(44px, 6vw, 68px); }
+  .reframe-grid{
+    display: grid;
+    grid-template-columns: 0.6fr 1fr;
+    gap: clamp(24px, 5vw, 56px);
+    align-items: start;
+  }
+  @media (max-width: 700px){ .reframe-grid{ grid-template-columns: 1fr; } }
+  .reframe-grid h2{ font-size: clamp(1.5rem, 3vw, 2.05rem); }
+  .notes p{ margin: 0 0 11px; color: var(--ink-muted); font-size: 1.05rem; }
+  .notes p.punch{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink);
+    font-size: 1.25rem;
+    margin-top: 18px;
+  }
+
+  /* case cards */
+  .cases-head{ margin-bottom: 30px; max-width: 62ch; }
+  .cases-head h2{ font-size: clamp(1.6rem, 3vw, 2.15rem); margin-top: 10px; }
+  .cases-head p{ color: var(--ink-muted); margin-top: 10px; }
+  .case-grid{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 980px){ .case-grid{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px){ .case-grid{ grid-template-columns: 1fr; } }
+  .case{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent, var(--primary));
+    border-radius: 14px;
+    padding: 24px 20px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .case .cat{ font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--accent, var(--primary)); }
+  .case .hook{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 1.15rem;
+    margin-top: 10px;
+    line-height: 1.32;
+  }
+  .case .line{ margin-top: 12px; font-size: 0.92rem; color: var(--ink-muted); flex: 1; }
+  .case .foot{ margin-top: 18px; display: flex; align-items: center; justify-content: space-between; }
+  .case .tag{
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    background: var(--surface-2);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .case .arrow{ color: var(--accent, var(--primary)); font-family: 'Fraunces', serif; font-size: 1.1rem; }
+
+  /* questions */
+  .q-wrap{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .q-chip{
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-size: 0.93rem;
+    font-weight: 500;
+  }
+  .q-chip:hover{ border-color: var(--primary); color: var(--primary); }
+  .q-chip .arr{ color: var(--primary); margin-left: 4px; }
+
+  /* final */
+  .final{ background: linear-gradient(135deg, var(--grad-start), var(--grad-end)); border-radius: 26px; color: #ffffff; }
+  .final .wrap{ padding-block: clamp(52px, 8vw, 84px); }
+  .final .label{ color: rgba(255,255,255,0.85); }
+  .final h2{ color: #ffffff; font-size: clamp(1.9rem, 3.8vw, 2.6rem); }
+  .final p{ color: rgba(255,255,255,0.86); margin-top: 14px; max-width: 50ch; font-size: 1.05rem; }
+  .final .btn-primary{ background: #ffffff; color: var(--primary-strong); }
+  .final .btn-primary:hover{ background: #eef4f0; }
+
+  footer{ padding-block: 32px; }
+  footer .foot-grid{ display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer .disclaimer{ max-width: 58ch; font-size: 0.8rem; color: var(--ink-muted); }
+  footer .brand-small{ font-family: 'Fraunces', serif; font-weight: 600; }
+
+  :focus-visible{ outline: 2px solid var(--primary); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){ * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <img src="app-icon.png" width="30" height="30" alt="MyLifeSense" style="border-radius:8px;">
+      <span class="wordmark">MyLifeSense</span>
+      <span class="tagline">Understand what affects you.</span>
+    </div>
+    <a class="btn-primary btn-mini" href="/app">Start discovering</a>
+  </div>
+
+  <section class="hero">
+    <img class="hero-bg" src="hero-photo.jpg" alt="A woman pauses on a bench with her laptop, distracted by her own thoughts, while everyday life carries on around her.">
+    <div class="hero-panel">
+      <p class="label">Not another tracker</p>
+      <h1 class="headline">What if the answer is somewhere you haven't <em>looked</em>?</h1>
+      <p class="sub">MyLifeSense helps you discover the hidden patterns behind how you feel, perform, spend, work, and live &mdash; the ones you'd never think to look for on your own.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="/app">Start discovering your patterns &rarr;</a>
+        <a class="link-quiet" href="#cases">See what people almost missed</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="reframe">
+    <div class="wrap">
+      <div class="reframe-grid">
+        <div>
+          <p class="label">The wrong place</p>
+          <h2>You might be looking in the wrong place</h2>
+        </div>
+        <div class="notes">
+          <p>A person with headaches looks at coffee.</p>
+          <p>A tennis player looks at training.</p>
+          <p>Someone struggling financially looks at their salary.</p>
+          <p>A couple looks at each other's behaviour.</p>
+          <p>An exhausted employee looks at their workload.</p>
+          <p class="punch">Sometimes the important connection is somewhere else. MyLifeSense helps you find it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cases" id="cases">
+    <div class="cases-head">
+      <p class="label">Case notes</p>
+      <h2>Four things people almost missed</h2>
+      <p>Illustrative examples, not real users &mdash; the kind of pattern MyLifeSense is built to surface.</p>
+    </div>
+    <div class="case-grid">
+
+      <div class="case" style="--accent: var(--primary);">
+        <p class="cat">Health</p>
+        <p class="hook">"Why am I always exhausted?"</p>
+        <p class="line">She thought it was stress. Cold hands, brain fog and low mood kept showing up alongside the fatigue &mdash; a combination worth raising with her doctor.</p>
+        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      </div>
+
+      <div class="case" style="--accent: var(--cat-relationship);">
+        <p class="cat">Relationship</p>
+        <p class="hook">"Why do we keep having the same fight?"</p>
+        <p class="line">They thought it was money and chores. It was stress from work landing at home, two or three days after their hardest weeks.</p>
+        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      </div>
+
+      <div class="case" style="--accent: var(--cat-work);">
+        <p class="cat">Work &amp; People</p>
+        <p class="hook">"Why does one day at work leave me drained?"</p>
+        <p class="line">His energy didn't track with hours worked. It tracked with how often he was interrupted, second-guessed, or pulled into other people's problems.</p>
+        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      </div>
+
+      <div class="case" style="--accent: var(--cat-performance);">
+        <p class="cat">High Performance</p>
+        <p class="hook">"I'm doing everything right. Why isn't my performance improving?"</p>
+        <p class="line">Her best matches followed mornings with more time alone, not more coaching. Less noise, not more preparation, was the lever.</p>
+        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="questions">
+    <p class="label">Start with a question, not an app</p>
+    <h2 style="font-size:clamp(1.5rem,3vw,2rem); margin-top:10px;">Which one is yours?</h2>
+    <div class="q-wrap">
+      <a class="q-chip" href="/app">What affects your sleep?<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Why do you keep losing energy at 3pm?<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">What's really triggering your headaches?<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Why do you keep overspending?<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">What's affecting your performance?<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">What's really happening in your relationship?<span class="arr">&rarr;</span></a>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <p class="label">MyLifeSense</p>
+      <h2 style="margin-top:10px;">Understand what affects you.</h2>
+      <p>Not another tracker asking you to log more. A way to finally see what your own days have been trying to tell you.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="/app">Start discovering your patterns &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot-grid">
+      <div class="brand-small">MyLifeSense</div>
+      <p class="disclaimer">The case notes above are illustrative examples, not real users &mdash; written to show the kind of pattern MyLifeSense looks for. MyLifeSense surfaces patterns worth exploring. It does not diagnose, treat, or replace professional advice.</p>
+    </div>
+  </footer>
+</div>
+
+</body>
 </html>

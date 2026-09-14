@@ -1,7 +1,7 @@
 // MyLifeSense service worker — shows push notifications and focuses the app on
 // click. The sender Worker delivers a JSON payload { title, body, url }.
 self.addEventListener("push", (event) => {
-  let data = { title: "MyLifeSense", body: "Time to log.", url: "/" };
+  let data = { title: "MyLifeSense", body: "Time to log.", url: "/app" };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch (e) {
@@ -10,17 +10,17 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: "/icon-192.png",
-      badge: "/icon-192.png",
+      icon: "/app/icon.png",
+      badge: "/app/icon.png",
       tag: data.tag || "mylifesense-reminder",
-      data: { url: data.url || "/" },
+      data: { url: data.url || "/app" },
     })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/";
+  const url = (event.notification.data && event.notification.data.url) || "/app";
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
       for (const c of list) {
