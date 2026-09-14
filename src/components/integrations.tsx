@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Button, Card } from "./ui";
+import { UpgradeModal } from "./plans";
 import { connect, disconnect, getClientId, getSession, setClientId } from "@/lib/fitbit";
+import { useStore } from "@/lib/store";
 
 // Fitbit is a real integration (OAuth implicit flow, client-side). Garmin's
 // Health API requires partner approval, so it stays disabled. The rest are
@@ -16,15 +18,36 @@ const COMING_SOON: { name: string; emoji: string; note: string }[] = [
 ];
 
 export function Integrations() {
+  const { isPlus } = useStore();
   const [connected, setConnected] = useState(false);
   const [clientId, setId] = useState("");
   const [showSetup, setShowSetup] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [upsell, setUpsell] = useState(false);
 
   useEffect(() => {
     setConnected(Boolean(getSession()));
     setId(getClientId() ?? "");
   }, []);
+
+  if (!isPlus) {
+    return (
+      <Card className="mt-4 p-5">
+        <p className="text-sm font-semibold text-ink">Connect devices &amp; apps</p>
+        <p className="mt-1 text-sm text-muted">
+          Sync Fitbit and more so a factor updates itself. Integrations are part of MyLifeSense Plus.
+        </p>
+        <Button className="mt-3" onClick={() => setUpsell(true)}>
+          Unlock with Plus
+        </Button>
+        <UpgradeModal
+          open={upsell}
+          onClose={() => setUpsell(false)}
+          reason="Device & app integrations are part of MyLifeSense Plus."
+        />
+      </Card>
+    );
+  }
 
   const doConnect = () => {
     setMsg(null);

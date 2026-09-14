@@ -12,6 +12,7 @@ import { categoryEmoji } from "@/lib/entryTypes";
 import { askClaudeNarrative } from "@/lib/ai";
 import { combinedContextForAI } from "@/lib/context";
 import { speak, ttsSupported } from "@/lib/speak";
+import { UpgradeModal } from "@/components/plans";
 import { useStore } from "@/lib/store";
 import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
 
@@ -25,7 +26,8 @@ export default function InsightsPage() {
 
 function InsightsInner() {
   const id = useSearchParams().get("sense") ?? "";
-  const { ready, getSense, factorsFor, entriesFor } = useStore();
+  const { ready, getSense, factorsFor, entriesFor, isPlus } = useStore();
+  const [upsell, setUpsell] = useState(false);
   const [aiText, setAiText] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   // Live Fitbit data, held in memory only (never written to entries).
@@ -126,11 +128,17 @@ function InsightsInner() {
           </p>
           {analysis.enoughData && (
             <button
-              onClick={personalize}
+              onClick={isPlus ? personalize : () => setUpsell(true)}
               disabled={aiLoading}
               className="relative mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-surface/70 px-3 py-1 text-xs font-semibold text-accent-ink shadow-card transition hover:brightness-105 disabled:opacity-60"
             >
-              {aiLoading ? "Thinking…" : aiText ? "↻ Regenerate with AI" : "✦ Personalize with AI"}
+              {aiLoading
+                ? "Thinking…"
+                : !isPlus
+                ? "✦ Personalize with AI (Plus)"
+                : aiText
+                ? "↻ Regenerate with AI"
+                : "✦ Personalize with AI"}
             </button>
           )}
         </div>
@@ -238,6 +246,12 @@ function InsightsInner() {
           Browse &amp; edit entries
         </LinkButton>
       </div>
+
+      <UpgradeModal
+        open={upsell}
+        onClose={() => setUpsell(false)}
+        reason="AI-personalised narratives are part of MyLifeSense Plus."
+      />
     </main>
   );
 }

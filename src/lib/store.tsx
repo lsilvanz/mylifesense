@@ -5,6 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import { buildSeed, DB_VERSION } from "./seed";
 import { supabase, supabaseEnabled } from "./supabase";
 import { captureRedirect } from "./fitbit";
+import { getStoredPlan, setStoredPlan, setPendingPlan, type Plan } from "./plan";
 import type { DB, Entry, EntryValue, EntryValueData, Frequency, Sense, SenseFactor } from "./types";
 
 const STORAGE_KEY = "mypatterns.db.v1";
@@ -171,6 +172,8 @@ interface StoreValue {
   user: AuthUser | null;
   guest: boolean;
   continueAsGuest: () => void;
+  plan: Plan;
+  isPlus: boolean;
   senses: Sense[];
   factorsFor: (senseId: string) => SenseFactor[];
   entriesFor: (senseId: string) => Entry[];
@@ -214,7 +217,31 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [guest, setGuest] = useState(false);
   const [focusedSenseId, setFocusedId] = useState<string | null>(null);
+  const [plan, setPlan] = useState<Plan>("free");
   const currentUserId = useRef<string | null>(null);
+
+  // Plan/entitlement: read the cached plan, and if we've just returned from a
+  // successful Stripe Checkout (?upgraded=1) mark the user as Plus.
+  useEffect(() => {
+    setPlan(getStoredPlan());
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("upgraded") === "1") {
+        setStoredPlan("plus");
+        setPendingPlan(null);
+        setPlan("plus");
+        params.delete("upgraded");
+        const qs = params.toString();
+        window.history.replaceState(
+          {},
+          "",
+          window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   // Remember a visitor's choice to skip the sign-in gate + which Sense is focused.
   useEffect(() => {
@@ -323,6 +350,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       initError,
       user,
       guest,
+      plan,
+      isPlus: plan === "plus",
       continueAsGuest: () => {
         setGuest(true);
         try {
@@ -675,7 +704,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         await supabase.auth.signInAnonymously();
       },
     };
-  }, [db, ready, initError, user, guest, focusedSenseId, persist]);
+  }, [db, ready, initError, user, guest, plan, focusedSenseId, persist]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

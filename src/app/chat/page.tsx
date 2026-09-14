@@ -10,6 +10,7 @@ import { askClaudeChat } from "@/lib/ai";
 import { combinedContextForAI } from "@/lib/context";
 import { fetchIntegrationData, isConnected } from "@/lib/fitbit";
 import { getAutoSpeak, setAutoSpeak, speak, stopSpeaking, ttsSupported } from "@/lib/speak";
+import { UpgradeModal } from "@/components/plans";
 import { useStore } from "@/lib/store";
 
 interface Msg {
@@ -27,11 +28,12 @@ export default function ChatPage() {
 
 function ChatInner() {
   const id = useSearchParams().get("sense") ?? "";
-  const { ready, getSense, factorsFor, entriesFor } = useStore();
+  const { ready, getSense, factorsFor, entriesFor, isPlus } = useStore();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
   const [autoSpeak, setAuto] = useState(false);
+  const [upsell, setUpsell] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const toBottom = () =>
     requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 1e9, behavior: "smooth" }));
@@ -74,6 +76,37 @@ function ChatInner() {
       <main className="px-4">
         <AppHeader title="Chat" back="/" />
         <p className="py-16 text-center text-muted">Nothing to talk about yet.</p>
+      </main>
+    );
+  }
+
+  if (!isPlus) {
+    return (
+      <main className="px-4">
+        <AppHeader title={`Chat · ${sense.title}`} back="/" />
+        <div className="px-1 py-12">
+          <div className="mx-auto max-w-sm rounded-2xl border border-line bg-surface p-6 text-center shadow-card">
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-accent-soft text-2xl">
+              ✦
+            </div>
+            <p className="text-lg font-extrabold text-ink">Chat is a Plus feature</p>
+            <p className="mt-1 text-sm text-muted">
+              Ask questions about your data in plain language and get AI answers grounded in your own
+              patterns. Upgrade to Plus to unlock chat, AI insights, integrations and more.
+            </p>
+            <button
+              onClick={() => setUpsell(true)}
+              className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-gradient-accent px-4 py-2.5 text-sm font-semibold text-white shadow-glow"
+            >
+              See Plus
+            </button>
+          </div>
+        </div>
+        <UpgradeModal
+          open={upsell}
+          onClose={() => setUpsell(false)}
+          reason="AI chat is part of MyLifeSense Plus."
+        />
       </main>
     );
   }

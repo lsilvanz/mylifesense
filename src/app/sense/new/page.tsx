@@ -8,6 +8,8 @@ import { CATEGORIES, ENTRY_TYPES, categoryEmoji } from "@/lib/entryTypes";
 import { suggestFactors } from "@/lib/ai";
 import { combinedContextForAI, getContext, setContext, ME_ID } from "@/lib/context";
 import { isConnected as fitbitConnected } from "@/lib/fitbit";
+import { FREE_LIMITS } from "@/lib/plan";
+import { UpgradeModal } from "@/components/plans";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, FactorConfig, Frequency } from "@/lib/types";
 
@@ -169,7 +171,8 @@ const STEPS = ["Topic", "About you", "Factors", "Sources", "Ready"];
 
 export default function NewSensePage() {
   const router = useRouter();
-  const { createSense } = useStore();
+  const { createSense, senses, isPlus } = useStore();
+  const [upgrade, setUpgrade] = useState(false);
 
   const [step, setStep] = useState(0);
   const [title, setTitle] = useState("");
@@ -274,6 +277,13 @@ export default function NewSensePage() {
 
   const toggleOn = (key: string) =>
     setFactors((prev) => {
+      const hit = prev.find((f) => f.key === key);
+      const onCount = prev.filter((f) => f.on).length;
+      // Free tier is capped at FREE_LIMITS.factorsPerSense; block turning on more.
+      if (hit && !hit.on && !isPlus && onCount >= FREE_LIMITS.factorsPerSense) {
+        setUpgrade(true);
+        return prev;
+      }
       const next = prev.map((f) => (f.key === key ? { ...f, on: !f.on } : f));
       // Don't leave the target switched off.
       const target = next.find((f) => f.isTarget);
@@ -296,6 +306,11 @@ export default function NewSensePage() {
   const addCustom = (label: string) => {
     const clean = label.trim();
     if (!clean) return;
+    const onCount = factors.filter((f) => f.on).length;
+    if (!isPlus && onCount >= FREE_LIMITS.factorsPerSense) {
+      setUpgrade(true);
+      return;
+    }
     setFactors((prev) => [...prev, seedToDraft({ label: clean, category: "Custom", entryType: "yes_no" }, "custom")]);
   };
 
@@ -332,11 +347,18 @@ export default function NewSensePage() {
   const canFactors = onFactors.length >= 2 && !!target;
 
   const create = () => {
+    // Safety net: enforce the free factor cap even if the UI was bypassed.
+    let chosen = onFactors;
+    if (!isPlus && chosen.length > FREE_LIMITS.factorsPerSense) {
+      const t = chosen.find((f) => f.isTarget);
+      const others = chosen.filter((f) => !f.isTarget).slice(0, FREE_LIMITS.factorsPerSense - 1);
+      chosen = t ? [t, ...others] : chosen.slice(0, FREE_LIMITS.factorsPerSense);
+    }
     const id = createSense({
       title: title.trim(),
       question: question.trim() || `What affects ${title.trim()}?`,
       frequency,
-      factors: onFactors.map((f) => {
+      factors: chosen.map((f) => {
         const base: FactorConfig =
           f.entryType === "list"
             ? { options: f.options.filter(Boolean), multiple: f.multiple }
@@ -365,6 +387,34 @@ export default function NewSensePage() {
 
     router.push(`/log?sense=${id}`);
   };
+
+  if (!isPlus && senses.length >= FREE_LIMITS.activeSenses) {
+    return (
+      <main className="pb-28">
+        <AppHeader title="New Sense" back="/" />
+        <div className="px-4 py-12">
+          <div className="mx-auto max-w-sm rounded-2xl border border-line bg-surface p-6 text-center shadow-card">
+            <p className="text-lg font-extrabold text-ink">You&apos;re on the Free plan</p>
+            <p className="mt-1 text-sm text-muted">
+              Free includes 1 active Sense. Upgrade to Plus for unlimited Senses &amp; factors, AI chat,
+              integrations and more.
+            </p>
+            <Button className="mt-4 w-full" onClick={() => setUpgrade(true)}>
+              See Plus
+            </Button>
+            <Button variant="outline" className="mt-2 w-full" onClick={() => router.push("/")}>
+              Back home
+            </Button>
+          </div>
+        </div>
+        <UpgradeModal
+          open={upgrade}
+          onClose={() => setUpgrade(false)}
+          reason="Free includes 1 active Sense."
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="pb-28">
@@ -404,6 +454,7 @@ export default function NewSensePage() {
             aiBusy={aiBusy}
             aiMsg={aiMsg}
             target={target}
+            factorCap={isPlus ? undefined : FREE_LIMITS.factorsPerSense}
             onToggle={toggleOn}
             onSetTarget={setTarget}
             onSetGoal={setGoal}
@@ -460,6 +511,12 @@ export default function NewSensePage() {
           </Button>
         )}
       </div>
+
+      <UpgradeModal
+        open={upgrade}
+        onClose={() => setUpgrade(false)}
+        reason={`Free includes up to ${FREE_LIMITS.factorsPerSense} factors. Upgrade to Plus for unlimited factors, AI chat, integrations and more.`}
+      />
     </main>
   );
 }
@@ -658,6 +715,7 @@ function FactorsStep({
   aiBusy,
   aiMsg,
   target,
+  factorCap,
   onToggle,
   onSetTarget,
   onSetGoal,
@@ -669,6 +727,7 @@ function FactorsStep({
   aiBusy: boolean;
   aiMsg: string | null;
   target?: DraftFactor;
+  factorCap?: number;
   onToggle: (key: string) => void;
   onSetTarget: (key: string) => void;
   onSetGoal: (dir: "minimize" | "maximize") => void;
@@ -760,7 +819,9 @@ function FactorsStep({
       </div>
 
       <p className="text-xs text-faint">
-        {onCount} selected · tap ✎ on any to change how it&apos;s logged.
+        {onCount}
+        {factorCap ? ` / ${factorCap}` : ""} selected · tap ✎ on any to change how it&apos;s logged.
+        {factorCap ? " Free plan — upgrade for unlimited." : ""}
       </p>
     </div>
   );

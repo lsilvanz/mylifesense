@@ -5,14 +5,18 @@ import { AppHeader, Button, Card } from "@/components/ui";
 import { Integrations } from "@/components/integrations";
 import { ContextEditor } from "@/components/context-editor";
 import { NotificationsToggle } from "@/components/notifications-toggle";
+import { UpgradeModal } from "@/components/plans";
 import { ME_ID } from "@/lib/context";
+import { PRICING } from "@/lib/plan";
 import { useStore } from "@/lib/store";
 
 export default function AboutPage() {
-  const { senses, usingSupabase, user, signInWithEmail, signInWithGoogle, signOut } = useStore();
+  const { senses, usingSupabase, user, isPlus, signInWithEmail, signInWithGoogle, signOut } =
+    useStore();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [upsell, setUpsell] = useState(false);
 
   const signedIn = Boolean(user && !user.isAnonymous);
 
@@ -55,6 +59,37 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
+      </Card>
+
+      {/* Plan */}
+      <Card className={`mt-4 p-5 ${isPlus ? "" : "border-accent/50"}`}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-ink">
+              Plan: {isPlus ? "MyLifeSense Plus" : "Free"}
+            </p>
+            <p className="mt-0.5 text-sm text-muted">
+              {isPlus
+                ? "Everything unlocked — unlimited Senses & factors, AI chat, integrations and more."
+                : "1 active Sense, up to 5 factors, basic analysis. Upgrade for the full picture."}
+            </p>
+          </div>
+          {isPlus ? (
+            <span className="shrink-0 rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-accent-ink">
+              Plus
+            </span>
+          ) : (
+            <Button className="shrink-0" onClick={() => setUpsell(true)}>
+              Upgrade
+            </Button>
+          )}
+        </div>
+        {!isPlus && (
+          <p className="mt-2 text-xs text-faint">
+            Plus is {PRICING.monthly.label}/mo or {PRICING.annual.label}/yr (save{" "}
+            {PRICING.annual.savePct}%).
+          </p>
+        )}
       </Card>
 
       <div className="mt-4">
@@ -135,6 +170,12 @@ export default function AboutPage() {
         MyLifeSense prototype · Phase 1 core loop + client-side Insights. Chat and correlations are
         gated at <strong>15 entries</strong> to avoid reporting noise as signal.
       </p>
+
+      <UpgradeModal
+        open={upsell}
+        onClose={() => setUpsell(false)}
+        reason="Unlock unlimited Senses & factors, AI chat, integrations and more."
+      />
     </main>
   );
 }

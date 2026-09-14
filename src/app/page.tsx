@@ -6,7 +6,8 @@ import { useStore } from "@/lib/store";
 import { Button, Card, LinkButton, Loading, Wordmark, EmptyState } from "@/components/ui";
 import { Clouds } from "@/components/decor";
 import { VoiceLogModal } from "@/components/voice-log-modal";
-import { categoryEmoji } from "@/lib/entryTypes";
+import { UpgradeModal } from "@/components/plans";
+import { FREE_LIMITS } from "@/lib/plan";
 import type { Sense } from "@/lib/types";
 
 function MicButton({ onClick, className = "" }: { onClick: () => void; className?: string }) {
@@ -27,9 +28,13 @@ const FREQUENCY_LABEL: Record<string, string> = {
 };
 
 export default function HomePage() {
-  const { ready, senses, factorsFor, entriesFor, resetDemo, initError, focusedSenseId } = useStore();
+  const { ready, senses, factorsFor, entriesFor, resetDemo, initError, focusedSenseId, isPlus } =
+    useStore();
   const [voiceSense, setVoiceSense] = useState<string | null>(null);
+  const [upgrade, setUpgrade] = useState(false);
   if (!ready) return <Loading />;
+
+  const canCreateSense = isPlus || senses.length < FREE_LIMITS.activeSenses;
 
   const featured = senses.find((s) => s.id === focusedSenseId) ?? senses[0];
   const rest = senses.filter((s) => s.id !== featured?.id);
@@ -103,10 +108,22 @@ export default function HomePage() {
 
       {voiceSense && <VoiceLogModal senseId={voiceSense} onClose={() => setVoiceSense(null)} />}
 
+      <UpgradeModal
+        open={upgrade}
+        onClose={() => setUpgrade(false)}
+        reason="Free includes 1 active Sense. Upgrade to Plus for unlimited Senses and factors, AI chat, integrations and more."
+      />
+
       <div className="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t border-line bg-ground/90 px-4 py-3 backdrop-blur">
-        <LinkButton href="/sense/new" className="w-full">
-          + New Sense
-        </LinkButton>
+        {canCreateSense ? (
+          <LinkButton href="/sense/new" className="w-full">
+            + New Sense
+          </LinkButton>
+        ) : (
+          <Button className="w-full" onClick={() => setUpgrade(true)}>
+            + New Sense
+          </Button>
+        )}
       </div>
     </main>
   );

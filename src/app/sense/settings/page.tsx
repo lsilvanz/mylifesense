@@ -8,7 +8,9 @@ import { goalOf, isControllable } from "@/lib/insights";
 import { FactorSuggestions } from "@/components/factor-suggestions";
 import { ContextEditor } from "@/components/context-editor";
 import { RemindersSection } from "@/components/reminders-section";
+import { UpgradeModal } from "@/components/plans";
 import { combinedContextForAI } from "@/lib/context";
+import { FREE_LIMITS } from "@/lib/plan";
 import { useStore } from "@/lib/store";
 import type { EntryType, FactorCategory, SenseFactor } from "@/lib/types";
 
@@ -35,10 +37,12 @@ function SettingsInner() {
     addFactorsToSense,
     updateSense,
     deleteSense,
+    isPlus,
   } = useStore();
 
   const [confirmText, setConfirmText] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+  const [upsell, setUpsell] = useState(false);
 
   const factors = useMemo(() => (ready ? factorsFor(id) : []), [ready, factorsFor, id]);
   const entries = useMemo(() => (ready ? entriesFor(id) : []), [ready, entriesFor, id]);
@@ -102,7 +106,15 @@ function SettingsInner() {
             question={sense.question}
             existing={factors.map((f) => f.label)}
             context={combinedContextForAI(id)}
-            onAdd={(chosen) =>
+            onAdd={(chosen) => {
+              if (!isPlus) {
+                const room = FREE_LIMITS.factorsPerSense - factors.length;
+                if (room <= 0) {
+                  setUpsell(true);
+                  return;
+                }
+                chosen = chosen.slice(0, room);
+              }
               addFactorsToSense(
                 id,
                 chosen.map((s) => ({
@@ -117,8 +129,8 @@ function SettingsInner() {
                     ...(typeof s.controllable === "boolean" ? { controllable: s.controllable } : {}),
                   },
                 }))
-              )
-            }
+              );
+            }}
           />
         </div>
 
@@ -139,17 +151,26 @@ function SettingsInner() {
         <Button
           variant="outline"
           className="mt-3 w-full"
-          onClick={() =>
+          onClick={() => {
+            if (!isPlus && factors.length >= FREE_LIMITS.factorsPerSense) {
+              setUpsell(true);
+              return;
+            }
             addFactorToSense(id, {
               label: "New factor",
               category: "Custom",
               entryType: "yes_no",
               config: {},
-            })
-          }
+            });
+          }}
         >
           + Add factor
         </Button>
+        {!isPlus && (
+          <p className="mt-1.5 text-center text-xs text-faint">
+            Free plan: up to {FREE_LIMITS.factorsPerSense} factors · Plus unlocks unlimited.
+          </p>
+        )}
       </section>
 
       {/* Danger zone */}
@@ -184,6 +205,12 @@ function SettingsInner() {
           onConfirm={doDelete}
         />
       )}
+
+      <UpgradeModal
+        open={upsell}
+        onClose={() => setUpsell(false)}
+        reason={`Free includes up to ${FREE_LIMITS.factorsPerSense} factors. Upgrade to Plus for unlimited factors and more.`}
+      />
     </main>
   );
 }

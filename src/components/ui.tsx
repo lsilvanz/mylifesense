@@ -127,13 +127,7 @@ export function Wordmark() {
   return (
     <div className="flex items-center gap-2">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/app/icon.png"
-        alt=""
-        className="h-9 w-9 rounded-xl shadow-glow"
-        width={36}
-        height={36}
-      />
+      <img src="/app/icon.png" alt="" className="h-8 w-8 drop-shadow-sm" width={32} height={32} />
       <span className="text-xl font-extrabold tracking-tight">
         My<span className="text-gradient">LifeSense</span>
       </span>
