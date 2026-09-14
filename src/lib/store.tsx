@@ -313,6 +313,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     };
 
     const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+    // The app is served under /app; auth redirects must return there (root is
+    // the marketing site, which doesn't mount the app / AuthGate).
+    const appUrl = origin ? `${origin}/app` : undefined;
 
     return {
       ready,
@@ -630,12 +633,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           if (!linked.error) {
             return { ok: true, message: `Confirmation link sent to ${email}. Open it to finish and keep your data.` };
           }
-          const otp = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: origin } });
+          const otp = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: appUrl } });
           return otp.error
             ? { ok: false, message: otp.error.message }
             : { ok: true, message: `Magic link sent to ${email}.` };
         }
-        const otp = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: origin } });
+        const otp = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: appUrl } });
         return otp.error
           ? { ok: false, message: otp.error.message }
           : { ok: true, message: `Magic link sent to ${email}.` };
@@ -644,7 +647,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       signInWithGoogle: async () => {
         if (!supabase) return { ok: false, message: "Auth is only available with Supabase configured." };
         const { data } = await supabase.auth.getUser();
-        const options = { redirectTo: origin };
+        const options = { redirectTo: appUrl };
         if (data.user?.is_anonymous) {
           const linked = await supabase.auth.linkIdentity({ provider: "google", options });
           if (!linked.error) return { ok: true, message: "Redirecting to Google…" };

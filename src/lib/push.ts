@@ -52,7 +52,9 @@ export async function enablePush(): Promise<{ ok: boolean; message: string }> {
     if (perm !== "granted")
       return { ok: false, message: "Notifications are blocked — allow them in your browser settings." };
 
-    const reg = await navigator.serviceWorker.register("/sw.js");
+    // The app is served under /app, so the service worker (public/sw.js →
+    // /app/sw.js) and its scope live there too.
+    const reg = await navigator.serviceWorker.register("/app/sw.js", { scope: "/app/" });
     await navigator.serviceWorker.ready;
 
     let sub = await reg.pushManager.getSubscription();

@@ -104,7 +104,7 @@ export function Integrations() {
             {!clientId.trim() && (
               <p className="text-xs text-faint">
                 Register a free app at dev.fitbit.com (type: Client, callback:{" "}
-                {typeof window !== "undefined" ? window.location.origin : ""}/about) and paste its
+                {typeof window !== "undefined" ? window.location.origin : ""}/app) and paste its
                 Client ID above.
               </p>
             )}

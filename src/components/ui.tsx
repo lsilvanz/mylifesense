@@ -126,9 +126,14 @@ export function AppHeader({
 export function Wordmark() {
   return (
     <div className="flex items-center gap-2">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-accent text-lg text-white shadow-glow">
-        ◵
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/app/icon.png"
+        alt=""
+        className="h-9 w-9 rounded-xl shadow-glow"
+        width={36}
+        height={36}
+      />
       <span className="text-xl font-extrabold tracking-tight">
         My<span className="text-gradient">LifeSense</span>
       </span>

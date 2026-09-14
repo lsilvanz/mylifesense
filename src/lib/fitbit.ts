@@ -43,8 +43,10 @@ export function setClientId(id: string) {
 }
 
 function redirectUri(): string {
-  // Must exactly match a Callback URL registered on the Fitbit app.
-  return `${window.location.origin}/`;
+  // Must exactly match a Callback URL registered on the Fitbit app. The app is
+  // served under /app, so Fitbit returns the token fragment there (where the
+  // store captures it on mount).
+  return `${window.location.origin}/app`;
 }
 
 export function getSession(): FitbitSession | null {

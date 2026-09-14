@@ -1,0 +1,13 @@
+{
+  "name": "MyLifeSense",
+  "short_name": "MyLifeSense",
+  "description": "Understand what drives the patterns in your life.",
+  "start_url": "/app",
+  "scope": "/app/",
+  "display": "standalone",
+  "background_color": "#e9e8fb",
+  "theme_color": "#7c6ce4",
+  "icons": [
+    { "src": "/app/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

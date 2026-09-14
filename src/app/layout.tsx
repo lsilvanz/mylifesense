@@ -11,14 +11,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mylifesense.app"),
   title: "MyLifeSense",
   description: "Understand what drives the patterns in your life.",
+  applicationName: "MyLifeSense",
+  manifest: "/app/manifest.webmanifest",
+  icons: {
+    icon: "/app/icon.png",
+    apple: "/app/icon.png",
+  },
+  appleWebApp: { capable: true, title: "MyLifeSense", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#e9e8fb",
+  themeColor: "#7c6ce4",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
