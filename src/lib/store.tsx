@@ -220,14 +220,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [focusedSenseId, setFocusedId] = useState<string | null>(null);
   const [plan, setPlan] = useState<Plan>("free");
   const currentUserId = useRef<string | null>(null);
+  const justUpgradedRef = useRef(false);
 
   // Plan/entitlement: read the cached plan, and if we've just returned from a
-  // successful Stripe Checkout (?upgraded=1) mark the user as Plus.
+  // successful Stripe Checkout (?upgraded=1) mark the user as Plus. The
+  // authoritative check is my_plan() below; this is the instant-paint cache.
   useEffect(() => {
     setPlan(getStoredPlan());
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get("upgraded") === "1") {
+        justUpgradedRef.current = true;
         setStoredPlan("plus");
         setPendingPlan(null);
         setPlan("plus");
@@ -243,6 +246,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       /* ignore */
     }
   }, []);
+
+  // Server-verified entitlement: my_plan() (active Stripe subscription OR promo
+  // redemption) is the source of truth, read whenever we have a real session.
+  // Right after checkout the webhook may lag, so we don't downgrade during a
+  // short grace window — we re-poll until it flips to Plus.
+  useEffect(() => {
+    if (!supabase || !user) return;
+    let cancelled = false;
+
+    const applyServerPlan = async (attempt = 0) => {
+      const { data, error } = await supabase!.rpc("my_plan");
+      if (cancelled || error) return; // RPC missing / offline → keep cached plan
+      if (data === "plus") {
+        setStoredPlan("plus");
+        setPlan("plus");
+        return;
+      }
+      // Server says free. If we just upgraded, give the webhook time to land.
+      if (justUpgradedRef.current && attempt < 4) {
+        setTimeout(() => applyServerPlan(attempt + 1), 3000);
+        return;
+      }
+      setStoredPlan("free");
+      setPlan("free");
+    };
+
+    applyServerPlan();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   // Remember a visitor's choice to skip the sign-in gate + which Sense is focused.
   useEffect(() => {
