@@ -295,19 +295,37 @@
     border-radius: 16px;
     padding: 14px;
   }
-  .scr-head{ display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .scr-mini{ font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
-  .scr-pill{ font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; background: var(--accent, var(--primary)); padding: 3px 8px; border-radius: 999px; }
-  .scr-insight{ font-size: 0.92rem; line-height: 1.4; }
-  .scr-insight b{ color: var(--accent, var(--primary)); font-weight: 600; }
-  .spark{ display: block; width: 100%; height: 30px; margin: 9px 0 2px; }
-  .scr-block{ margin-top: 12px; }
-  .scr-rec{ display: flex; gap: 8px; align-items: flex-start; font-size: 0.84rem; line-height: 1.35; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; }
-  .scr-rec .mk{ color: var(--accent, var(--primary)); font-weight: 800; flex: none; }
-  .scr-chat{ display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-  .bubble{ font-size: 0.81rem; line-height: 1.35; padding: 8px 11px; border-radius: 13px; max-width: 90%; }
-  .bubble.q{ align-self: flex-end; background: var(--surface); border: 1px solid var(--line); border-bottom-right-radius: 4px; }
-  .bubble.a{ align-self: flex-start; background: color-mix(in srgb, var(--accent, var(--primary)) 15%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent, var(--primary)) 28%, var(--line)); border-bottom-left-radius: 4px; }
+  .mi-bar{ display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.78rem; color: var(--ink); }
+  .mi-bar .b{ color: var(--ink-muted); font-size: 1rem; }
+  .mi-bar .cog{ margin-left: auto; color: var(--ink-muted); }
+  .mi-narr{ margin-top: 10px; background: color-mix(in srgb, var(--accent, var(--primary)) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent, var(--primary)) 22%, var(--line)); border-radius: 12px; padding: 10px 11px; }
+  .mi-narr .k{ font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 800; color: var(--accent, var(--primary)); }
+  .mi-narr p{ margin: 6px 0 0; font-size: 0.83rem; line-height: 1.4; }
+  .mi-narr p b{ color: var(--accent, var(--primary)); font-weight: 600; }
+  .mi-ct{ margin-top: 11px; font-size: 0.72rem; font-weight: 700; color: var(--ink); }
+  .mi-line{ display: block; width: 100%; height: 46px; margin-top: 4px; }
+  .mi-sig{ margin-top: 11px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px; }
+  .mi-sigrow{ display: flex; align-items: center; gap: 8px; }
+  .mi-sigrow .nm{ font-weight: 600; font-size: 0.85rem; }
+  .mi-sigrow .tier{ margin-left: auto; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; background: var(--accent, var(--primary)); padding: 3px 8px; border-radius: 999px; }
+  .mi-r{ margin-top: 6px; font-size: 0.74rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+  .mi-try{ margin-top: 8px; font-size: 0.8rem; color: var(--ink); line-height: 1.35; }
+  .mi-senses{ display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .mi-sense{ background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px; }
+  .mi-sense .q{ font-weight: 600; font-size: 0.85rem; }
+  .mi-sense .m{ font-size: 0.72rem; color: var(--ink-muted); margin-top: 3px; }
+
+  /* chat showcase */
+  .chat-grid{ display: grid; grid-template-columns: 1fr 350px; gap: clamp(28px, 5vw, 56px); align-items: center; }
+  @media (max-width: 900px){ .chat-grid{ grid-template-columns: 1fr; gap: 32px; } .chat-grid .show-copy{ order: -1; } }
+  .cthread{ display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .cmsg{ font-size: 0.85rem; line-height: 1.42; padding: 10px 12px; border-radius: 15px; max-width: 88%; }
+  .cmsg.u{ align-self: flex-end; background: linear-gradient(120deg, var(--grad-start), var(--grad-end)); color: #fff; border-bottom-right-radius: 5px; }
+  .cmsg.a{ align-self: flex-start; background: var(--surface-2); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+  .cmsg.a b{ color: var(--primary); }
+  .cinput{ margin-top: 14px; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 9px 10px 9px 15px; color: var(--ink-muted); font-size: 0.82rem; }
+  .cinput .send{ margin-left: auto; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 0.85rem; flex: none; }
+  .cnote{ font-size: 0.64rem; color: var(--ink-muted); margin-top: 10px; }
   .ic-foot{ margin-top: auto; padding: 4px 22px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .ic-cta{
     display: inline-flex; align-items: center; gap: 8px;
@@ -455,19 +473,17 @@
           <p class="sub">MyLifeSense finds the patterns behind how you rest.</p>
         </div>
         <div class="ic-screen">
-          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
-          <p class="scr-insight">You sleep better on days with more time outside <b>(0.42 correlation)</b>.</p>
-          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,26 20,24 40,20 60,22 80,14 100,10 120,5" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="scr-block">
-            <p class="scr-mini">Recommendation</p>
-            <div class="scr-rec"><span class="mk">&#9650;</span><span>Get 20+ minutes outside before noon &mdash; a lever you control.</span></div>
-          </div>
-          <div class="scr-chat">
-            <div class="bubble q">Why was last week so rough?</div>
-            <div class="bubble a">Your three worst nights all followed late caffeine.</div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Sleep <span class="cog">&#9881;</span></div>
+          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>On days you get more time outside, your sleep quality runs <b>higher</b>.</p></div>
+          <p class="mi-ct">Sleep quality over time</p>
+          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,30 20,28 40,22 60,25 80,16 100,11 120,7" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="mi-sig">
+            <div class="mi-sigrow"><span aria-hidden="true">&#127795;</span><span class="nm">Time outside</span><span class="tier">Strong</span></div>
+            <p class="mi-r">r = +0.42 &middot; n = 22</p>
+            <p class="mi-try">&#128161; Worth trying: 20+ minutes outside before noon.</p>
           </div>
         </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
       <div class="ic" style="--accent: var(--cat-energy);">
@@ -477,19 +493,17 @@
           <p class="sub">See what actually drains and restores you.</p>
         </div>
         <div class="ic-screen">
-          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
-          <p class="scr-insight">Your energy dips track high stress + low protein <b>(0.56 correlation)</b>.</p>
-          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,10 20,14 40,12 60,22 80,27 100,18 120,12" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="scr-block">
-            <p class="scr-mini">Recommendation</p>
-            <div class="scr-rec"><span class="mk">&#9650;</span><span>Add protein at breakfast on your high-stress days.</span></div>
-          </div>
-          <div class="scr-chat">
-            <div class="bubble q">When do I usually crash?</div>
-            <div class="bubble a">Most 3pm dips follow low-protein mornings.</div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Energy <span class="cog">&#9881;</span></div>
+          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>Your energy dips line up with <b>high-stress, low-protein</b> days.</p></div>
+          <p class="mi-ct">Afternoon energy over time</p>
+          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,12 20,16 40,14 60,26 80,32 100,20 120,14" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="mi-sig">
+            <div class="mi-sigrow"><span aria-hidden="true">&#127860;</span><span class="nm">Protein intake</span><span class="tier">Strong</span></div>
+            <p class="mi-r">r = +0.56 &middot; n = 24</p>
+            <p class="mi-try">&#128161; Worth trying: protein at breakfast on high-stress days.</p>
           </div>
         </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
       <div class="ic" style="--accent: var(--cat-growth);">
@@ -499,19 +513,17 @@
           <p class="sub">Find the levers your results really follow.</p>
         </div>
         <div class="ic-screen">
-          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
-          <p class="scr-insight">Your best days follow 2+ days of <b>lighter training</b>.</p>
-          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,22 20,24 40,15 60,10 80,17 100,8 120,5" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="scr-block">
-            <p class="scr-mini">Recommendation</p>
-            <div class="scr-rec"><span class="mk">&#9650;</span><span>Ease off for two days before a key session.</span></div>
-          </div>
-          <div class="scr-chat">
-            <div class="bubble q">What predicts a good match?</div>
-            <div class="bubble a">Two easy days and 7h+ sleep the night before.</div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Tennis <span class="cog">&#9881;</span></div>
+          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>Your best days follow <b>two or more days of lighter training</b>.</p></div>
+          <p class="mi-ct">Match performance over time</p>
+          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,26 20,28 40,17 60,11 80,19 100,9 120,6" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="mi-sig">
+            <div class="mi-sigrow"><span aria-hidden="true">&#127934;</span><span class="nm">Training load (2-day)</span><span class="tier">Strong</span></div>
+            <p class="mi-r">r = &minus;0.58 &middot; n = 20</p>
+            <p class="mi-try">&#128161; Worth trying: ease off for two days before a key session.</p>
           </div>
         </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
       <div class="ic" style="--accent: var(--cat-relationship);">
@@ -521,19 +533,17 @@
           <p class="sub">Spot what tips a good day into a hard one.</p>
         </div>
         <div class="ic-screen">
-          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
-          <p class="scr-insight">Friction rises after high-stress stretches <b>(0.48 correlation)</b>.</p>
-          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,18 20,16 40,25 60,14 80,27 100,15 120,20" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="scr-block">
-            <p class="scr-mini">Recommendation</p>
-            <div class="scr-rec"><span class="mk">&#9650;</span><span>Protect time together after your hardest weeks.</span></div>
-          </div>
-          <div class="scr-chat">
-            <div class="bubble q">Why do we clash on Sundays?</div>
-            <div class="bubble a">They follow your most stressful workdays.</div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Us <span class="cog">&#9881;</span></div>
+          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>Friction rises a couple of days <b>after your most stressful stretches</b>.</p></div>
+          <p class="mi-ct">Tension over time</p>
+          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,20 20,18 40,29 60,15 80,32 100,17 120,22" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="mi-sig">
+            <div class="mi-sigrow"><span aria-hidden="true">&#128188;</span><span class="nm">Work stress (2-day lag)</span><span class="tier">Moderate</span></div>
+            <p class="mi-r">r = +0.48 &middot; n = 18</p>
+            <p class="mi-try">&#128161; Worth trying: protect time together after hard weeks.</p>
           </div>
         </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
       <div class="ic" style="--accent: var(--cat-money);">
@@ -543,19 +553,17 @@
           <p class="sub">Understand what really moves your spending.</p>
         </div>
         <div class="ic-screen">
-          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
-          <p class="scr-insight">You spend more when you're stressed or tired <b>(0.51 correlation)</b>.</p>
-          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,20 20,15 40,22 60,12 80,24 100,14 120,10" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="scr-block">
-            <p class="scr-mini">Recommendation</p>
-            <div class="scr-rec"><span class="mk">&#9650;</span><span>Try a 24-hour pause on low-sleep evenings.</span></div>
-          </div>
-          <div class="scr-chat">
-            <div class="bubble q">When do I overspend?</div>
-            <div class="bubble a">On high-stress, low-sleep nights.</div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Spending <span class="cog">&#9881;</span></div>
+          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>You spend more on <b>low-sleep, high-stress</b> evenings.</p></div>
+          <p class="mi-ct">Daily spend over time</p>
+          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,22 20,16 40,25 60,13 80,28 100,15 120,10" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="mi-sig">
+            <div class="mi-sigrow"><span aria-hidden="true">&#128564;</span><span class="nm">Sleep last night</span><span class="tier">Moderate</span></div>
+            <p class="mi-r">r = &minus;0.51 &middot; n = 21</p>
+            <p class="mi-try">&#128161; Worth trying: a 24-hour pause on low-sleep nights.</p>
           </div>
         </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
       <div class="ic" style="--accent: var(--primary);">
@@ -565,16 +573,15 @@
           <p class="sub">One place to see what your own days have been telling you.</p>
         </div>
         <div class="ic-screen">
-          <div class="scr-head"><span class="scr-mini">How it works</span><span class="scr-pill">Any sense</span></div>
-          <p class="scr-insight">Track any Sense &mdash; sleep, energy, tennis, mood, money &mdash; and MyLifeSense surfaces the <b>lever you control</b>.</p>
-          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,26 20,22 40,23 60,16 80,15 100,10 120,6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="scr-block">
-            <p class="scr-mini">How to start</p>
-            <div class="scr-rec"><span class="mk">&#9650;</span><span>Name a Sense &rarr; log a few days &rarr; see the pattern.</span></div>
+          <div class="mi-bar">MyLifeSense &middot; Senses <span class="cog">&#9881;</span></div>
+          <div class="mi-senses">
+            <div class="mi-sense"><p class="q">Sleep quality</p><p class="m">22 entries &middot; Daily</p></div>
+            <div class="mi-sense"><p class="q">Tennis performance</p><p class="m">20 entries &middot; Daily</p></div>
+            <div class="mi-sense"><p class="q">Evening chest pain</p><p class="m">26 entries &middot; Daily</p></div>
           </div>
-          <div class="scr-chat">
-            <div class="bubble q">Where do I begin?</div>
-            <div class="bubble a">Pick one thing you want to understand about yourself.</div>
+          <div class="mi-sig">
+            <div class="mi-sigrow"><span aria-hidden="true">&#10022;</span><span class="nm">Any sense works</span><span class="tier">Start</span></div>
+            <p class="mi-try">&#128161; Name a Sense &rarr; log a few days &rarr; see the lever you control.</p>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">No account needed</span></div>
@@ -640,6 +647,35 @@
           <div class="signal"><span class="sname">&#127859; Coffee</span><span class="sr">r = +0.36 &middot; Moderate</span><span class="bar"><i style="width:36%"></i></span></div>
         </div>
         <p class="disc">Green lowers evening chest pain; pink raises it. MyLifeSense surfaces patterns worth exploring &mdash; it is not medical advice; see a clinician for persistent or severe symptoms.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase chat-sec">
+    <div class="chat-grid">
+      <div class="show-copy">
+        <p class="label">Ask, don't dig</p>
+        <h2>Chat with your own data</h2>
+        <p>Ask questions in plain language. Answers are grounded in your logged patterns &mdash; the correlations and lags MyLifeSense already found &mdash; not generic advice off the internet.</p>
+        <div class="q-wrap" style="margin-top:22px;">
+          <span class="q-chip">&ldquo;What makes my headaches worse?&rdquo;</span>
+          <span class="q-chip">&ldquo;When am I most productive?&rdquo;</span>
+          <span class="q-chip">&ldquo;What should I try first?&rdquo;</span>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="ps-head"><span class="back">&lsaquo;</span> Chat &middot; Chest Pain</div>
+          <div class="cthread">
+            <div class="cmsg u">Why is my chest pain worse some evenings?</div>
+            <div class="cmsg a">Your worst evenings cluster on days <b>without morning exercise</b> &mdash; pain averaged 8.4 vs 4.7. Late coffee and higher stress tend to show up on those days too.</div>
+            <div class="cmsg u">What should I try first?</div>
+            <div class="cmsg a">Morning exercise has the strongest link (<b>r &minus;0.75</b>). Even a short walk on days you'd normally skip it is a good test &mdash; it's a lever you control. Not medical advice; see a clinician for persistent or severe symptoms.</div>
+          </div>
+          <div class="cinput">Ask a question&hellip; <span class="send" aria-hidden="true">&rarr;</span></div>
+          <p class="cnote">&#10022; Grounded in your data &middot; only computed statistics are sent to the AI, never raw entries.</p>
+        </div>
       </div>
     </div>
   </section>
