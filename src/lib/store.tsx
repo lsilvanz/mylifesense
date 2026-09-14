@@ -28,6 +28,14 @@ function uid(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+// PostgREST rejects a token whose time claims sit outside its own clock with
+// messages like "JWT issued at future" / "JWT not yet valid". This is a
+// transient skew between Supabase's auth and API services, not a real failure —
+// worth retrying rather than surfacing as a hard error.
+function isTransientClockError(message: string): boolean {
+  return /issued at future|not yet valid/i.test(message);
+}
+
 // ---- localStorage backend -------------------------------------------------
 function loadLocal(): DB {
   if (typeof window === "undefined") return buildSeed();
@@ -301,19 +309,33 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Load every row the current user can see (RLS scopes to them automatically).
   const hydrateData = useCallback(async () => {
     if (!supabase) return;
-    const [senses, factors, entries] = await Promise.all([
-      supabase.from("senses").select("*"),
-      supabase.from("factors").select("*"),
-      supabase.from("entries").select("*, entry_values(factor_id, value)"),
-    ]);
-    const firstError = senses.error || factors.error || entries.error;
-    if (firstError) throw new Error(firstError.message);
-    setDb({
-      version: DB_VERSION,
-      senses: (senses.data ?? []).map(mapSense),
-      factors: (factors.data ?? []).map(mapFactor),
-      entries: (entries.data ?? []).map(mapEntry),
-    });
+    // Right after signInAnonymously(), GoTrue can mint a token whose `iat` is a
+    // second or two ahead of PostgREST's clock (the two Supabase services aren't
+    // perfectly synced), so the very first query rejects it with "JWT issued at
+    // future". The same token validates moments later, so retry with a short
+    // backoff before surfacing the error.
+    for (let attempt = 1; ; attempt++) {
+      const [senses, factors, entries] = await Promise.all([
+        supabase.from("senses").select("*"),
+        supabase.from("factors").select("*"),
+        supabase.from("entries").select("*, entry_values(factor_id, value)"),
+      ]);
+      const firstError = senses.error || factors.error || entries.error;
+      if (!firstError) {
+        setDb({
+          version: DB_VERSION,
+          senses: (senses.data ?? []).map(mapSense),
+          factors: (factors.data ?? []).map(mapFactor),
+          entries: (entries.data ?? []).map(mapEntry),
+        });
+        return;
+      }
+      if (attempt < 4 && isTransientClockError(firstError.message)) {
+        await new Promise((r) => setTimeout(r, attempt * 1200));
+        continue;
+      }
+      throw new Error(firstError.message);
+    }
   }, []);
 
   useEffect(() => {
