@@ -93,36 +93,50 @@
   }
 
   .wrap{
-    max-width: 1140px;
+    max-width: 1240px;
     margin-inline: auto;
     padding-inline: clamp(20px, 5vw, 48px);
   }
 
   /* header */
+  .topbar{ background: var(--surface); border-bottom: 1px solid var(--line); }
   .top{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-block: 20px;
+    padding-block: 16px;
     gap: 12px;
     flex-wrap: wrap;
   }
   .brand{ display: flex; align-items: center; gap: 10px; }
+  .brand .brand-text{ display: flex; flex-direction: column; line-height: 1.1; }
   .brand .wordmark{
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 1.35rem;
+    font-size: 1.3rem;
     letter-spacing: -0.01em;
   }
   .brand .tagline{
-    font-size: 0.82rem;
+    font-size: 0.66rem;
     color: var(--ink-muted);
-    margin-left: 6px;
-    padding-left: 14px;
-    border-left: 1px solid var(--line);
-    display: none;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-top: 2px;
   }
-  @media (min-width: 640px){ .brand .tagline{ display: inline; } }
+  .nav-actions{ display: flex; align-items: center; gap: 12px; }
+  .btn-outline{
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+  }
+  .btn-outline:hover{ border-color: var(--primary); color: var(--primary); }
 
   .btn-primary{
     display: inline-flex;
@@ -153,13 +167,10 @@
   /* hero */
   .hero{
     position: relative;
-    border-radius: 28px;
     overflow: hidden;
-    box-shadow: var(--shadow);
-    margin-block: clamp(8px, 2vw, 20px) clamp(44px, 6vw, 76px);
-    min-height: clamp(460px, 56vw, 660px);
+    min-height: clamp(520px, 68vw, 760px);
     display: flex;
-    align-items: flex-end;
+    align-items: center;
   }
   .hero-bg{
     position: absolute;
@@ -169,40 +180,49 @@
     object-fit: cover;
     z-index: 0;
   }
+  .hero-scrim{
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(100deg,
+      rgba(18,15,34,0.92) 0%,
+      rgba(18,15,34,0.82) 30%,
+      rgba(18,15,34,0.45) 55%,
+      rgba(18,15,34,0.05) 78%);
+  }
+  @media (max-width: 700px){
+    .hero-scrim{ background: linear-gradient(to top, rgba(18,15,34,0.94) 0%, rgba(18,15,34,0.88) 45%, rgba(18,15,34,0.35) 75%, rgba(18,15,34,0.1) 100%); }
+  }
   .hero-panel{
     position: relative;
     z-index: 1;
-    margin: clamp(22px, 4.5vw, 48px);
-    max-width: min(540px, calc(100% - 40px));
-    background: rgba(255,255,255,0.62);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    border: 1px solid rgba(255,255,255,0.55);
-    border-radius: 22px;
-    padding: clamp(26px, 4vw, 40px);
-    box-shadow: 0 20px 50px -22px rgba(28,24,48,0.28);
+    padding: clamp(20px, 5vw, 48px);
+    max-width: 640px;
   }
-  .hero-panel .label{ color: var(--primary); }
-  .hero-panel h1.headline{ color: #1c1830; }
+  .hero-panel .label{ color: #c3b3ff; margin-bottom: 18px; display: block; }
   h1.headline{
-    font-size: clamp(1.9rem, 3.6vw, 2.7rem);
-    line-height: 1.14;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: clamp(2rem, 4.2vw, 3rem);
+    line-height: 1.15;
   }
-  .hero-panel .sub{ color: #322c4a; }
+  h1.headline em{ font-style: italic; color: #c3b3ff; }
+  .hero-panel .sub{ color: rgba(255,255,255,0.86); }
   .sub{
-    margin-top: 18px;
-    font-size: 1.05rem;
-    max-width: 44ch;
+    margin-top: 20px;
+    font-size: 1.1rem;
+    max-width: 46ch;
   }
   .cta-row{
-    margin-top: 28px;
+    margin-top: 30px;
     display: flex;
     align-items: center;
     gap: 22px;
     flex-wrap: wrap;
   }
-  .hero-panel .link-quiet{ color: #4b4564; border-color: rgba(28,24,48,0.18); }
-  @media (max-width: 560px){ .hero-panel{ margin: 14px; padding: 22px; } }
+  .hero-panel .link-quiet{ color: rgba(255,255,255,0.82); border-color: rgba(255,255,255,0.35); }
+  .hero-panel .link-quiet:hover{ color: #fff; border-color: #fff; }
 
   /* reframe */
   section{ padding-block: clamp(40px, 6vw, 72px); }
@@ -301,29 +321,40 @@
 </head>
 <body>
 
-<div class="wrap">
-  <div class="top">
-    <div class="brand">
-      <img src="app-icon.png" width="30" height="30" alt="MyLifeSense" style="border-radius:8px;">
-      <span class="wordmark">MyLifeSense</span>
-      <span class="tagline">Understand what affects you.</span>
+<div class="topbar">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <img src="app-icon.png" width="52" height="52" alt="MyLifeSense" style="border-radius:13px;">
+        <div class="brand-text">
+          <span class="wordmark">MyLifeSense</span>
+          <span class="tagline">Understand what affects you</span>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <a class="btn-outline" href="#cases">See examples</a>
+        <a class="btn-primary btn-mini" href="/app">Get started</a>
+      </div>
     </div>
-    <a class="btn-primary btn-mini" href="/app">Start discovering</a>
   </div>
+</div>
 
-  <section class="hero">
-    <img class="hero-bg" src="hero-photo.jpg" alt="A woman pauses on a bench with her laptop, distracted by her own thoughts, while everyday life carries on around her.">
+<section class="hero">
+  <img class="hero-bg" src="hero-photo.jpg" alt="A woman pauses on a bench with her laptop, distracted by her own thoughts, while everyday life carries on around her.">
+  <div class="hero-scrim" aria-hidden="true"></div>
+  <div class="wrap">
     <div class="hero-panel">
       <p class="label">Not another tracker</p>
       <h1 class="headline">What if the answer is somewhere you haven't <em>looked</em>?</h1>
       <p class="sub">MyLifeSense helps you discover the hidden patterns behind how you feel, perform, spend, work, and live &mdash; the ones you'd never think to look for on your own.</p>
       <div class="cta-row">
         <a class="btn-primary" href="/app">Start discovering your patterns &rarr;</a>
-        <a class="link-quiet" href="#cases">See what people almost missed</a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
+<div class="wrap">
   <section class="reframe">
     <div class="wrap">
       <div class="reframe-grid">
