@@ -318,6 +318,40 @@
   .ic-cta:hover{ filter: brightness(1.06); }
   .ic-tag{ font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; border: 1px solid var(--line); padding: 4px 9px; border-radius: 999px; }
 
+  /* real-data showcase */
+  .show-grid{ display: grid; grid-template-columns: 350px 1fr; gap: clamp(28px, 5vw, 56px); align-items: center; }
+  @media (max-width: 900px){ .show-grid{ grid-template-columns: 1fr; gap: 32px; } }
+  .phone{ width: 100%; max-width: 350px; margin-inline: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 34px; box-shadow: var(--shadow); padding: 12px; }
+  .phone-notch{ width: 116px; height: 6px; border-radius: 999px; background: var(--line); margin: 4px auto 10px; }
+  .phone-screen{ background: var(--bg); border: 1px solid var(--line); border-radius: 24px; padding: 14px; }
+  .ps-head{ display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; }
+  .ps-head .back{ color: var(--ink-muted); font-size: 1.1rem; }
+  .ps-narr{ margin-top: 12px; background: color-mix(in srgb, var(--primary) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--line)); border-radius: 14px; padding: 12px; }
+  .ps-narr .k{ font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 800; color: var(--primary); }
+  .ps-narr p{ margin: 7px 0 0; font-size: 0.86rem; line-height: 1.45; }
+  .ps-narr p b{ color: var(--primary); }
+  .ps-chart-title{ margin-top: 14px; font-weight: 700; font-size: 0.8rem; }
+  .ps-chart{ margin-top: 6px; }
+  .ps-chart svg{ display: block; width: 100%; height: auto; }
+  .ps-sec{ margin-top: 12px; font-weight: 700; font-size: 0.8rem; }
+  .ps-insight{ margin-top: 7px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .ps-insight .row{ display: flex; align-items: center; gap: 8px; }
+  .ps-insight .name{ font-weight: 600; font-size: 0.88rem; }
+  .ps-insight .strong{ margin-left: auto; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; background: var(--primary); padding: 3px 8px; border-radius: 999px; }
+  .ps-insight .desc{ margin-top: 8px; font-size: 0.82rem; }
+  .ps-insight .try{ margin-top: 8px; font-size: 0.8rem; color: var(--ink-muted); }
+  .ps-meta{ margin-top: 11px; font-size: 0.66rem; color: var(--ink-muted); line-height: 1.4; }
+  .show-copy h2{ font-size: clamp(1.6rem, 3vw, 2.2rem); margin-top: 10px; }
+  .show-copy > p{ color: var(--ink-muted); margin-top: 12px; max-width: 46ch; }
+  .signals{ margin-top: 22px; display: flex; flex-direction: column; gap: 14px; max-width: 440px; }
+  .signal{ display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: baseline; }
+  .signal .sname{ font-size: 0.9rem; }
+  .signal .sr{ font-size: 0.8rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+  .signal .bar{ grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .signal .bar i{ display: block; height: 100%; border-radius: 999px; background: var(--cat-relationship); }
+  .signal .bar.neg i{ background: var(--cat-growth); }
+  .disc{ margin-top: 18px; font-size: 0.72rem; color: var(--ink-muted); max-width: 46ch; }
+
   /* questions */
   .q-wrap{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
   .q-chip{
@@ -546,6 +580,67 @@
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">No account needed</span></div>
       </div>
 
+    </div>
+  </section>
+
+  <section class="showcase">
+    <div class="show-grid">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="ps-head"><span class="back">&lsaquo;</span> Insights &middot; Chest Pain</div>
+          <div class="ps-narr">
+            <span class="k">&#10022; AI Narrative</span>
+            <p>On days you exercised in the morning, evening chest pain averages <b>4.7 vs 8.4</b>. More steps (Fitbit) goes with lower evening chest pain.</p>
+          </div>
+          <p class="ps-chart-title">Evening chest pain over time</p>
+          <div class="ps-chart">
+            <svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid meet" fill="none" role="img" aria-label="Evening chest pain scores across 26 days, trending with morning exercise">
+              <defs>
+                <linearGradient id="pf" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="var(--primary)" stop-opacity="0.26"/>
+                  <stop offset="1" stop-color="var(--primary)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <g stroke="var(--line)" stroke-width="1">
+                <line x1="26" y1="8" x2="316" y2="8"/>
+                <line x1="26" y1="60" x2="316" y2="60"/>
+                <line x1="26" y1="112" x2="316" y2="112"/>
+              </g>
+              <g fill="var(--ink-muted)" font-size="8" font-family="'Public Sans',sans-serif">
+                <text x="21" y="11" text-anchor="end">12</text>
+                <text x="21" y="63" text-anchor="end">6</text>
+                <text x="21" y="115" text-anchor="end">0</text>
+                <text x="26" y="128">20 Aug</text>
+                <text x="316" y="128" text-anchor="end">14 Sept</text>
+              </g>
+              <polygon fill="url(#pf)" points="26,112 26,77.3 37.6,77.3 49.2,51.3 60.8,25.3 72.4,60 84,77.3 95.6,51.3 107.2,60 118.8,25.3 130.4,60 142,25.3 153.6,42.7 165.2,42.7 176.8,51.3 188.4,60 200,60 211.6,86 223.2,25.3 234.8,25.3 246.4,25.3 258,86 269.6,51.3 281.2,77.3 292.8,25.3 304.4,94.7 316,60 316,112"/>
+              <polyline stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="26,77.3 37.6,77.3 49.2,51.3 60.8,25.3 72.4,60 84,77.3 95.6,51.3 107.2,60 118.8,25.3 130.4,60 142,25.3 153.6,42.7 165.2,42.7 176.8,51.3 188.4,60 200,60 211.6,86 223.2,25.3 234.8,25.3 246.4,25.3 258,86 269.6,51.3 281.2,77.3 292.8,25.3 304.4,94.7 316,60"/>
+            </svg>
+          </div>
+          <p class="ps-sec">Top insight</p>
+          <div class="ps-insight">
+            <div class="row"><span aria-hidden="true">&#127939;</span><span class="name">Exercised in the morning</span><span class="strong">Strong</span></div>
+            <p class="desc">On days you exercised in the morning, evening chest pain averages 4.7 vs 8.4.</p>
+            <p class="try">&#128161; Worth trying: do more of &ldquo;exercised in the morning&rdquo; to lower your evening chest pain &mdash; a consistent pattern so far.</p>
+          </div>
+          <p class="ps-meta">From 26 entries &middot; Spearman correlations, effect sizes and same-/next-day lags computed on-device &middot; findings pass a false-discovery check.</p>
+        </div>
+      </div>
+
+      <div class="show-copy">
+        <p class="label">Real output, real data</p>
+        <h2>Not a mockup &mdash; an actual insight</h2>
+        <p>This is MyLifeSense running on 26 days of a &ldquo;chest pain&rdquo; Sense from the built-in demo. Every correlation, effect size and lag is computed on your device &mdash; and screened so you don't chase false positives.</p>
+        <div class="signals">
+          <div class="signal"><span class="sname">&#127939; Exercised in the morning</span><span class="sr">r = &minus;0.75 &middot; Strong</span><span class="bar neg"><i style="width:75%"></i></span></div>
+          <div class="signal"><span class="sname">&#8987; Steps (Fitbit)</span><span class="sr">r = &minus;0.61 &middot; Strong</span><span class="bar neg"><i style="width:61%"></i></span></div>
+          <div class="signal"><span class="sname">&#127769; Sleep quality</span><span class="sr">r = &minus;0.39 &middot; Moderate</span><span class="bar neg"><i style="width:39%"></i></span></div>
+          <div class="signal"><span class="sname">&#128522; Stress level</span><span class="sr">r = +0.40 &middot; Moderate</span><span class="bar"><i style="width:40%"></i></span></div>
+          <div class="signal"><span class="sname">&#127859; Coffee</span><span class="sr">r = +0.36 &middot; Moderate</span><span class="bar"><i style="width:36%"></i></span></div>
+        </div>
+        <p class="disc">Green lowers evening chest pain; pink raises it. MyLifeSense surfaces patterns worth exploring &mdash; it is not medical advice; see a clinician for persistent or severe symptoms.</p>
+      </div>
     </div>
   </section>
 
