@@ -287,21 +287,27 @@
   .ic-top .cat{ font-weight: 700; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent, var(--primary)); }
   .ic-top h3{ font-size: 1.3rem; line-height: 1.16; margin-top: 10px; }
   .ic-top .sub{ color: var(--ink-muted); font-size: 0.9rem; margin-top: 10px; }
-  .ic-insight{
+  /* in-card "app screen" mock: insight + recommendation + chat */
+  .ic-screen{
     margin: 16px 22px;
     background: var(--surface-2);
     border: 1px solid var(--line);
     border-radius: 16px;
-    padding: 16px;
+    padding: 14px;
   }
-  .ic-insight .ilabel{ font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
-  .ic-insight .isentence{ margin-top: 8px; font-size: 0.95rem; }
-  .ic-insight .isentence b{ color: var(--accent, var(--primary)); font-weight: 600; }
-  .ic-factors{ margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
-  .ic-factor{ display: flex; align-items: center; gap: 9px; font-size: 0.85rem; }
-  .ic-factor .dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--accent, var(--primary)); flex: none; }
-  .ic-factor:nth-child(2) .dot{ opacity: 0.7; }
-  .ic-factor:nth-child(3) .dot{ opacity: 0.45; }
+  .scr-head{ display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .scr-mini{ font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
+  .scr-pill{ font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; background: var(--accent, var(--primary)); padding: 3px 8px; border-radius: 999px; }
+  .scr-insight{ font-size: 0.92rem; line-height: 1.4; }
+  .scr-insight b{ color: var(--accent, var(--primary)); font-weight: 600; }
+  .spark{ display: block; width: 100%; height: 30px; margin: 9px 0 2px; }
+  .scr-block{ margin-top: 12px; }
+  .scr-rec{ display: flex; gap: 8px; align-items: flex-start; font-size: 0.84rem; line-height: 1.35; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; }
+  .scr-rec .mk{ color: var(--accent, var(--primary)); font-weight: 800; flex: none; }
+  .scr-chat{ display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .bubble{ font-size: 0.81rem; line-height: 1.35; padding: 8px 11px; border-radius: 13px; max-width: 90%; }
+  .bubble.q{ align-self: flex-end; background: var(--surface); border: 1px solid var(--line); border-bottom-right-radius: 4px; }
+  .bubble.a{ align-self: flex-start; background: color-mix(in srgb, var(--accent, var(--primary)) 15%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent, var(--primary)) 28%, var(--line)); border-bottom-left-radius: 4px; }
   .ic-foot{ margin-top: auto; padding: 4px 22px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .ic-cta{
     display: inline-flex; align-items: center; gap: 8px;
@@ -414,13 +420,17 @@
           <h3>What if your bad sleep isn't about sleep?</h3>
           <p class="sub">MyLifeSense finds the patterns behind how you rest.</p>
         </div>
-        <div class="ic-insight">
-          <p class="ilabel">Your pattern</p>
-          <p class="isentence">You sleep better on days with more time outside <b>(0.42 correlation)</b>.</p>
-          <div class="ic-factors">
-            <div class="ic-factor"><span class="dot"></span>Time outside</div>
-            <div class="ic-factor"><span class="dot"></span>Screen time (evening)</div>
-            <div class="ic-factor"><span class="dot"></span>Caffeine (late)</div>
+        <div class="ic-screen">
+          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
+          <p class="scr-insight">You sleep better on days with more time outside <b>(0.42 correlation)</b>.</p>
+          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,26 20,24 40,20 60,22 80,14 100,10 120,5" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="scr-block">
+            <p class="scr-mini">Recommendation</p>
+            <div class="scr-rec"><span class="mk">&#9650;</span><span>Get 20+ minutes outside before noon &mdash; a lever you control.</span></div>
+          </div>
+          <div class="scr-chat">
+            <div class="bubble q">Why was last week so rough?</div>
+            <div class="bubble a">Your three worst nights all followed late caffeine.</div>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
@@ -432,13 +442,17 @@
           <h3>What if your energy problem isn't about energy?</h3>
           <p class="sub">See what actually drains and restores you.</p>
         </div>
-        <div class="ic-insight">
-          <p class="ilabel">Your insight</p>
-          <p class="isentence">Your energy dips are linked to high stress + low protein <b>(0.56 correlation)</b>.</p>
-          <div class="ic-factors">
-            <div class="ic-factor"><span class="dot"></span>Stress</div>
-            <div class="ic-factor"><span class="dot"></span>Protein intake</div>
-            <div class="ic-factor"><span class="dot"></span>Sleep duration</div>
+        <div class="ic-screen">
+          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
+          <p class="scr-insight">Your energy dips track high stress + low protein <b>(0.56 correlation)</b>.</p>
+          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,10 20,14 40,12 60,22 80,27 100,18 120,12" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="scr-block">
+            <p class="scr-mini">Recommendation</p>
+            <div class="scr-rec"><span class="mk">&#9650;</span><span>Add protein at breakfast on your high-stress days.</span></div>
+          </div>
+          <div class="scr-chat">
+            <div class="bubble q">When do I usually crash?</div>
+            <div class="bubble a">Most 3pm dips follow low-protein mornings.</div>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
@@ -450,13 +464,17 @@
           <h3>What if your performance problem isn't your training?</h3>
           <p class="sub">Find the levers your results really follow.</p>
         </div>
-        <div class="ic-insight">
-          <p class="ilabel">Performance pattern</p>
-          <p class="isentence">Your best performance days follow 2+ days of <b>lower training intensity</b>.</p>
-          <div class="ic-factors">
-            <div class="ic-factor"><span class="dot"></span>Training intensity</div>
-            <div class="ic-factor"><span class="dot"></span>Sleep quality</div>
-            <div class="ic-factor"><span class="dot"></span>Stress levels</div>
+        <div class="ic-screen">
+          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
+          <p class="scr-insight">Your best days follow 2+ days of <b>lighter training</b>.</p>
+          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,22 20,24 40,15 60,10 80,17 100,8 120,5" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="scr-block">
+            <p class="scr-mini">Recommendation</p>
+            <div class="scr-rec"><span class="mk">&#9650;</span><span>Ease off for two days before a key session.</span></div>
+          </div>
+          <div class="scr-chat">
+            <div class="bubble q">What predicts a good match?</div>
+            <div class="bubble a">Two easy days and 7h+ sleep the night before.</div>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
@@ -468,13 +486,17 @@
           <h3>What if your arguments aren't really about your arguments?</h3>
           <p class="sub">Spot what tips a good day into a hard one.</p>
         </div>
-        <div class="ic-insight">
-          <p class="ilabel">Relationship insight</p>
-          <p class="isentence">Your disagreements are more likely after high-stress periods <b>(0.48 correlation)</b>.</p>
-          <div class="ic-factors">
-            <div class="ic-factor"><span class="dot"></span>Stress</div>
-            <div class="ic-factor"><span class="dot"></span>Sleep quality</div>
-            <div class="ic-factor"><span class="dot"></span>Work pressure</div>
+        <div class="ic-screen">
+          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
+          <p class="scr-insight">Friction rises after high-stress stretches <b>(0.48 correlation)</b>.</p>
+          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,18 20,16 40,25 60,14 80,27 100,15 120,20" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="scr-block">
+            <p class="scr-mini">Recommendation</p>
+            <div class="scr-rec"><span class="mk">&#9650;</span><span>Protect time together after your hardest weeks.</span></div>
+          </div>
+          <div class="scr-chat">
+            <div class="bubble q">Why do we clash on Sundays?</div>
+            <div class="bubble a">They follow your most stressful workdays.</div>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
@@ -486,13 +508,17 @@
           <h3>What if your spending problem isn't about money?</h3>
           <p class="sub">Understand what really moves your spending.</p>
         </div>
-        <div class="ic-insight">
-          <p class="ilabel">Money insight</p>
-          <p class="isentence">You spend more when you're stressed or tired <b>(0.51 correlation)</b>.</p>
-          <div class="ic-factors">
-            <div class="ic-factor"><span class="dot"></span>Stress</div>
-            <div class="ic-factor"><span class="dot"></span>Sleep quality</div>
-            <div class="ic-factor"><span class="dot"></span>Mood</div>
+        <div class="ic-screen">
+          <div class="scr-head"><span class="scr-mini">Insight</span><span class="scr-pill">Pattern found</span></div>
+          <p class="scr-insight">You spend more when you're stressed or tired <b>(0.51 correlation)</b>.</p>
+          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,20 20,15 40,22 60,12 80,24 100,14 120,10" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="scr-block">
+            <p class="scr-mini">Recommendation</p>
+            <div class="scr-rec"><span class="mk">&#9650;</span><span>Try a 24-hour pause on low-sleep evenings.</span></div>
+          </div>
+          <div class="scr-chat">
+            <div class="bubble q">When do I overspend?</div>
+            <div class="bubble a">On high-stress, low-sleep nights.</div>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
@@ -504,13 +530,17 @@
           <h3>What if the answer is somewhere you haven't <em>looked</em>?</h3>
           <p class="sub">One place to see what your own days have been telling you.</p>
         </div>
-        <div class="ic-insight">
-          <p class="ilabel">Track any domain</p>
-          <p class="isentence">Sleep &middot; Energy &middot; Performance &middot; Mood &middot; Work &middot; Relationships &middot; Money &mdash; and more.</p>
-          <div class="ic-factors">
-            <div class="ic-factor"><span class="dot"></span>Define a Sense</div>
-            <div class="ic-factor"><span class="dot"></span>Log a few days</div>
-            <div class="ic-factor"><span class="dot"></span>See the patterns</div>
+        <div class="ic-screen">
+          <div class="scr-head"><span class="scr-mini">How it works</span><span class="scr-pill">Any sense</span></div>
+          <p class="scr-insight">Track any Sense &mdash; sleep, energy, tennis, mood, money &mdash; and MyLifeSense surfaces the <b>lever you control</b>.</p>
+          <svg class="spark" viewBox="0 0 120 32" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,26 20,22 40,23 60,16 80,15 100,10 120,6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="scr-block">
+            <p class="scr-mini">How to start</p>
+            <div class="scr-rec"><span class="mk">&#9650;</span><span>Name a Sense &rarr; log a few days &rarr; see the pattern.</span></div>
+          </div>
+          <div class="scr-chat">
+            <div class="bubble q">Where do I begin?</div>
+            <div class="bubble a">Pick one thing you want to understand about yourself.</div>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">No account needed</span></div>
@@ -520,15 +550,17 @@
   </section>
 
   <section class="questions">
-    <p class="label">Start with a question, not an app</p>
-    <h2 style="font-size:clamp(1.5rem,3vw,2rem); margin-top:10px;">Which one is yours?</h2>
+    <p class="label">Anything can be a sense</p>
+    <h2 style="font-size:clamp(1.5rem,3vw,2rem); margin-top:10px;">What do you want to understand?</h2>
     <div class="q-wrap">
-      <a class="q-chip" href="/app">What affects your sleep?<span class="arr">&rarr;</span></a>
-      <a class="q-chip" href="/app">Why do you keep losing energy at 3pm?<span class="arr">&rarr;</span></a>
-      <a class="q-chip" href="/app">What's really triggering your headaches?<span class="arr">&rarr;</span></a>
-      <a class="q-chip" href="/app">Why do you keep overspending?<span class="arr">&rarr;</span></a>
-      <a class="q-chip" href="/app">What's affecting your performance?<span class="arr">&rarr;</span></a>
-      <a class="q-chip" href="/app">What's really happening in your relationship?<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Tennis performance<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Sleep quality<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Daily energy<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Recurring headaches<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Spending habits<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Relationship patterns<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Focus at work<span class="arr">&rarr;</span></a>
+      <a class="q-chip" href="/app">Mood &amp; anxiety<span class="arr">&rarr;</span></a>
     </div>
   </section>
 
