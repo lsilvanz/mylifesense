@@ -25,6 +25,10 @@
     --cat-relationship: #c1567f;
     --cat-work: #33628f;
     --cat-performance: #b17a1f;
+    --cat-sleep: #5c6fd0;
+    --cat-energy: #b17a1f;
+    --cat-growth: #2f8f6b;
+    --cat-money: #33628f;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -43,6 +47,10 @@
       --cat-relationship: #e087ab;
       --cat-work: #7fabdb;
       --cat-performance: #d6a44f;
+      --cat-sleep: #8f9df0;
+      --cat-energy: #d6a44f;
+      --cat-growth: #5fc79b;
+      --cat-money: #7fabdb;
     }
   }
   :root[data-theme="dark"]{
@@ -61,6 +69,10 @@
     --cat-relationship: #e087ab;
     --cat-work: #7fabdb;
     --cat-performance: #d6a44f;
+    --cat-sleep: #8f9df0;
+    --cat-energy: #d6a44f;
+    --cat-growth: #5fc79b;
+    --cat-money: #7fabdb;
   }
 
   *{ box-sizing: border-box; }
@@ -250,41 +262,55 @@
   .cases-head{ margin-bottom: 30px; max-width: 62ch; }
   .cases-head h2{ font-size: clamp(1.6rem, 3vw, 2.15rem); margin-top: 10px; }
   .cases-head p{ color: var(--ink-muted); margin-top: 10px; }
-  .case-grid{
+  .ic-grid{
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
   }
-  @media (max-width: 980px){ .case-grid{ grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px){ .case-grid{ grid-template-columns: 1fr; } }
-  .case{
+  @media (max-width: 980px){ .ic-grid{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px){ .ic-grid{ grid-template-columns: 1fr; } }
+  .ic{
     background: var(--surface);
     border: 1px solid var(--line);
-    border-top: 3px solid var(--accent, var(--primary));
-    border-radius: 14px;
-    padding: 24px 20px 20px;
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
-  .case .cat{ font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--accent, var(--primary)); }
-  .case .hook{
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-style: italic;
-    font-size: 1.15rem;
-    margin-top: 10px;
-    line-height: 1.32;
+  .ic-top{
+    padding: 22px 22px 4px;
+    background:
+      radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--accent, var(--primary)) 20%, transparent), transparent 60%),
+      var(--surface);
   }
-  .case .line{ margin-top: 12px; font-size: 0.92rem; color: var(--ink-muted); flex: 1; }
-  .case .foot{ margin-top: 18px; display: flex; align-items: center; justify-content: space-between; }
-  .case .tag{
-    font-size: 0.7rem;
-    color: var(--ink-muted);
+  .ic-top .cat{ font-weight: 700; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent, var(--primary)); }
+  .ic-top h3{ font-size: 1.3rem; line-height: 1.16; margin-top: 10px; }
+  .ic-top .sub{ color: var(--ink-muted); font-size: 0.9rem; margin-top: 10px; }
+  .ic-insight{
+    margin: 16px 22px;
     background: var(--surface-2);
-    padding: 4px 10px;
-    border-radius: 999px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
   }
-  .case .arrow{ color: var(--accent, var(--primary)); font-family: 'Fraunces', serif; font-size: 1.1rem; }
+  .ic-insight .ilabel{ font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
+  .ic-insight .isentence{ margin-top: 8px; font-size: 0.95rem; }
+  .ic-insight .isentence b{ color: var(--accent, var(--primary)); font-weight: 600; }
+  .ic-factors{ margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .ic-factor{ display: flex; align-items: center; gap: 9px; font-size: 0.85rem; }
+  .ic-factor .dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--accent, var(--primary)); flex: none; }
+  .ic-factor:nth-child(2) .dot{ opacity: 0.7; }
+  .ic-factor:nth-child(3) .dot{ opacity: 0.45; }
+  .ic-foot{ margin-top: auto; padding: 4px 22px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .ic-cta{
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(120deg, var(--grad-start), var(--grad-end));
+    color: #fff; text-decoration: none; font-weight: 600; font-size: 0.9rem;
+    padding: 10px 18px; border-radius: 999px;
+  }
+  .ic-cta:hover{ filter: brightness(1.06); }
+  .ic-tag{ font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; border: 1px solid var(--line); padding: 4px 9px; border-radius: 999px; }
 
   /* questions */
   .q-wrap{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
@@ -376,38 +402,118 @@
 
   <section class="cases" id="cases">
     <div class="cases-head">
-      <p class="label">Case notes</p>
-      <h2>Four things people almost missed</h2>
-      <p>Illustrative examples, not real users &mdash; the kind of pattern MyLifeSense is built to surface.</p>
+      <p class="label">What if it isn't what you think?</p>
+      <h2>The pattern is often somewhere you'd never check</h2>
+      <p>Illustrative examples, not real users &mdash; the kind of connection MyLifeSense is built to surface.</p>
     </div>
-    <div class="case-grid">
+    <div class="ic-grid">
 
-      <div class="case" style="--accent: var(--primary);">
-        <p class="cat">Health</p>
-        <p class="hook">"Why am I always exhausted?"</p>
-        <p class="line">She thought it was stress. Cold hands, brain fog and low mood kept showing up alongside the fatigue &mdash; a combination worth raising with her doctor.</p>
-        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      <div class="ic" style="--accent: var(--cat-sleep);">
+        <div class="ic-top">
+          <p class="cat">Sleep</p>
+          <h3>What if your bad sleep isn't about sleep?</h3>
+          <p class="sub">MyLifeSense finds the patterns behind how you rest.</p>
+        </div>
+        <div class="ic-insight">
+          <p class="ilabel">Your pattern</p>
+          <p class="isentence">You sleep better on days with more time outside <b>(0.42 correlation)</b>.</p>
+          <div class="ic-factors">
+            <div class="ic-factor"><span class="dot"></span>Time outside</div>
+            <div class="ic-factor"><span class="dot"></span>Screen time (evening)</div>
+            <div class="ic-factor"><span class="dot"></span>Caffeine (late)</div>
+          </div>
+        </div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
       </div>
 
-      <div class="case" style="--accent: var(--cat-relationship);">
-        <p class="cat">Relationship</p>
-        <p class="hook">"Why do we keep having the same fight?"</p>
-        <p class="line">They thought it was money and chores. It was stress from work landing at home, two or three days after their hardest weeks.</p>
-        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      <div class="ic" style="--accent: var(--cat-energy);">
+        <div class="ic-top">
+          <p class="cat">Energy</p>
+          <h3>What if your energy problem isn't about energy?</h3>
+          <p class="sub">See what actually drains and restores you.</p>
+        </div>
+        <div class="ic-insight">
+          <p class="ilabel">Your insight</p>
+          <p class="isentence">Your energy dips are linked to high stress + low protein <b>(0.56 correlation)</b>.</p>
+          <div class="ic-factors">
+            <div class="ic-factor"><span class="dot"></span>Stress</div>
+            <div class="ic-factor"><span class="dot"></span>Protein intake</div>
+            <div class="ic-factor"><span class="dot"></span>Sleep duration</div>
+          </div>
+        </div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
       </div>
 
-      <div class="case" style="--accent: var(--cat-work);">
-        <p class="cat">Work &amp; People</p>
-        <p class="hook">"Why does one day at work leave me drained?"</p>
-        <p class="line">His energy didn't track with hours worked. It tracked with how often he was interrupted, second-guessed, or pulled into other people's problems.</p>
-        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      <div class="ic" style="--accent: var(--cat-growth);">
+        <div class="ic-top">
+          <p class="cat">Performance</p>
+          <h3>What if your performance problem isn't your training?</h3>
+          <p class="sub">Find the levers your results really follow.</p>
+        </div>
+        <div class="ic-insight">
+          <p class="ilabel">Performance pattern</p>
+          <p class="isentence">Your best performance days follow 2+ days of <b>lower training intensity</b>.</p>
+          <div class="ic-factors">
+            <div class="ic-factor"><span class="dot"></span>Training intensity</div>
+            <div class="ic-factor"><span class="dot"></span>Sleep quality</div>
+            <div class="ic-factor"><span class="dot"></span>Stress levels</div>
+          </div>
+        </div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
       </div>
 
-      <div class="case" style="--accent: var(--cat-performance);">
-        <p class="cat">High Performance</p>
-        <p class="hook">"I'm doing everything right. Why isn't my performance improving?"</p>
-        <p class="line">Her best matches followed mornings with more time alone, not more coaching. Less noise, not more preparation, was the lever.</p>
-        <div class="foot"><span class="tag">Illustrative</span><span class="arrow">&rarr;</span></div>
+      <div class="ic" style="--accent: var(--cat-relationship);">
+        <div class="ic-top">
+          <p class="cat">Relationships</p>
+          <h3>What if your arguments aren't really about your arguments?</h3>
+          <p class="sub">Spot what tips a good day into a hard one.</p>
+        </div>
+        <div class="ic-insight">
+          <p class="ilabel">Relationship insight</p>
+          <p class="isentence">Your disagreements are more likely after high-stress periods <b>(0.48 correlation)</b>.</p>
+          <div class="ic-factors">
+            <div class="ic-factor"><span class="dot"></span>Stress</div>
+            <div class="ic-factor"><span class="dot"></span>Sleep quality</div>
+            <div class="ic-factor"><span class="dot"></span>Work pressure</div>
+          </div>
+        </div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
+      </div>
+
+      <div class="ic" style="--accent: var(--cat-money);">
+        <div class="ic-top">
+          <p class="cat">Money</p>
+          <h3>What if your spending problem isn't about money?</h3>
+          <p class="sub">Understand what really moves your spending.</p>
+        </div>
+        <div class="ic-insight">
+          <p class="ilabel">Money insight</p>
+          <p class="isentence">You spend more when you're stressed or tired <b>(0.51 correlation)</b>.</p>
+          <div class="ic-factors">
+            <div class="ic-factor"><span class="dot"></span>Stress</div>
+            <div class="ic-factor"><span class="dot"></span>Sleep quality</div>
+            <div class="ic-factor"><span class="dot"></span>Mood</div>
+          </div>
+        </div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Illustrative</span></div>
+      </div>
+
+      <div class="ic" style="--accent: var(--primary);">
+        <div class="ic-top">
+          <p class="cat">MyLifeSense</p>
+          <h3>What if the answer is somewhere you haven't <em>looked</em>?</h3>
+          <p class="sub">One place to see what your own days have been telling you.</p>
+        </div>
+        <div class="ic-insight">
+          <p class="ilabel">Track any domain</p>
+          <p class="isentence">Sleep &middot; Energy &middot; Performance &middot; Mood &middot; Work &middot; Relationships &middot; Money &mdash; and more.</p>
+          <div class="ic-factors">
+            <div class="ic-factor"><span class="dot"></span>Define a Sense</div>
+            <div class="ic-factor"><span class="dot"></span>Log a few days</div>
+            <div class="ic-factor"><span class="dot"></span>See the patterns</div>
+          </div>
+        </div>
+        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">No account needed</span></div>
       </div>
 
     </div>
@@ -440,7 +546,7 @@
   <footer>
     <div class="foot-grid">
       <div class="brand-small">MyLifeSense</div>
-      <p class="disclaimer">The case notes above are illustrative examples, not real users &mdash; written to show the kind of pattern MyLifeSense looks for. MyLifeSense surfaces patterns worth exploring. It does not diagnose, treat, or replace professional advice.</p>
+      <p class="disclaimer">The examples above are illustrative, not real users &mdash; written to show the kind of pattern MyLifeSense looks for. MyLifeSense surfaces patterns worth exploring. It does not diagnose, treat, or replace professional advice.</p>
     </div>
   </footer>
 </div>
