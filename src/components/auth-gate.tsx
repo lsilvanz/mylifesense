@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "@/lib/store";
 import { Button, Loading } from "./ui";
 import { Clouds, Sparkle } from "./decor";
-import { PlanCards } from "./plans";
+import { PlanCards, PromoRedeem } from "./plans";
 import { startCheckout } from "@/lib/billing";
 import { getPendingPlan, setPendingPlan, type BillingCycle } from "@/lib/plan";
 
@@ -103,6 +103,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         {step === "plans" ? (
           <div className="mt-6">
             <PlanCards onStartFree={startFree} onChoosePlus={choosePlus} plusBusy={plusBusy} />
+            <div className="mt-4 text-center">
+              <PromoRedeem onRedeemed={() => setTimeout(continueAsGuest, 1200)} />
+            </div>
             <p className="mt-4 text-center text-sm text-muted">
               Already have an account?{" "}
               <button

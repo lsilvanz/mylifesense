@@ -5,7 +5,7 @@ import { AppHeader, Button, Card } from "@/components/ui";
 import { Integrations } from "@/components/integrations";
 import { ContextEditor } from "@/components/context-editor";
 import { NotificationsToggle } from "@/components/notifications-toggle";
-import { UpgradeModal } from "@/components/plans";
+import { UpgradeModal, PromoRedeem } from "@/components/plans";
 import { ME_ID } from "@/lib/context";
 import { PRICING } from "@/lib/plan";
 import { useStore } from "@/lib/store";
@@ -85,10 +85,15 @@ export default function AboutPage() {
           )}
         </div>
         {!isPlus && (
-          <p className="mt-2 text-xs text-faint">
-            Plus is {PRICING.monthly.label}/mo or {PRICING.annual.label}/yr (save{" "}
-            {PRICING.annual.savePct}%).
-          </p>
+          <>
+            <p className="mt-2 text-xs text-faint">
+              Plus is {PRICING.monthly.label}/mo or {PRICING.annual.label}/yr (save{" "}
+              {PRICING.annual.savePct}%).
+            </p>
+            <div className="mt-3 border-t border-line pt-3">
+              <PromoRedeem />
+            </div>
+          </>
         )}
       </Card>
 

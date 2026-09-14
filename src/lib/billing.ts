@@ -24,3 +24,20 @@ export async function startCheckout(
     return { ok: false, error: "network" };
   }
 }
+
+// Redeem a promo code for Plus. Validated server-side against the PROMO_CODES
+// env var so codes never ship in the client bundle. On success the caller marks
+// the user as Plus.
+export async function redeemCode(code: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch("/api/redeem", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+    return { ok: Boolean(data.ok), error: data.error };
+  } catch {
+    return { ok: false, error: "network" };
+  }
+}

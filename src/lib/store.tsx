@@ -174,6 +174,7 @@ interface StoreValue {
   continueAsGuest: () => void;
   plan: Plan;
   isPlus: boolean;
+  setPlanPlus: () => void;
   senses: Sense[];
   factorsFor: (senseId: string) => SenseFactor[];
   entriesFor: (senseId: string) => Entry[];
@@ -352,6 +353,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       guest,
       plan,
       isPlus: plan === "plus",
+      setPlanPlus: () => {
+        setStoredPlan("plus");
+        setPlan("plus");
+      },
       continueAsGuest: () => {
         setGuest(true);
         try {

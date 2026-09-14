@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "./ui";
-import { startCheckout } from "@/lib/billing";
+import { startCheckout, redeemCode } from "@/lib/billing";
 import { PRICING, type BillingCycle } from "@/lib/plan";
 import { useStore } from "@/lib/store";
 
@@ -129,6 +129,79 @@ export function PlanCards({
   );
 }
 
+/** "Have a promo code?" — redeems a code for Plus (validated server-side). */
+export function PromoRedeem({
+  onRedeemed,
+  className = "",
+}: {
+  onRedeemed?: () => void;
+  className?: string;
+}) {
+  const { setPlanPlus } = useStore();
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const submit = async () => {
+    const c = code.trim();
+    if (!c || busy) return;
+    setBusy(true);
+    setMsg(null);
+    const res = await redeemCode(c);
+    setBusy(false);
+    if (res.ok) {
+      setPlanPlus();
+      setMsg({ ok: true, text: "Code applied — you're on Plus! 🎉" });
+      onRedeemed?.();
+    } else {
+      setMsg({
+        ok: false,
+        text:
+          res.error === "not_configured"
+            ? "Promo codes aren't active yet."
+            : res.error === "network"
+            ? "Couldn't reach the server. Try again."
+            : "That code isn't valid.",
+      });
+    }
+  };
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className={`text-sm font-medium text-accent-ink underline underline-offset-2 ${className}`}
+      >
+        Have a promo code?
+      </button>
+    );
+  }
+
+  return (
+    <div className={className}>
+      <div className="flex items-center gap-2">
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submit();
+          }}
+          placeholder="Promo code"
+          autoCapitalize="characters"
+          className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 py-2.5 text-sm uppercase outline-none focus:border-accent"
+        />
+        <Button disabled={busy || !code.trim()} onClick={submit}>
+          {busy ? "…" : "Redeem"}
+        </Button>
+      </div>
+      {msg && (
+        <p className={`mt-2 text-sm ${msg.ok ? "text-positive" : "text-negative"}`}>{msg.text}</p>
+      )}
+    </div>
+  );
+}
+
 /** In-app upgrade prompt shown when a free user hits a limit or a Plus feature. */
 export function UpgradeModal({
   open,
@@ -189,6 +262,11 @@ export function UpgradeModal({
           </Button>
         </div>
         {err && <p className="mt-3 text-center text-sm text-negative">{err}</p>}
+
+        <div className="mt-4 border-t border-line pt-3 text-center">
+          <PromoRedeem onRedeemed={() => setTimeout(onClose, 1200)} />
+        </div>
+
         <button onClick={onClose} className="mt-3 w-full text-center text-xs text-faint hover:text-ink">
           Maybe later
         </button>
