@@ -326,6 +326,12 @@
   .cinput{ margin-top: 14px; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 9px 10px 9px 15px; color: var(--ink-muted); font-size: 0.82rem; }
   .cinput .send{ margin-left: auto; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 0.85rem; flex: none; }
   .cnote{ font-size: 0.64rem; color: var(--ink-muted); margin-top: 10px; }
+
+  /* single-color line icons */
+  .ico{ width: 1.05em; height: 1.05em; color: var(--primary); flex: none; vertical-align: -0.16em; }
+  .mi-sigrow .ico, .ps-insight .row .ico, .signal .sname .ico{ width: 17px; height: 17px; }
+  .mi-narr .k .ico, .cnote .ico, .ps-narr .k .ico{ width: 12px; height: 12px; vertical-align: -0.08em; }
+  .mi-try .ico, .ps-insight .try .ico{ width: 13px; height: 13px; }
   .ic-foot{ margin-top: auto; padding: 4px 22px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .ic-cta{
     display: inline-flex; align-items: center; gap: 8px;
@@ -366,8 +372,7 @@
   .signal .sname{ font-size: 0.9rem; }
   .signal .sr{ font-size: 0.8rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
   .signal .bar{ grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
-  .signal .bar i{ display: block; height: 100%; border-radius: 999px; background: var(--cat-relationship); }
-  .signal .bar.neg i{ background: var(--cat-growth); }
+  .signal .bar i{ display: block; height: 100%; border-radius: 999px; background: var(--primary); }
   .disc{ margin-top: 18px; font-size: 0.72rem; color: var(--ink-muted); max-width: 46ch; }
 
   /* questions */
@@ -404,6 +409,19 @@
 </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="ic-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8z"/></symbol>
+    <symbol id="ic-chev" viewBox="0 0 24 24"><polyline points="9 5 16 12 9 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-activity" viewBox="0 0 24 24"><polyline points="3 12 8 12 11 5 14 19 17 12 21 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></g></symbol>
+    <symbol id="ic-cup" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 10h2a2.5 2.5 0 0 1 0 5h-2"/></g></symbol>
+    <symbol id="ic-briefcase" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></g></symbol>
+    <symbol id="ic-moon" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13.5A8.5 8.5 0 0 1 10.5 3a7 7 0 1 0 10.5 10.5z"/></symbol>
+    <symbol id="ic-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13 2L4 14h6l-1 8 9-12h-6z"/></symbol>
+  </defs>
+</svg>
 
 <div class="topbar">
   <div class="wrap">
@@ -466,101 +484,101 @@
     </div>
     <div class="ic-grid">
 
-      <div class="ic" style="--accent: var(--cat-sleep);">
+      <div class="ic" style="--accent: var(--primary);">
         <div class="ic-top">
           <p class="cat">Sleep</p>
           <h3>What if your bad sleep isn't about sleep?</h3>
           <p class="sub">MyLifeSense finds the patterns behind how you rest.</p>
         </div>
         <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Sleep <span class="cog">&#9881;</span></div>
-          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>On days you get more time outside, your sleep quality runs <b>higher</b>.</p></div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Sleep <span class="cog">&middot;&middot;&middot;</span></div>
+          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>On days you get more time outside, your sleep quality runs <b>higher</b>.</p></div>
           <p class="mi-ct">Sleep quality over time</p>
           <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,30 20,28 40,22 60,25 80,16 100,11 120,7" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true">&#127795;</span><span class="nm">Time outside</span><span class="tier">Strong</span></div>
+            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-sun"/></svg></span><span class="nm">Time outside</span><span class="tier">Strong</span></div>
             <p class="mi-r">r = +0.42 &middot; n = 22</p>
-            <p class="mi-try">&#128161; Worth trying: 20+ minutes outside before noon.</p>
+            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: 20+ minutes outside before noon.</p>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
-      <div class="ic" style="--accent: var(--cat-energy);">
+      <div class="ic" style="--accent: var(--primary);">
         <div class="ic-top">
           <p class="cat">Energy</p>
           <h3>What if your energy problem isn't about energy?</h3>
           <p class="sub">See what actually drains and restores you.</p>
         </div>
         <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Energy <span class="cog">&#9881;</span></div>
-          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>Your energy dips line up with <b>high-stress, low-protein</b> days.</p></div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Energy <span class="cog">&middot;&middot;&middot;</span></div>
+          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>Your energy dips line up with <b>high-stress, low-protein</b> days.</p></div>
           <p class="mi-ct">Afternoon energy over time</p>
           <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,12 20,16 40,14 60,26 80,32 100,20 120,14" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true">&#127860;</span><span class="nm">Protein intake</span><span class="tier">Strong</span></div>
+            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-cup"/></svg></span><span class="nm">Protein intake</span><span class="tier">Strong</span></div>
             <p class="mi-r">r = +0.56 &middot; n = 24</p>
-            <p class="mi-try">&#128161; Worth trying: protein at breakfast on high-stress days.</p>
+            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: protein at breakfast on high-stress days.</p>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
-      <div class="ic" style="--accent: var(--cat-growth);">
+      <div class="ic" style="--accent: var(--primary);">
         <div class="ic-top">
           <p class="cat">Performance</p>
           <h3>What if your performance problem isn't your training?</h3>
           <p class="sub">Find the levers your results really follow.</p>
         </div>
         <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Tennis <span class="cog">&#9881;</span></div>
-          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>Your best days follow <b>two or more days of lighter training</b>.</p></div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Tennis <span class="cog">&middot;&middot;&middot;</span></div>
+          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>Your best days follow <b>two or more days of lighter training</b>.</p></div>
           <p class="mi-ct">Match performance over time</p>
           <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,26 20,28 40,17 60,11 80,19 100,9 120,6" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true">&#127934;</span><span class="nm">Training load (2-day)</span><span class="tier">Strong</span></div>
+            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-activity"/></svg></span><span class="nm">Training load (2-day)</span><span class="tier">Strong</span></div>
             <p class="mi-r">r = &minus;0.58 &middot; n = 20</p>
-            <p class="mi-try">&#128161; Worth trying: ease off for two days before a key session.</p>
+            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: ease off for two days before a key session.</p>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
-      <div class="ic" style="--accent: var(--cat-relationship);">
+      <div class="ic" style="--accent: var(--primary);">
         <div class="ic-top">
           <p class="cat">Relationships</p>
           <h3>What if your arguments aren't really about your arguments?</h3>
           <p class="sub">Spot what tips a good day into a hard one.</p>
         </div>
         <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Us <span class="cog">&#9881;</span></div>
-          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>Friction rises a couple of days <b>after your most stressful stretches</b>.</p></div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Us <span class="cog">&middot;&middot;&middot;</span></div>
+          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>Friction rises a couple of days <b>after your most stressful stretches</b>.</p></div>
           <p class="mi-ct">Tension over time</p>
           <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,20 20,18 40,29 60,15 80,32 100,17 120,22" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true">&#128188;</span><span class="nm">Work stress (2-day lag)</span><span class="tier">Moderate</span></div>
+            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-briefcase"/></svg></span><span class="nm">Work stress (2-day lag)</span><span class="tier">Moderate</span></div>
             <p class="mi-r">r = +0.48 &middot; n = 18</p>
-            <p class="mi-try">&#128161; Worth trying: protect time together after hard weeks.</p>
+            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: protect time together after hard weeks.</p>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
       </div>
 
-      <div class="ic" style="--accent: var(--cat-money);">
+      <div class="ic" style="--accent: var(--primary);">
         <div class="ic-top">
           <p class="cat">Money</p>
           <h3>What if your spending problem isn't about money?</h3>
           <p class="sub">Understand what really moves your spending.</p>
         </div>
         <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Spending <span class="cog">&#9881;</span></div>
-          <div class="mi-narr"><span class="k">&#10022; AI Narrative</span><p>You spend more on <b>low-sleep, high-stress</b> evenings.</p></div>
+          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Spending <span class="cog">&middot;&middot;&middot;</span></div>
+          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>You spend more on <b>low-sleep, high-stress</b> evenings.</p></div>
           <p class="mi-ct">Daily spend over time</p>
           <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,22 20,16 40,25 60,13 80,28 100,15 120,10" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true">&#128564;</span><span class="nm">Sleep last night</span><span class="tier">Moderate</span></div>
+            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-moon"/></svg></span><span class="nm">Sleep last night</span><span class="tier">Moderate</span></div>
             <p class="mi-r">r = &minus;0.51 &middot; n = 21</p>
-            <p class="mi-try">&#128161; Worth trying: a 24-hour pause on low-sleep nights.</p>
+            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: a 24-hour pause on low-sleep nights.</p>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
@@ -573,15 +591,15 @@
           <p class="sub">One place to see what your own days have been telling you.</p>
         </div>
         <div class="ic-screen">
-          <div class="mi-bar">MyLifeSense &middot; Senses <span class="cog">&#9881;</span></div>
+          <div class="mi-bar">MyLifeSense &middot; Senses <span class="cog">&middot;&middot;&middot;</span></div>
           <div class="mi-senses">
             <div class="mi-sense"><p class="q">Sleep quality</p><p class="m">22 entries &middot; Daily</p></div>
             <div class="mi-sense"><p class="q">Tennis performance</p><p class="m">20 entries &middot; Daily</p></div>
-            <div class="mi-sense"><p class="q">Evening chest pain</p><p class="m">26 entries &middot; Daily</p></div>
+            <div class="mi-sense"><p class="q">Evening abdominal pain</p><p class="m">26 entries &middot; Daily</p></div>
           </div>
           <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true">&#10022;</span><span class="nm">Any sense works</span><span class="tier">Start</span></div>
-            <p class="mi-try">&#128161; Name a Sense &rarr; log a few days &rarr; see the lever you control.</p>
+            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg></span><span class="nm">Any sense works</span><span class="tier">Start</span></div>
+            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Name a Sense &rarr; log a few days &rarr; see the lever you control.</p>
           </div>
         </div>
         <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">No account needed</span></div>
@@ -595,14 +613,14 @@
       <div class="phone">
         <div class="phone-notch"></div>
         <div class="phone-screen">
-          <div class="ps-head"><span class="back">&lsaquo;</span> Insights &middot; Chest Pain</div>
+          <div class="ps-head"><span class="back">&lsaquo;</span> Insights &middot; Abdominal pain</div>
           <div class="ps-narr">
-            <span class="k">&#10022; AI Narrative</span>
-            <p>On days you exercised in the morning, evening chest pain averages <b>4.7 vs 8.4</b>. More steps (Fitbit) goes with lower evening chest pain.</p>
+            <span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span>
+            <p>On days you exercised in the morning, evening abdominal pain averages <b>4.7 vs 8.4</b>. More steps (Fitbit) goes with lower evening abdominal pain.</p>
           </div>
-          <p class="ps-chart-title">Evening chest pain over time</p>
+          <p class="ps-chart-title">Evening abdominal pain over time</p>
           <div class="ps-chart">
-            <svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid meet" fill="none" role="img" aria-label="Evening chest pain scores across 26 days, trending with morning exercise">
+            <svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid meet" fill="none" role="img" aria-label="Evening abdominal pain scores across 26 days, trending with morning exercise">
               <defs>
                 <linearGradient id="pf" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0" stop-color="var(--primary)" stop-opacity="0.26"/>
@@ -627,9 +645,9 @@
           </div>
           <p class="ps-sec">Top insight</p>
           <div class="ps-insight">
-            <div class="row"><span aria-hidden="true">&#127939;</span><span class="name">Exercised in the morning</span><span class="strong">Strong</span></div>
-            <p class="desc">On days you exercised in the morning, evening chest pain averages 4.7 vs 8.4.</p>
-            <p class="try">&#128161; Worth trying: do more of &ldquo;exercised in the morning&rdquo; to lower your evening chest pain &mdash; a consistent pattern so far.</p>
+            <div class="row"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-activity"/></svg></span><span class="name">Exercised in the morning</span><span class="strong">Strong</span></div>
+            <p class="desc">On days you exercised in the morning, evening abdominal pain averages 4.7 vs 8.4.</p>
+            <p class="try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: do more of &ldquo;exercised in the morning&rdquo; to lower your evening abdominal pain &mdash; a consistent pattern so far.</p>
           </div>
           <p class="ps-meta">From 26 entries &middot; Spearman correlations, effect sizes and same-/next-day lags computed on-device &middot; findings pass a false-discovery check.</p>
         </div>
@@ -638,15 +656,15 @@
       <div class="show-copy">
         <p class="label">Real output, real data</p>
         <h2>Not a mockup &mdash; an actual insight</h2>
-        <p>This is MyLifeSense running on 26 days of a &ldquo;chest pain&rdquo; Sense from the built-in demo. Every correlation, effect size and lag is computed on your device &mdash; and screened so you don't chase false positives.</p>
+        <p>This is MyLifeSense running on 26 days of an example &ldquo;abdominal pain&rdquo; Sense. Every correlation, effect size and lag is computed on your device &mdash; and screened so you don't chase false positives.</p>
         <div class="signals">
-          <div class="signal"><span class="sname">&#127939; Exercised in the morning</span><span class="sr">r = &minus;0.75 &middot; Strong</span><span class="bar neg"><i style="width:75%"></i></span></div>
-          <div class="signal"><span class="sname">&#8987; Steps (Fitbit)</span><span class="sr">r = &minus;0.61 &middot; Strong</span><span class="bar neg"><i style="width:61%"></i></span></div>
-          <div class="signal"><span class="sname">&#127769; Sleep quality</span><span class="sr">r = &minus;0.39 &middot; Moderate</span><span class="bar neg"><i style="width:39%"></i></span></div>
-          <div class="signal"><span class="sname">&#128522; Stress level</span><span class="sr">r = +0.40 &middot; Moderate</span><span class="bar"><i style="width:40%"></i></span></div>
-          <div class="signal"><span class="sname">&#127859; Coffee</span><span class="sr">r = +0.36 &middot; Moderate</span><span class="bar"><i style="width:36%"></i></span></div>
+          <div class="signal"><span class="sname"><svg class="ico" aria-hidden="true"><use href="#ic-activity"/></svg> Exercised in the morning</span><span class="sr">r = &minus;0.75 &middot; Strong</span><span class="bar neg"><i style="width:75%"></i></span></div>
+          <div class="signal"><span class="sname"><svg class="ico" aria-hidden="true"><use href="#ic-activity"/></svg> Steps (Fitbit)</span><span class="sr">r = &minus;0.61 &middot; Strong</span><span class="bar neg"><i style="width:61%"></i></span></div>
+          <div class="signal"><span class="sname"><svg class="ico" aria-hidden="true"><use href="#ic-moon"/></svg> Sleep quality</span><span class="sr">r = &minus;0.39 &middot; Moderate</span><span class="bar neg"><i style="width:39%"></i></span></div>
+          <div class="signal"><span class="sname"><svg class="ico" aria-hidden="true"><use href="#ic-bolt"/></svg> Stress level</span><span class="sr">r = +0.40 &middot; Moderate</span><span class="bar"><i style="width:40%"></i></span></div>
+          <div class="signal"><span class="sname"><svg class="ico" aria-hidden="true"><use href="#ic-cup"/></svg> Coffee</span><span class="sr">r = +0.36 &middot; Moderate</span><span class="bar"><i style="width:36%"></i></span></div>
         </div>
-        <p class="disc">Green lowers evening chest pain; pink raises it. MyLifeSense surfaces patterns worth exploring &mdash; it is not medical advice; see a clinician for persistent or severe symptoms.</p>
+        <p class="disc">A minus sign means a factor lowers evening abdominal pain; a plus means it raises it. MyLifeSense surfaces patterns worth exploring &mdash; it is not medical advice; see a clinician for persistent or severe symptoms.</p>
       </div>
     </div>
   </section>
@@ -666,15 +684,15 @@
       <div class="phone">
         <div class="phone-notch"></div>
         <div class="phone-screen">
-          <div class="ps-head"><span class="back">&lsaquo;</span> Chat &middot; Chest Pain</div>
+          <div class="ps-head"><span class="back">&lsaquo;</span> Chat &middot; Abdominal pain</div>
           <div class="cthread">
-            <div class="cmsg u">Why is my chest pain worse some evenings?</div>
+            <div class="cmsg u">Why is my abdominal pain worse some evenings?</div>
             <div class="cmsg a">Your worst evenings cluster on days <b>without morning exercise</b> &mdash; pain averaged 8.4 vs 4.7. Late coffee and higher stress tend to show up on those days too.</div>
             <div class="cmsg u">What should I try first?</div>
             <div class="cmsg a">Morning exercise has the strongest link (<b>r &minus;0.75</b>). Even a short walk on days you'd normally skip it is a good test &mdash; it's a lever you control. Not medical advice; see a clinician for persistent or severe symptoms.</div>
           </div>
           <div class="cinput">Ask a question&hellip; <span class="send" aria-hidden="true">&rarr;</span></div>
-          <p class="cnote">&#10022; Grounded in your data &middot; only computed statistics are sent to the AI, never raw entries.</p>
+          <p class="cnote"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> Grounded in your data &middot; only computed statistics are sent to the AI, never raw entries.</p>
         </div>
       </div>
     </div>
