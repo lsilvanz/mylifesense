@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyLifeSense — What if the answer is somewhere you haven't looked?</title>
 <meta name="description" content="MyLifeSense helps you discover the hidden patterns behind how you feel, perform, spend, work, and live.">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#7d64d9">
+<link rel="apple-touch-icon" href="/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MyLifeSense">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -76,6 +82,7 @@
   }
 
   *{ box-sizing: border-box; }
+  [hidden]{ display: none !important; }
   html{ background: var(--bg); }
   body{
     background: var(--bg);
@@ -332,6 +339,19 @@
   .mi-sigrow .ico, .ps-insight .row .ico, .signal .sname .ico{ width: 17px; height: 17px; }
   .mi-narr .k .ico, .cnote .ico, .ps-narr .k .ico{ width: 12px; height: 12px; vertical-align: -0.08em; }
   .mi-try .ico, .ps-insight .try .ico{ width: 13px; height: 13px; }
+
+  /* install button + iOS instructions */
+  .btn-install{ font: inherit; cursor: pointer; background: transparent; color: var(--ink); display: inline-flex; align-items: center; gap: 7px; }
+  .btn-install .ico{ color: currentColor; width: 15px; height: 15px; }
+  .ios-sheet{ position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(12,10,26,0.55); }
+  .ios-card{ background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); max-width: 360px; width: 100%; padding: 22px; }
+  .ios-card h3{ font-size: 1.2rem; }
+  .ios-card p{ color: var(--ink-muted); font-size: 0.9rem; margin: 8px 0 16px; }
+  .ios-steps{ list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .ios-steps li{ display: flex; align-items: center; gap: 11px; font-size: 0.92rem; }
+  .ios-steps .n{ flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--primary-soft); color: var(--primary-strong); font-weight: 700; font-size: 0.8rem; display: grid; place-items: center; }
+  .ios-steps .ico{ width: 18px; height: 18px; }
+  .ios-close{ font: inherit; cursor: pointer; margin-top: 18px; width: 100%; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 11px; font-weight: 600; }
   .ic-foot{ margin-top: auto; padding: 4px 22px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .ic-cta{
     display: inline-flex; align-items: center; gap: 8px;
@@ -420,6 +440,9 @@
     <symbol id="ic-briefcase" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></g></symbol>
     <symbol id="ic-moon" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13.5A8.5 8.5 0 0 1 10.5 3a7 7 0 1 0 10.5 10.5z"/></symbol>
     <symbol id="ic-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13 2L4 14h6l-1 8 9-12h-6z"/></symbol>
+    <symbol id="ic-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="8 11 12 15 16 11"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></g></symbol>
+    <symbol id="ic-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="8 7 12 3 16 7"/><path d="M8 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-2"/></g></symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></g></symbol>
   </defs>
 </svg>
 
@@ -435,6 +458,7 @@
       </div>
       <div class="nav-actions">
         <a class="btn-outline" href="#cases">See examples</a>
+        <button type="button" id="installBtn" class="btn-outline btn-install" hidden><svg class="ico" aria-hidden="true"><use href="#ic-download"/></svg> Install app</button>
         <a class="btn-primary btn-mini" href="/app">Get started</a>
       </div>
     </div>
@@ -731,6 +755,75 @@
     </div>
   </footer>
 </div>
+
+<div class="ios-sheet" id="iosSheet" hidden>
+  <div class="ios-card" role="dialog" aria-modal="true" aria-labelledby="iosTitle">
+    <h3 id="iosTitle">Add to your Home Screen</h3>
+    <p>Install MyLifeSense in two taps &mdash; it opens full-screen like any app.</p>
+    <ol class="ios-steps">
+      <li><span class="n">1</span> Tap the <svg class="ico" aria-hidden="true"><use href="#ic-share"/></svg> <strong>Share</strong> button in Safari's toolbar.</li>
+      <li><span class="n">2</span> Choose <svg class="ico" aria-hidden="true"><use href="#ic-plus"/></svg> <strong>Add to Home Screen</strong>.</li>
+      <li><span class="n">3</span> Tap <strong>Add</strong> &mdash; done.</li>
+    </ol>
+    <button type="button" class="ios-close" id="iosClose">Got it</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var installBtn = document.getElementById("installBtn");
+  var iosSheet = document.getElementById("iosSheet");
+  var iosClose = document.getElementById("iosClose");
+  var deferredPrompt = null;
+
+  // Register the service worker (required before browsers offer "Install").
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("/sw.js").catch(function () {});
+    });
+  }
+
+  function isStandalone() {
+    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  }
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !window.MSStream;
+  }
+
+  // Already installed? Never show the button.
+  if (isStandalone()) return;
+
+  // Android / desktop Chrome & Edge: capture the native install prompt.
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.hidden = false;
+  });
+
+  // iOS Safari has no install event — show the button and guide the user.
+  if (isIOS() && !isStandalone()) {
+    installBtn.hidden = false;
+  }
+
+  installBtn.addEventListener("click", function () {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(function () {
+        deferredPrompt = null;
+        installBtn.hidden = true;
+      });
+    } else if (isIOS()) {
+      iosSheet.hidden = false;
+    }
+  });
+
+  if (iosClose) iosClose.addEventListener("click", function () { iosSheet.hidden = true; });
+  if (iosSheet) iosSheet.addEventListener("click", function (e) { if (e.target === iosSheet) iosSheet.hidden = true; });
+
+  // Hide the button once the app is installed.
+  window.addEventListener("appinstalled", function () { installBtn.hidden = true; });
+})();
+</script>
 
 </body>
 </html>
