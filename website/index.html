@@ -347,11 +347,19 @@
   .ios-card{ background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); max-width: 360px; width: 100%; padding: 22px; }
   .ios-card h3{ font-size: 1.2rem; }
   .ios-card p{ color: var(--ink-muted); font-size: 0.9rem; margin: 8px 0 16px; }
-  .ios-steps{ list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-  .ios-steps li{ display: flex; align-items: center; gap: 11px; font-size: 0.92rem; }
-  .ios-steps .n{ flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--primary-soft); color: var(--primary-strong); font-weight: 700; font-size: 0.8rem; display: grid; place-items: center; }
-  .ios-steps .ico{ width: 18px; height: 18px; }
-  .ios-close{ font: inherit; cursor: pointer; margin-top: 18px; width: 100%; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 11px; font-weight: 600; }
+  .ios-steps{ list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+  .ios-steps li{ display: flex; align-items: center; gap: 13px; font-size: 0.95rem; line-height: 1.35; }
+  .ios-steps .ico-box{ flex: none; width: 36px; height: 36px; border-radius: 10px; background: var(--primary-soft); color: var(--primary-strong); display: grid; place-items: center; }
+  .ios-steps .ico-box .ico{ width: 19px; height: 19px; color: currentColor; }
+  .ios-close{ font: inherit; cursor: pointer; margin-top: 20px; width: 100%; border: none; background: linear-gradient(135deg, var(--grad-start), var(--grad-end)); color: #fff; border-radius: 999px; padding: 13px; font-weight: 700; }
+
+  /* nav buttons: never wrap text; thin the row on small screens */
+  .nav-actions .btn-outline, .nav-actions .btn-primary, .btn-install{ white-space: nowrap; }
+  @media (max-width: 600px){
+    .nav-actions{ gap: 8px; }
+    .nav-actions a.btn-outline[href="#cases"]{ display: none; }
+    .nav-actions .btn-outline, .nav-actions .btn-primary{ padding: 9px 15px; font-size: 0.85rem; }
+  }
   .ic-foot{ margin-top: auto; padding: 4px 22px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .ic-cta{
     display: inline-flex; align-items: center; gap: 8px;
@@ -758,12 +766,11 @@
 
 <div class="ios-sheet" id="iosSheet" hidden>
   <div class="ios-card" role="dialog" aria-modal="true" aria-labelledby="iosTitle">
-    <h3 id="iosTitle">Add to your Home Screen</h3>
-    <p>Install MyLifeSense in two taps &mdash; it opens full-screen like any app.</p>
+    <h3 id="iosTitle">Add MyLifeSense to your Home&nbsp;Screen</h3>
+    <p>iPhone installs apps straight from Safari &mdash; just two taps:</p>
     <ol class="ios-steps">
-      <li><span class="n">1</span> Tap the <svg class="ico" aria-hidden="true"><use href="#ic-share"/></svg> <strong>Share</strong> button in Safari's toolbar.</li>
-      <li><span class="n">2</span> Choose <svg class="ico" aria-hidden="true"><use href="#ic-plus"/></svg> <strong>Add to Home Screen</strong>.</li>
-      <li><span class="n">3</span> Tap <strong>Add</strong> &mdash; done.</li>
+      <li><span class="ico-box"><svg class="ico" aria-hidden="true"><use href="#ic-share"/></svg></span><span>Tap the <strong>Share</strong> button in Safari's toolbar</span></li>
+      <li><span class="ico-box"><svg class="ico" aria-hidden="true"><use href="#ic-plus"/></svg></span><span>Choose <strong>Add to Home&nbsp;Screen</strong></span></li>
     </ol>
     <button type="button" class="ios-close" id="iosClose">Got it</button>
   </div>
