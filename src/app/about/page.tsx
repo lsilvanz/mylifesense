@@ -173,7 +173,7 @@ export default function AboutPage() {
 
       <p className="mt-6 px-1 text-xs leading-relaxed text-faint">
         MyLifeSense prototype · Phase 1 core loop + client-side Insights. Chat and correlations are
-        gated at <strong>15 entries</strong> to avoid reporting noise as signal.
+        gated at <strong>10 entries</strong> to avoid reporting noise as signal.
       </p>
 
       <UpgradeModal

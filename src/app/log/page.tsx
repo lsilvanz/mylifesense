@@ -28,23 +28,47 @@ export default function LogEntryPage() {
 function LogEntryInner() {
   const params = useSearchParams();
   const id = params.get("sense") ?? "";
-  const voiceStart = params.get("voice") === "1";
   const router = useRouter();
   const { ready, getSense, factorsFor, entriesFor, addEntry } = useStore();
 
   const [values, setValues] = useState<Record<string, EntryValueData>>({});
   const [saved, setSaved] = useState(false);
-  // Defaults to "now"; set after mount to avoid an SSR/CSR hydration mismatch.
-  const [when, setWhen] = useState("");
-  useEffect(() => {
-    setWhen(toLocalInputValue(new Date()));
-  }, []);
+  // Per-factor log time as "YYYY-MM-DDTHH:mm"; each defaults to "now" once
+  // factors load (set client-side to avoid an SSR/CSR hydration mismatch).
+  const [times, setTimes] = useState<Record<string, string>>({});
 
   const factors = useMemo(() => (ready ? factorsFor(id) : []), [ready, factorsFor, id]);
   const recent = useMemo(
     () => (ready ? entriesFor(id).slice(-3).reverse() : []),
     [ready, entriesFor, id]
   );
+
+  useEffect(() => {
+    if (!ready) return;
+    const now = toLocalInputValue(new Date());
+    setTimes((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const f of factors) {
+        if (next[f.id] === undefined) {
+          next[f.id] = now;
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [ready, factors]);
+
+  const setAllNow = () => {
+    const now = toLocalInputValue(new Date());
+    setTimes((prev) => {
+      const next = { ...prev };
+      for (const f of factors) next[f.id] = now;
+      return next;
+    });
+  };
+  const setTime = (factorId: string, v: string) =>
+    setTimes((prev) => ({ ...prev, [factorId]: v }));
 
   if (!ready) return <Loading />;
   const sense = getSense(id);
@@ -53,12 +77,19 @@ function LogEntryInner() {
   const filledCount = factors.filter((f) => hasValue(values[f.id])).length;
 
   const save = () => {
-    const entryValues = factors
-      .filter((f) => hasValue(values[f.id]))
-      .map((f) => ({ factorId: f.id, value: values[f.id] }));
-    if (entryValues.length === 0) return;
-    const loggedAt = when ? new Date(when).toISOString() : new Date().toISOString();
-    addEntry(id, entryValues, loggedAt);
+    const filled = factors.filter((f) => hasValue(values[f.id]));
+    if (filled.length === 0) return;
+    // Each factor carries its own time. Factors sharing a timestamp go into one
+    // entry; differing times split into separate entries (insights aggregate by
+    // calendar day, so this stays consistent).
+    const groups = new Map<string, { factorId: string; value: EntryValueData }[]>();
+    for (const f of filled) {
+      const local = times[f.id];
+      const iso = local ? new Date(local).toISOString() : new Date().toISOString();
+      if (!groups.has(iso)) groups.set(iso, []);
+      groups.get(iso)!.push({ factorId: f.id, value: values[f.id] });
+    }
+    for (const [iso, vals] of groups) addEntry(id, vals, iso);
     setSaved(true);
     setTimeout(() => router.push("/"), 700);
   };
@@ -73,34 +104,18 @@ function LogEntryInner() {
         </p>
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface px-3 py-2.5">
-          <label htmlFor="logged-at" className="text-sm font-medium text-ink">
-            Logged at
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              id="logged-at"
-              type="datetime-local"
-              value={when}
-              max={when ? toLocalInputValue(new Date()) : undefined}
-              onChange={(e) => setWhen(e.target.value)}
-              className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-accent"
-            />
-            <button
-              type="button"
-              onClick={() => setWhen(toLocalInputValue(new Date()))}
-              className="rounded-lg px-2 py-1 text-xs font-medium text-muted transition hover:bg-raised hover:text-ink"
-            >
-              Now
-            </button>
-          </div>
+          <span className="text-sm text-muted">Each factor keeps its own date &amp; time.</span>
+          <button
+            type="button"
+            onClick={setAllNow}
+            className="rounded-lg px-2 py-1 text-xs font-medium text-muted transition hover:bg-raised hover:text-ink"
+          >
+            Set all to now
+          </button>
         </div>
 
         <div className="mb-4">
-          <VoiceEntry
-            factors={factors}
-            autoStart={voiceStart}
-            onValues={(m) => setValues((prev) => ({ ...prev, ...m }))}
-          />
+          <VoiceEntry factors={factors} onValues={(m) => setValues((prev) => ({ ...prev, ...m }))} />
         </div>
 
         <div className="space-y-3">
@@ -126,6 +141,25 @@ function LogEntryInner() {
                   value={v ?? null}
                   onChange={(nv) => setValues((prev) => ({ ...prev, [f.id]: nv }))}
                 />
+                <div className="mt-3 flex items-center justify-between gap-2 border-t border-line pt-2.5">
+                  <span className="text-xs text-faint">When</span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="datetime-local"
+                      value={times[f.id] ?? ""}
+                      max={toLocalInputValue(new Date())}
+                      onChange={(e) => setTime(f.id, e.target.value)}
+                      className="rounded-lg border border-line bg-surface px-2 py-1 text-xs outline-none focus:border-accent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setTime(f.id, toLocalInputValue(new Date()))}
+                      className="rounded-lg px-1.5 py-1 text-xs font-medium text-muted transition hover:bg-raised hover:text-ink"
+                    >
+                      Now
+                    </button>
+                  </div>
+                </div>
               </Card>
             );
           })}

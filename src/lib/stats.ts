@@ -1,10 +1,10 @@
 import { toNumeric } from "./entryTypes";
 import type { Entry, SenseFactor } from "./types";
 
-// Minimum entries before we will surface a correlation. The brief calls out
-// ~15-20 as the floor where a Pearson r stops being noise; below this the
-// honest answer is "not enough data yet", never a fabricated trend.
-export const MIN_SAMPLE_SIZE = 15;
+// Minimum entries before we will surface a correlation. Below this the honest
+// answer is "not enough data yet", never a fabricated trend. Set to 10 so early
+// users reach their first pattern sooner (still enough to damp most noise).
+export const MIN_SAMPLE_SIZE = 10;
 
 export interface Correlation {
   factor: SenseFactor;
