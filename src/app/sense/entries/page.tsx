@@ -26,7 +26,23 @@ export default function EntriesPage() {
 
 function EntriesInner() {
   const id = useSearchParams().get("sense") ?? "";
-  const { ready, getSense, factorsFor, entriesFor, updateEntry, deleteEntry } = useStore();
+  const { ready, getSense, factorsFor, entriesFor, addEntry, updateEntry, deleteEntry } = useStore();
+
+  // Save an edited entry whose factors may now carry different times: the first
+  // time-group updates this entry in place, any additional groups become their
+  // own entries (empty → the entry is deleted).
+  const saveEntry = (
+    entryId: string,
+    groups: { loggedAt: string; values: { factorId: string; value: EntryValueData }[] }[]
+  ) => {
+    if (groups.length === 0) {
+      deleteEntry(entryId);
+      return;
+    }
+    const [first, ...rest] = groups;
+    updateEntry(entryId, first.values, first.loggedAt);
+    for (const g of rest) addEntry(id, g.values, g.loggedAt);
+  };
 
   const factors = useMemo(() => (ready ? factorsFor(id) : []), [ready, factorsFor, id]);
   const entries = useMemo(
@@ -64,7 +80,7 @@ function EntriesInner() {
             key={e.id}
             entry={e}
             factors={factors}
-            onSave={(values, loggedAt) => updateEntry(e.id, values, loggedAt)}
+            onSave={(groups) => saveEntry(e.id, groups)}
             onDelete={() => deleteEntry(e.id)}
           />
         ))}
@@ -76,6 +92,10 @@ function EntriesInner() {
   );
 }
 
+function nowLocal(): string {
+  return toLocalInputValue(new Date().toISOString());
+}
+
 function EntryRow({
   entry,
   factors,
@@ -84,17 +104,28 @@ function EntryRow({
 }: {
   entry: Entry;
   factors: SenseFactor[];
-  onSave: (values: { factorId: string; value: EntryValueData }[], loggedAt: string) => void;
+  onSave: (
+    groups: { loggedAt: string; values: { factorId: string; value: EntryValueData }[] }[]
+  ) => void;
   onDelete: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
-  const [when, setWhen] = useState(() => toLocalInputValue(entry.loggedAt));
   const [values, setValues] = useState<Record<string, EntryValueData>>(() => {
     const map: Record<string, EntryValueData> = {};
     for (const v of entry.values) map[v.factorId] = v.value;
     return map;
   });
+  // Each factor gets its own time, defaulting to this entry's time so an
+  // unchanged save stays a single entry; changing one splits it out.
+  const [times, setTimes] = useState<Record<string, string>>(() => {
+    const base = toLocalInputValue(entry.loggedAt);
+    const map: Record<string, string> = {};
+    for (const f of factors) map[f.id] = base;
+    return map;
+  });
+  const setTime = (factorId: string, v: string) =>
+    setTimes((prev) => ({ ...prev, [factorId]: v }));
 
   const dateLabel = new Date(entry.loggedAt).toLocaleString(undefined, {
     weekday: "short",
@@ -105,10 +136,15 @@ function EntryRow({
   });
 
   const save = () => {
-    const out = factors
-      .filter((f) => hasValue(values[f.id]))
-      .map((f) => ({ factorId: f.id, value: values[f.id] }));
-    onSave(out, new Date(when).toISOString());
+    const filled = factors.filter((f) => hasValue(values[f.id]));
+    const groups = new Map<string, { factorId: string; value: EntryValueData }[]>();
+    for (const f of filled) {
+      const local = times[f.id] ?? toLocalInputValue(entry.loggedAt);
+      const iso = new Date(local).toISOString();
+      if (!groups.has(iso)) groups.set(iso, []);
+      groups.get(iso)!.push({ factorId: f.id, value: values[f.id] });
+    }
+    onSave([...groups].map(([loggedAt, vals]) => ({ loggedAt, values: vals })));
     setEditing(false);
   };
 
@@ -169,17 +205,8 @@ function EntryRow({
 
   return (
     <Card className="p-4">
-      <label className="mb-3 block">
-        <span className="mb-1 block text-xs font-semibold text-ink">Logged at</span>
-        <input
-          type="datetime-local"
-          value={when}
-          onChange={(ev) => setWhen(ev.target.value)}
-          className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-accent"
-        />
-      </label>
-
-      <div className="space-y-3">
+      <p className="mb-3 text-xs text-muted">Each factor keeps its own date &amp; time.</p>
+      <div className="space-y-4">
         {factors.map((f) => (
           <div key={f.id}>
             <p className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-ink">
@@ -191,6 +218,25 @@ function EntryRow({
               value={values[f.id] ?? null}
               onChange={(nv) => setValues((prev) => ({ ...prev, [f.id]: nv }))}
             />
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <span className="text-xs text-faint">When</span>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="datetime-local"
+                  value={times[f.id] ?? ""}
+                  max={nowLocal()}
+                  onChange={(ev) => setTime(f.id, ev.target.value)}
+                  className="rounded-lg border border-line bg-surface px-2 py-1 text-xs outline-none focus:border-accent"
+                />
+                <button
+                  type="button"
+                  onClick={() => setTime(f.id, nowLocal())}
+                  className="rounded-lg px-1.5 py-1 text-xs font-medium text-muted transition hover:bg-raised hover:text-ink"
+                >
+                  Now
+                </button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
