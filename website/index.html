@@ -431,6 +431,9 @@
   footer .foot-grid{ display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
   footer .disclaimer{ max-width: 58ch; font-size: 0.8rem; color: var(--ink-muted); }
   footer .brand-small{ font-family: 'Fraunces', serif; font-weight: 600; }
+  footer .foot-legal{ margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; font-size: 0.82rem; color: var(--ink-muted); }
+  footer .foot-legal a{ color: var(--ink-muted); text-decoration: none; }
+  footer .foot-legal a:hover{ color: var(--primary); }
 
   :focus-visible{ outline: 2px solid var(--primary); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce){ * { animation: none !important; transition: none !important; } }
@@ -760,6 +763,12 @@
     <div class="foot-grid">
       <div class="brand-small">MyLifeSense</div>
       <p class="disclaimer">The examples above are illustrative, not real users &mdash; written to show the kind of pattern MyLifeSense looks for. MyLifeSense surfaces patterns worth exploring. It does not diagnose, treat, or replace professional advice.</p>
+    </div>
+    <div class="foot-legal">
+      <span>&copy; 2026 aiguardu limited</span>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms &amp; Conditions</a>
+      <a href="mailto:admin@aiguardu.app">admin@aiguardu.app</a>
     </div>
   </footer>
 </div>

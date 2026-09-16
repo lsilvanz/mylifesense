@@ -172,8 +172,18 @@ export default function AboutPage() {
       <Integrations />
 
       <p className="mt-6 px-1 text-xs leading-relaxed text-faint">
-        MyLifeSense prototype · Phase 1 core loop + client-side Insights. Chat and correlations are
-        gated at <strong>10 entries</strong> to avoid reporting noise as signal.
+        MyLifeSense by aiguardu limited. Chat and correlations are gated at{" "}
+        <strong>10 entries</strong> to avoid reporting noise as signal.
+      </p>
+      <p className="mt-2 px-1 text-xs text-faint">
+        <a href="/privacy" className="underline underline-offset-2 hover:text-ink">
+          Privacy Policy
+        </a>{" "}
+        ·{" "}
+        <a href="/terms" className="underline underline-offset-2 hover:text-ink">
+          Terms &amp; Conditions
+        </a>{" "}
+        · <a href="mailto:admin@aiguardu.app" className="underline underline-offset-2 hover:text-ink">admin@aiguardu.app</a>
       </p>
 
       <UpgradeModal

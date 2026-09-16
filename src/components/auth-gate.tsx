@@ -180,6 +180,18 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
             </button>
           </div>
         )}
+
+        <p className="mt-6 text-center text-xs leading-relaxed text-faint">
+          By continuing you agree to our{" "}
+          <a href="/terms" className="underline underline-offset-2 hover:text-ink">
+            Terms
+          </a>{" "}
+          and{" "}
+          <a href="/privacy" className="underline underline-offset-2 hover:text-ink">
+            Privacy Policy
+          </a>
+          .
+        </p>
       </div>
     </main>
   );
