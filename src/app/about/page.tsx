@@ -172,8 +172,8 @@ export default function AboutPage() {
       <Integrations />
 
       <p className="mt-6 px-1 text-xs leading-relaxed text-faint">
-        MyLifeSense by aiguardu limited. Chat and correlations are gated at{" "}
-        <strong>10 entries</strong> to avoid reporting noise as signal.
+        MyLifeSense by aiguardu limited. Early hints appear at <strong>5 entries</strong> and get
+        reliable around <strong>10+</strong> — below that we won&apos;t report a pattern.
       </p>
       <p className="mt-2 px-1 text-xs text-faint">
         <a href="/privacy" className="underline underline-offset-2 hover:text-ink">

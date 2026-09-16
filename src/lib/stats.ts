@@ -1,10 +1,14 @@
 import { toNumeric } from "./entryTypes";
 import type { Entry, SenseFactor } from "./types";
 
-// Minimum entries before we will surface a correlation. Below this the honest
-// answer is "not enough data yet", never a fabricated trend. Set to 10 so early
-// users reach their first pattern sooner (still enough to damp most noise).
-export const MIN_SAMPLE_SIZE = 10;
+// Minimum entries before we will surface ANY correlation. Below this the honest
+// answer is "not enough data yet". Set low (5) so users see early hints fast —
+// but between MIN and RELIABLE those hints are flagged as very low-confidence.
+export const MIN_SAMPLE_SIZE = 5;
+
+// Entries before a pattern is trustworthy rather than a low-data hint. Below
+// this, findings are capped to "tentative" and the UI shows a low-data warning.
+export const RELIABLE_SAMPLE_SIZE = 10;
 
 export interface Correlation {
   factor: SenseFactor;

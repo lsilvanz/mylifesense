@@ -10,6 +10,8 @@ export function buildSummary(a: Analysis, context?: string) {
     isSymptom: a.isSymptom,
     entryCount: a.entryCount,
     enoughData: a.enoughData,
+    reliable: a.reliable, // false = very low data; caveat findings as early hints
+
     ...(context ? { context } : {}),
     findings: a.findings.slice(0, 8).map((f) => ({
       factor: f.factor.label,

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppHeader, Button, Card, LinkButton, Loading } from "@/components/ui";
 import { TrendChart } from "@/components/trend-chart";
-import { MIN_SAMPLE_SIZE } from "@/lib/stats";
+import { MIN_SAMPLE_SIZE, RELIABLE_SAMPLE_SIZE } from "@/lib/stats";
 import { analyzeSense, type Confidence, type Finding, type IntegrationOverlay } from "@/lib/insights";
 import { headlineNarrative } from "@/lib/narrative";
 import { categoryEmoji } from "@/lib/entryTypes";
@@ -149,6 +149,19 @@ function InsightsInner() {
         </p>
       </Card>
 
+      {analysis.enoughData && !analysis.reliable && (
+        <div className="mt-4 flex gap-3 rounded-xl border border-line bg-raised px-4 py-3">
+          <span className="text-lg leading-none" aria-hidden="true">
+            ⚠️
+          </span>
+          <p className="text-sm text-muted">
+            <span className="font-semibold text-ink">Very low data.</span> These are early hints from
+            just {analysis.entryCount} entries — treat them loosely. Patterns only get reliable around{" "}
+            {RELIABLE_SAMPLE_SIZE}+ entries, so keep logging.
+          </p>
+        </div>
+      )}
+
       {fitbitFactors.length > 0 && (
         <Card className="mt-4 flex items-center justify-between gap-3 p-4">
           <div className="min-w-0">
@@ -194,8 +207,9 @@ function InsightsInner() {
             />
           </div>
           <p className="mt-2 text-xs text-muted">
-            {analysis.entryCount} / {MIN_SAMPLE_SIZE} entries. Below this a pattern is mostly noise,
-            so we won&apos;t claim one — and neither will Chat.
+            {analysis.entryCount} / {MIN_SAMPLE_SIZE} entries. Below {MIN_SAMPLE_SIZE} it&apos;s
+            mostly noise, so we won&apos;t show a pattern yet. Early hints appear at {MIN_SAMPLE_SIZE};
+            they get reliable around {RELIABLE_SAMPLE_SIZE}+.
           </p>
         </Card>
       )}

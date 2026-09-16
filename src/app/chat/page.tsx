@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { AppHeader, Loading, Pill } from "@/components/ui";
-import { MIN_SAMPLE_SIZE } from "@/lib/stats";
+import { MIN_SAMPLE_SIZE, RELIABLE_SAMPLE_SIZE } from "@/lib/stats";
 import { analyzeSense, type Analysis, type IntegrationOverlay } from "@/lib/insights";
 import { SUGGESTED_QUESTIONS, answerQuestion } from "@/lib/narrative";
 import { askClaudeChat } from "@/lib/ai";
@@ -161,8 +161,9 @@ function ChatInner() {
           <div className="rounded-2xl border border-line bg-surface p-5 text-sm leading-relaxed text-muted">
             <p className="font-semibold text-ink">Ask about {sense.title.toLowerCase()}.</p>
             <p className="mt-1">
-              I answer only from your logged data and the computed correlations — and I won&apos;t
-              claim a pattern below {MIN_SAMPLE_SIZE} entries.
+              I answer only from your logged data and the computed correlations. Below{" "}
+              {MIN_SAMPLE_SIZE} entries I won&apos;t claim a pattern; between {MIN_SAMPLE_SIZE} and{" "}
+              {RELIABLE_SAMPLE_SIZE} I&apos;ll treat anything as an early hint.
             </p>
           </div>
         )}

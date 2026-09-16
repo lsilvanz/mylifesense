@@ -1,6 +1,7 @@
 import { toNumeric } from "./entryTypes";
 import {
   MIN_SAMPLE_SIZE,
+  RELIABLE_SAMPLE_SIZE,
   benjaminiHochberg,
   correlationPValue,
   mean,
@@ -34,7 +35,8 @@ export interface Analysis {
   target: SenseFactor;
   goal: "minimize" | "maximize";
   entryCount: number;
-  enoughData: boolean;
+  enoughData: boolean; // >= MIN_SAMPLE_SIZE: enough to show early hints
+  reliable: boolean; // >= RELIABLE_SAMPLE_SIZE: enough to trust
   findings: Finding[]; // all comparable factors, ranked by value
   topInsights: Finding[]; // best few, meaningful only
   trend: TrendPoint[];
@@ -113,7 +115,9 @@ function pairs(
 
 function confidenceOf(significant: boolean, absR: number, n: number): Confidence {
   if (significant && absR >= 0.5 && n >= 20) return "strong";
-  if (significant && absR >= 0.3) return "moderate";
+  // Below the reliable threshold a finding can't rise above "tentative", however
+  // strong the raw correlation looks — too little data to trust.
+  if (significant && absR >= 0.3 && n >= RELIABLE_SAMPLE_SIZE) return "moderate";
   if (absR >= 0.3 && n >= MIN_SAMPLE_SIZE) return "tentative";
   return "none";
 }
@@ -140,6 +144,7 @@ export function analyzeSense(
   const isSymptom = target.category === "Symptoms";
   const entryCount = targetEntryCount(entries, target.id);
   const enoughData = entryCount >= MIN_SAMPLE_SIZE;
+  const reliable = entryCount >= RELIABLE_SAMPLE_SIZE;
   const trend = targetTrend(entries, target.id, target.entryType);
   const targetLabel = target.label.toLowerCase();
 
@@ -236,7 +241,7 @@ export function analyzeSense(
     ? findings.filter((f) => f.confidence !== "none").slice(0, 3)
     : [];
 
-  return { target, goal, entryCount, enoughData, findings, topInsights, trend, isSymptom };
+  return { target, goal, entryCount, enoughData, reliable, findings, topInsights, trend, isSymptom };
 }
 
 function buildRecommendation(

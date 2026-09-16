@@ -1,4 +1,4 @@
-import { MIN_SAMPLE_SIZE } from "./stats";
+import { MIN_SAMPLE_SIZE, RELIABLE_SAMPLE_SIZE } from "./stats";
 import type { Analysis, Finding } from "./insights";
 
 // The brief (section 3): compute the stats first, then write prose over the
@@ -9,7 +9,7 @@ import type { Analysis, Finding } from "./insights";
 export function headlineNarrative(a: Analysis): string {
   const targetLabel = a.target.label.toLowerCase();
   if (!a.enoughData) {
-    return `You've logged ${a.entryCount} ${a.entryCount === 1 ? "entry" : "entries"} against ${targetLabel}. Patterns need about ${MIN_SAMPLE_SIZE} before they mean anything — keep logging and this will fill in.`;
+    return `You've logged ${a.entryCount} ${a.entryCount === 1 ? "entry" : "entries"} against ${targetLabel}. Patterns get reliable around ${RELIABLE_SAMPLE_SIZE} entries — keep logging and this will fill in.`;
   }
   if (a.topInsights.length === 0) {
     return `Across ${a.entryCount} entries, nothing you're tracking shows a clear link to ${targetLabel} yet. That's a real finding — it may be driven by something you're not logging.`;
@@ -18,6 +18,10 @@ export function headlineNarrative(a: Analysis): string {
   let out = top.headline;
   const second = a.topInsights[1];
   if (second) out += ` ${second.headline}`;
+  // Below the reliable threshold, front the caveat so hints aren't over-read.
+  if (!a.reliable) {
+    out = `Early hint — only ${a.entryCount} entries so far, so treat this loosely. ${out}`;
+  }
   return out;
 }
 
