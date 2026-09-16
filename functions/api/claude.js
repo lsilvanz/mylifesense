@@ -41,7 +41,7 @@ Rules:
 const LOG_SYSTEM = `You convert a spoken or typed description of someone's day into structured log values for a self-tracking Sense.
 You are given the Sense's factors (id, label, entryType, options, unit) and a transcript of what the person said.
 
-Return ONLY valid JSON (no markdown, no prose): {"values":[{"factorId":"<id>","value":<value>}]}
+Return ONLY valid JSON (no markdown, no prose): {"values":[{"factorId":"<id>","value":<value>,"time":"YYYY-MM-DDTHH:MM"}]}
 
 Rules:
 - Include a factor ONLY if the transcript clearly indicates a value for it. Omit everything else. Never invent values.
@@ -53,6 +53,7 @@ Rules:
   - list -> if the factor is multiple:true, an array of option strings; otherwise a single option string. Only use strings from that factor's "options".
   - free_text -> a short string
   - integration -> never include (auto-synced)
+- "time" is OPTIONAL per value: if the person says WHEN that factor happened ("this morning", "at 2pm", "last night", "an hour ago", "yesterday"), resolve it to a local datetime "YYYY-MM-DDTHH:MM" relative to the "Current local time" given below. Omit "time" entirely when no time is mentioned. Never return a time in the future.
 - Use the factor "id" values exactly as given. Return only the JSON object.`;
 
 export async function onRequestPost(context) {
@@ -77,7 +78,7 @@ export async function onRequestPost(context) {
     return json({ error: "bad_request" }, 400);
   }
 
-  const { mode, summary, question, title, sense_question, existing, context: userContext, transcript, factors } =
+  const { mode, summary, question, title, sense_question, existing, context: userContext, transcript, factors, now } =
     body || {};
 
   let system = SYSTEM;
@@ -97,7 +98,9 @@ export async function onRequestPost(context) {
     if (!transcript || !Array.isArray(factors)) return json({ error: "missing_transcript" }, 400);
     system = LOG_SYSTEM;
     maxTokens = 600;
-    userText = `Factors:\n${JSON.stringify(factors)}\n\nWhat the person said:\n"${transcript}"\n\nExtract the values as JSON.`;
+    userText = `Factors:\n${JSON.stringify(factors)}\n\nCurrent local time: ${
+      now || "unknown"
+    }\n\nWhat the person said:\n"${transcript}"\n\nExtract the values (with optional per-value time) as JSON.`;
   } else {
     if (!summary) return json({ error: "missing_summary" }, 400);
     userText =

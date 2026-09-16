@@ -24,10 +24,10 @@ function MicIcon({ className = "" }: { className?: string }) {
 // as the home cards, but instead of saving it fills the factors below for review.
 export function VoiceEntry({
   factors,
-  onValues,
+  onResult,
 }: {
   factors: SenseFactor[];
-  onValues: (values: Record<string, EntryValueData>) => void;
+  onResult: (values: Record<string, EntryValueData>, times: Record<string, string>) => void;
   autoStart?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -80,21 +80,28 @@ export function VoiceEntry({
       setPhase("empty");
       return;
     }
-    const map = await parseLog(t, factors);
-    if (!map || Object.keys(map).length === 0) {
+    const parsed = await parseLog(t, factors);
+    if (!parsed || Object.keys(parsed.values).length === 0) {
       setPhase("empty");
       if (ttsSupported()) speak("I didn't catch anything to log. Try again.");
       return;
     }
-    onValues(map);
-    const n = Object.keys(map).length;
+    onResult(parsed.values, parsed.times);
+    const n = Object.keys(parsed.values).length;
     setFilledCount(n);
     setPhase("filled");
     if (ttsSupported()) {
-      const spoken = Object.entries(map)
+      const spoken = Object.entries(parsed.values)
         .map(([fid, v]) => {
           const f = factors.find((x) => x.id === fid);
-          return f ? `${f.label}, ${formatValue(f.entryType, v, f.config.unit)}` : "";
+          if (!f) return "";
+          const t = parsed.times[fid]
+            ? ` at ${new Date(parsed.times[fid]).toLocaleTimeString(undefined, {
+                hour: "numeric",
+                minute: "2-digit",
+              })}`
+            : "";
+          return `${f.label}, ${formatValue(f.entryType, v, f.config.unit)}${t}`;
         })
         .filter(Boolean)
         .join("; ");

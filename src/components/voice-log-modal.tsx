@@ -17,9 +17,9 @@ function summaryPairs(map: Record<string, EntryValueData>, factors: SenseFactor[
     .map(([fid, v]) => {
       const f = factors.find((x) => x.id === fid);
       if (!f) return null;
-      return { label: f.label, text: formatValue(f.entryType, v, f.config.unit) };
+      return { factorId: fid, label: f.label, text: formatValue(f.entryType, v, f.config.unit) };
     })
-    .filter(Boolean) as { label: string; text: string }[];
+    .filter(Boolean) as { factorId: string; label: string; text: string }[];
 }
 
 function MicIcon({ className = "" }: { className?: string }) {
@@ -39,6 +39,7 @@ export function VoiceLogModal({ senseId, onClose }: { senseId: string; onClose: 
   const [phase, setPhase] = useState<Phase>("idle");
   const [transcript, setTranscript] = useState("");
   const [values, setValues] = useState<Record<string, EntryValueData>>({});
+  const [times, setTimes] = useState<Record<string, string>>({});
   const [elapsed, setElapsed] = useState(0);
   const recRef = useRef<any>(null);
   const finalRef = useRef("");
@@ -86,6 +87,7 @@ export function VoiceLogModal({ senseId, onClose }: { senseId: string; onClose: 
     finalRef.current = "";
     setTranscript("");
     setValues({});
+    setTimes({});
     try {
       recRef.current.start();
       setPhase("recording");
@@ -112,17 +114,26 @@ export function VoiceLogModal({ senseId, onClose }: { senseId: string; onClose: 
         setPhase("empty");
         return;
       }
-      const map = await parseLog(text, factors);
-      if (!map || Object.keys(map).length === 0) {
+      const parsed = await parseLog(text, factors);
+      if (!parsed || Object.keys(parsed.values).length === 0) {
         setPhase("empty");
         if (ttsSupported()) speak("I didn't catch anything to log. Try again.");
         return;
       }
-      setValues(map);
+      setValues(parsed.values);
+      setTimes(parsed.times);
       setPhase("confirm");
       if (ttsSupported()) {
-        const spoken = summaryPairs(map, factors)
-          .map((p) => `${p.label}, ${p.text}`)
+        const spoken = summaryPairs(parsed.values, factors)
+          .map((p) => {
+            const t = parsed.times[p.factorId]
+              ? ` at ${new Date(parsed.times[p.factorId]).toLocaleTimeString(undefined, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}`
+              : "";
+            return `${p.label}, ${p.text}${t}`;
+          })
           .join("; ");
         speak(`Do you want to log ${spoken} now?`);
       }
@@ -130,8 +141,16 @@ export function VoiceLogModal({ senseId, onClose }: { senseId: string; onClose: 
   };
 
   const save = () => {
-    const entryValues = Object.entries(values).map(([factorId, value]) => ({ factorId, value }));
-    if (entryValues.length) addEntry(senseId, entryValues);
+    // Group by the per-factor time the transcript stated (else now), so each
+    // factor is saved at its own moment.
+    const groups = new Map<string, { factorId: string; value: EntryValueData }[]>();
+    for (const [factorId, value] of Object.entries(values)) {
+      const local = times[factorId];
+      const iso = local ? new Date(local).toISOString() : new Date().toISOString();
+      if (!groups.has(iso)) groups.set(iso, []);
+      groups.get(iso)!.push({ factorId, value });
+    }
+    for (const [iso, vals] of groups) addEntry(senseId, vals, iso);
     if (ttsSupported()) speak("Saved.");
     setPhase("saved");
     setTimeout(onClose, 900);
@@ -161,9 +180,21 @@ export function VoiceLogModal({ senseId, onClose }: { senseId: string; onClose: 
             <p className="text-sm text-muted">Log this now?</p>
             <ul className="mt-2 space-y-1">
               {pairs.map((p) => (
-                <li key={p.label} className="flex items-center justify-between rounded-lg bg-raised px-3 py-2 text-sm">
+                <li key={p.factorId} className="flex items-center justify-between gap-2 rounded-lg bg-raised px-3 py-2 text-sm">
                   <span className="text-muted">{p.label}</span>
-                  <span className="font-semibold text-ink">{p.text}</span>
+                  <span className="flex items-center gap-2">
+                    {times[p.factorId] && (
+                      <span className="text-xs text-faint">
+                        {new Date(times[p.factorId]).toLocaleString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    )}
+                    <span className="font-semibold text-ink">{p.text}</span>
+                  </span>
                 </li>
               ))}
             </ul>

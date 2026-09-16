@@ -144,11 +144,33 @@ function coerce(factor: SenseFactor, raw: unknown): EntryValueData | undefined {
   }
 }
 
-// Returns a map of factorId -> value parsed from a transcript, or null on failure.
+export interface ParsedLog {
+  values: Record<string, EntryValueData>;
+  // Per-factor local time "YYYY-MM-DDTHH:mm" when the transcript stated one.
+  times: Record<string, string>;
+}
+
+function localNow(d = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
+    d.getMinutes()
+  )}`;
+}
+
+// Keep a model-returned time only if it's a valid local datetime not in the future.
+function cleanTime(raw: unknown, nowLocal: string): string | undefined {
+  if (typeof raw !== "string") return undefined;
+  const m = raw.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+  if (!m) return undefined;
+  const t = raw.slice(0, 16);
+  return t > nowLocal ? nowLocal : t;
+}
+
+// Parse a transcript into factor values (+ optional per-factor times), or null.
 export async function parseLog(
   transcript: string,
   factors: SenseFactor[]
-): Promise<Record<string, EntryValueData> | null> {
+): Promise<ParsedLog | null> {
   try {
     const slim = factors
       .filter((f) => f.entryType !== "integration")
@@ -160,25 +182,39 @@ export async function parseLog(
         unit: f.config.unit,
         multiple: f.config.multiple,
       }));
+    const nowLocal = localNow();
+    const tz =
+      typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
     const res = await fetch("/api/claude", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ mode: "parse_log", transcript, factors: slim }),
+      body: JSON.stringify({
+        mode: "parse_log",
+        transcript,
+        factors: slim,
+        now: `${nowLocal}${tz ? ` (${tz})` : ""}`,
+      }),
     });
     if (!res.ok) return null;
     const data = (await res.json()) as { text?: string; error?: string };
     if (data.error || !data.text) return null;
-    const parsed = extractJson(data.text) as { values?: { factorId: string; value: unknown }[] } | null;
+    const parsed = extractJson(data.text) as {
+      values?: { factorId: string; value: unknown; time?: unknown }[];
+    } | null;
     if (!parsed || !Array.isArray(parsed.values)) return null;
 
-    const out: Record<string, EntryValueData> = {};
+    const values: Record<string, EntryValueData> = {};
+    const times: Record<string, string> = {};
     for (const v of parsed.values) {
       const factor = factors.find((f) => f.id === v.factorId);
       if (!factor) continue;
       const value = coerce(factor, v.value);
-      if (value !== undefined) out[factor.id] = value;
+      if (value === undefined) continue;
+      values[factor.id] = value;
+      const t = cleanTime(v.time, nowLocal);
+      if (t) times[factor.id] = t;
     }
-    return out;
+    return { values, times };
   } catch {
     return null;
   }

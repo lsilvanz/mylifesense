@@ -115,7 +115,15 @@ function LogEntryInner() {
         </div>
 
         <div className="mb-4">
-          <VoiceEntry factors={factors} onValues={(m) => setValues((prev) => ({ ...prev, ...m }))} />
+          <VoiceEntry
+            factors={factors}
+            onResult={(vals, spokenTimes) => {
+              setValues((prev) => ({ ...prev, ...vals }));
+              if (Object.keys(spokenTimes).length) {
+                setTimes((prev) => ({ ...prev, ...spokenTimes }));
+              }
+            }}
+          />
         </div>
 
         <div className="space-y-3">
