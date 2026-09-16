@@ -276,6 +276,11 @@
   }
   @media (max-width: 980px){ .ic-grid{ grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 620px){ .ic-grid{ grid-template-columns: 1fr; } }
+  .pcard{ display:block; border-radius:18px; overflow:hidden; border:1px solid var(--line); box-shadow:var(--shadow); transition:transform .15s ease, filter .15s ease; }
+  .pcard:hover{ transform:translateY(-3px); filter:brightness(1.02); }
+  .pcard:focus-visible{ outline:2px solid var(--primary); outline-offset:2px; }
+  .pcard img{ display:block; width:100%; height:auto; }
+  .cases-cta{ margin-top:34px; text-align:center; }
   .ic{
     background: var(--surface);
     border: 1px solid var(--line);
@@ -519,128 +524,33 @@
     </div>
     <div class="ic-grid">
 
-      <div class="ic" style="--accent: var(--primary);">
-        <div class="ic-top">
-          <p class="cat">Sleep</p>
-          <h3>What if your bad sleep isn't about sleep?</h3>
-          <p class="sub">MyLifeSense finds the patterns behind how you rest.</p>
-        </div>
-        <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Sleep <span class="cog">&middot;&middot;&middot;</span></div>
-          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>On days you get more time outside, your sleep quality runs <b>higher</b>.</p></div>
-          <p class="mi-ct">Sleep quality over time</p>
-          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,30 20,28 40,22 60,25 80,16 100,11 120,7" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-sun"/></svg></span><span class="nm">Time outside</span><span class="tier">Strong</span></div>
-            <p class="mi-r">r = +0.42 &middot; n = 22</p>
-            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: 20+ minutes outside before noon.</p>
-          </div>
-        </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
-      </div>
+      <a class="pcard" href="/app" aria-label="What affects your sleep? It's not always about how much you sleep. Start free with MyLifeSense.">
+        <img src="/cards/sleep.jpg" alt="What affects your sleep? It's not always about how much you sleep." loading="lazy" width="404" height="613">
+      </a>
 
-      <div class="ic" style="--accent: var(--primary);">
-        <div class="ic-top">
-          <p class="cat">Energy</p>
-          <h3>What if your energy problem isn't about energy?</h3>
-          <p class="sub">See what actually drains and restores you.</p>
-        </div>
-        <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Energy <span class="cog">&middot;&middot;&middot;</span></div>
-          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>Your energy dips line up with <b>high-stress, low-protein</b> days.</p></div>
-          <p class="mi-ct">Afternoon energy over time</p>
-          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,12 20,16 40,14 60,26 80,32 100,20 120,14" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-cup"/></svg></span><span class="nm">Protein intake</span><span class="tier">Strong</span></div>
-            <p class="mi-r">r = +0.56 &middot; n = 24</p>
-            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: protein at breakfast on high-stress days.</p>
-          </div>
-        </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
-      </div>
+      <a class="pcard" href="/app" aria-label="What affects your energy? It might be more than just your sleep. Start free with MyLifeSense.">
+        <img src="/cards/energy.jpg" alt="What affects your energy? It might be more than just your sleep." loading="lazy" width="404" height="613">
+      </a>
 
-      <div class="ic" style="--accent: var(--primary);">
-        <div class="ic-top">
-          <p class="cat">Performance</p>
-          <h3>What if your performance problem isn't your training?</h3>
-          <p class="sub">Find the levers your results really follow.</p>
-        </div>
-        <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Tennis <span class="cog">&middot;&middot;&middot;</span></div>
-          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>Your best days follow <b>two or more days of lighter training</b>.</p></div>
-          <p class="mi-ct">Match performance over time</p>
-          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,26 20,28 40,17 60,11 80,19 100,9 120,6" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-activity"/></svg></span><span class="nm">Training load (2-day)</span><span class="tier">Strong</span></div>
-            <p class="mi-r">r = &minus;0.58 &middot; n = 20</p>
-            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: ease off for two days before a key session.</p>
-          </div>
-        </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
-      </div>
+      <a class="pcard" href="/app" aria-label="What affects your performance? It's not just about training harder. Start free with MyLifeSense.">
+        <img src="/cards/performance.jpg" alt="What affects your performance? It's not just about training harder." loading="lazy" width="404" height="613">
+      </a>
 
-      <div class="ic" style="--accent: var(--primary);">
-        <div class="ic-top">
-          <p class="cat">Relationships</p>
-          <h3>What if your arguments aren't really about your arguments?</h3>
-          <p class="sub">Spot what tips a good day into a hard one.</p>
-        </div>
-        <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Us <span class="cog">&middot;&middot;&middot;</span></div>
-          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>Friction rises a couple of days <b>after your most stressful stretches</b>.</p></div>
-          <p class="mi-ct">Tension over time</p>
-          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,20 20,18 40,29 60,15 80,32 100,17 120,22" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-briefcase"/></svg></span><span class="nm">Work stress (2-day lag)</span><span class="tier">Moderate</span></div>
-            <p class="mi-r">r = +0.48 &middot; n = 18</p>
-            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: protect time together after hard weeks.</p>
-          </div>
-        </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
-      </div>
+      <a class="pcard" href="/app" aria-label="What affects your mood? It might be something you wouldn't expect. Start free with MyLifeSense.">
+        <img src="/cards/mood.jpg" alt="What affects your mood? It might be something you wouldn't expect." loading="lazy" width="404" height="613">
+      </a>
 
-      <div class="ic" style="--accent: var(--primary);">
-        <div class="ic-top">
-          <p class="cat">Money</p>
-          <h3>What if your spending problem isn't about money?</h3>
-          <p class="sub">Understand what really moves your spending.</p>
-        </div>
-        <div class="ic-screen">
-          <div class="mi-bar"><span class="b">&lsaquo;</span> Insights &middot; Spending <span class="cog">&middot;&middot;&middot;</span></div>
-          <div class="mi-narr"><span class="k"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg> AI Narrative</span><p>You spend more on <b>low-sleep, high-stress</b> evenings.</p></div>
-          <p class="mi-ct">Daily spend over time</p>
-          <svg class="mi-line" viewBox="0 0 120 40" preserveAspectRatio="none" fill="none" aria-hidden="true"><polyline points="0,22 20,16 40,25 60,13 80,28 100,15 120,10" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-moon"/></svg></span><span class="nm">Sleep last night</span><span class="tier">Moderate</span></div>
-            <p class="mi-r">r = &minus;0.51 &middot; n = 21</p>
-            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Worth trying: a 24-hour pause on low-sleep nights.</p>
-          </div>
-        </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">Sample data</span></div>
-      </div>
+      <a class="pcard" href="/app" aria-label="What affects your relationships? It's often not really about what you think. Start free with MyLifeSense.">
+        <img src="/cards/relationships.jpg" alt="What affects your relationships? It's often not really about what you think." loading="lazy" width="404" height="613">
+      </a>
 
-      <div class="ic" style="--accent: var(--primary);">
-        <div class="ic-top">
-          <p class="cat">MyLifeSense</p>
-          <h3>What if the answer is somewhere you haven't <em>looked</em>?</h3>
-          <p class="sub">One place to see what your own days have been telling you.</p>
-        </div>
-        <div class="ic-screen">
-          <div class="mi-bar">MyLifeSense &middot; Senses <span class="cog">&middot;&middot;&middot;</span></div>
-          <div class="mi-senses">
-            <div class="mi-sense"><p class="q">Sleep quality</p><p class="m">22 entries &middot; Daily</p></div>
-            <div class="mi-sense"><p class="q">Tennis performance</p><p class="m">20 entries &middot; Daily</p></div>
-            <div class="mi-sense"><p class="q">Evening abdominal pain</p><p class="m">26 entries &middot; Daily</p></div>
-          </div>
-          <div class="mi-sig">
-            <div class="mi-sigrow"><span aria-hidden="true"><svg class="ico" aria-hidden="true"><use href="#ic-spark"/></svg></span><span class="nm">Any sense works</span><span class="tier">Start</span></div>
-            <p class="mi-try"><svg class="ico" aria-hidden="true"><use href="#ic-chev"/></svg> Name a Sense &rarr; log a few days &rarr; see the lever you control.</p>
-          </div>
-        </div>
-        <div class="ic-foot"><a class="ic-cta" href="/app">Start free &rarr;</a><span class="ic-tag">No account needed</span></div>
-      </div>
+      <a class="pcard" href="/app" aria-label="What affects your money? It might be more than just your income. Start free with MyLifeSense.">
+        <img src="/cards/money.jpg" alt="What affects your money? It might be more than just your income." loading="lazy" width="404" height="613">
+      </a>
 
     </div>
+
+    <div class="cases-cta"><a class="btn-primary" href="/app">Start discovering your patterns &rarr;</a></div>
   </section>
 
   <section class="showcase">
