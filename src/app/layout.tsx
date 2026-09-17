@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   manifest: "/app/manifest.webmanifest",
   icons: {
     icon: "/app/icon.png",
-    apple: "/app/icon.png",
+    apple: "/app/icon-512.png",
   },
   appleWebApp: { capable: true, title: "MyLifeSense", statusBarStyle: "default" },
 };
